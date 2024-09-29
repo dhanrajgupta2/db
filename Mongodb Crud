@@ -1,0 +1,163 @@
+Exp 2 : Design and Develop MongoDB Queries using CRUD
+operations. (Use CRUD operations, SAVE method, logical operators)
+
+
+to start mongodb using crud operation
+
+commands to start it
+
+- sudo systemctl enable mongod (after this statement write password which is student)
+
+
+( after password is accepted)
+
+- sudo systemctl start mongod
+- mongosh
+
+( mongodb is started )
+
+
+- show databases
+
+( random data will be displayed )
+
+- use db ( to make a folder )
+
+(after the folder has been made we will start our operation )
+
+- db.createCollection("users")
+
+( any random text with the message ok )
+
+- db.createCollection("posts")
+
+( any random text with the message ok )
+
+- show collections 
+
+( random text will displayed that the things users have putted inside )
+
+- db.users.insertMany([{"Name":"Dhanraj"},{"Name":"Adesh"}])
+
+( random text with the message of acknowledgement true )
+
+- db.users.find()
+
+( random text will tell the users that he found the data ) 
+
+- db.users.update({Name:"Adesh"},{$set:{Name:"Aryan"}}) 
+
+( it will change the name of Adesh to Aryan with the message of acknolwedgement true )
+
+- db.users.find() 
+
+( to check did our data updated or not ) 
+
+- db.users.deleteOne({Name:"Aryan"}) 
+
+( to delete the name Aryan )
+
+
+( TO USE COMPARISION STATEMENT )
+
+
+- db.createCollection("products")
+
+
+
+- db.products.insertMany([
+    { name: 'Laptop', price: 1200, category: 'Electronics' },
+    { name: 'Mouse', price: 25, category: 'Electronics' },
+    { name: 'Keyboard', price: 50, category: 'Electronics' },
+    { name: 'Desk', price: 300, category: 'Furniture' },
+    { name: 'Chair', price: 150, category: 'Furniture' }
+])
+
+ ( Using $eq and $ne)
+
+// Products in the Electronics category
+
+- db.products.find({ category: { $eq: 'Electronics' } })
+
+// Products not in the Electronics category
+
+- db.products.find({ category: { $ne: 'Electronics' } })
+
+( Using $gt and $lt )
+
+// Products costing more than $100
+
+- db.products.find({ price: { $gt: 100 } })
+
+// Products costing less than $100
+
+- db.products.find({ price: { $lt: 100 } })
+
+( Using $gte and $lte )
+
+// Products costing $50 or more
+
+- db.products.find({ price: { $gte: 50 } })
+
+// Products costing $150 or less
+
+- db.products.find({ price: { $lte: 150 } })
+
+( Using $in )
+
+// Products in selected categories
+
+- db.products.find({ category: { $in: ['Electronics', 'Furniture'] } })
+
+- db.products.find().pretty()
+
+
+( USING LOGICAL OPERATOR ) 
+
+
+- db.createCollection("product")
+
+- db.product.insertMany([
+    { name: 'Laptop', price: 1200, category: 'Electronics' },
+    { name: 'Mouse', price: 25, category: 'Electronics' },
+    { name: 'Keyboard', price: 50, category: 'Electronics' },
+    { name: 'Desk', price: 300, category: 'Furniture' },
+    { name: 'Chair', price: 150, category: 'Furniture' },
+    { name: 'Monitor', price: 300, category: 'Electronics' },
+    { name: 'Lamp', price: 40, category: 'Furniture' }
+])
+
+
+( Using $and Find products that are in the Electronics category and cost more than $100: )
+
+- db.product.find({
+    $and: [
+        { category: { $eq: 'Electronics' } },
+        { price: { $gt: 100 } }
+    ]
+})
+
+
+( Using $or Find products that are either in Electronics or cost less than $50:)
+
+- db.product.find({
+    $or: [
+        { category: { $eq: 'Electronics' } },
+        { price: { $lt: 50 } }
+    ]
+})
+
+( Using $nor Find products that are neither in the Electronics category nor cost more than $150:)
+
+- db.product.find({
+    $nor: [
+        { category: { $eq: 'Electronics' } },
+        { price: { $gt: 150 } }
+    ]
+})
+
+( Using $not Find products that do not cost more than $150:
+
+- db.product.find({
+    price: { $not: { $gt: 150 } }
+})
