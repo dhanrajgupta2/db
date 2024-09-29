@@ -1,0 +1,67 @@
+Exp 3 : To design SQL Queries for suitable database application using all types of Joins, Sub-Query and
+View. Write at least10 SQL queries for suitable database application using SQL DML
+statements.
+
+
+-- Query 1: Inner Join - Retrieve employee names and the department they work in.
+SELECT e.first_name, e.last_name, d.department_name
+FROM Employees e
+INNER JOIN Departments d ON e.department_id = d.department_id;
+
+-- Query 2: Left Join - Retrieve all employees and their assigned projects.
+SELECT e.first_name, e.last_name, p.project_name
+FROM Employees e
+LEFT JOIN Employee_Projects ep ON e.employee_id = ep.employee_id
+LEFT JOIN Projects p ON ep.project_id = p.project_id;
+
+-- Query 3: Right Join - List all departments and their employees.
+SELECT d.department_name, e.first_name, e.last_name
+FROM Employees e
+RIGHT JOIN Departments d ON e.department_id = d.department_id;
+
+-- Query 4: Full Outer Join - List all employees and departments.
+SELECT e.first_name, e.last_name, d.department_name
+FROM Employees e
+FULL OUTER JOIN Departments d ON e.department_id = d.department_id;
+
+-- Query 5: Correlated Sub-query - List employees with a salary above the average in their department.
+SELECT first_name, last_name, salary
+FROM Employees e1
+WHERE salary > (SELECT AVG(salary) 
+                FROM Employees e2 
+                WHERE e1.department_id = e2.department_id);
+
+-- Query 6: Non-correlated Sub-query - Find employees working in the same city as the "Sales" department.
+SELECT first_name, last_name
+FROM Employees
+WHERE department_id IN (SELECT department_id
+                        FROM Departments d
+                        JOIN Locations l ON d.location_id = l.location_id
+                        WHERE d.department_name = 'Sales');
+
+-- Query 7: Self Join - List employees along with their managers' names.
+SELECT e.first_name AS Employee, m.first_name AS Manager
+FROM Employees e
+LEFT JOIN Employees m ON e.manager_id = m.employee_id;
+
+-- Query 8: Create a View - Employee details with department and location.
+CREATE VIEW EmployeeDetails AS
+SELECT e.first_name, e.last_name, d.department_name, l.city, l.country
+FROM Employees e
+JOIN Departments d ON e.department_id = d.department_id
+JOIN Locations l ON d.location_id = l.location_id;
+
+-- Query 9: Using the View - Retrieve employee details using the created view.
+SELECT *
+FROM EmployeeDetails;
+
+-- Query 10: Sub-query with EXISTS - List employees assigned to at least one project.
+SELECT first_name, last_name
+FROM Employees e
+WHERE EXISTS (SELECT 1 
+              FROM Employee_Projects ep 
+              WHERE e.employee_id = ep.employee_id);
+
+
+
+
