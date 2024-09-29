@@ -62,6 +62,90 @@ WHERE EXISTS (SELECT 1
               FROM Employee_Projects ep 
               WHERE e.employee_id = ep.employee_id);
 
+EXAMPLE WITH TABLES 
+
+
+( CREATE TABLE )
+
+
+
+-- Create Employees table
+CREATE TABLE Employees (
+    employee_id INT PRIMARY KEY,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    department_id INT,
+    salary DECIMAL(10, 2),
+    manager_id INT
+);
+
+-- Create Departments table
+CREATE TABLE Departments (
+    department_id INT PRIMARY KEY,
+    department_name VARCHAR(50),
+    location_id INT
+);
+
+-- Create Locations table
+CREATE TABLE Locations (
+    location_id INT PRIMARY KEY,
+    city VARCHAR(50),
+    country VARCHAR(50)
+);
+
+-- Create Projects table
+CREATE TABLE Projects (
+    project_id INT PRIMARY KEY,
+    project_name VARCHAR(50),
+    department_id INT
+);
+
+-- Create Employee_Projects table (junction table for many-to-many relationship)
+CREATE TABLE Employee_Projects (
+    employee_id INT,
+    project_id INT,
+    PRIMARY KEY (employee_id, project_id)
+);
+
+
+( INSERT DATA )
+
+
+-- Insert data into Employees table
+INSERT INTO Employees (employee_id, first_name, last_name, department_id, salary, manager_id) VALUES
+(1, 'John', 'Doe', 101, 5000, NULL),
+(2, 'Jane', 'Smith', 102, 4000, 1),
+(3, 'Bob', 'Johnson', 101, 4500, 1),
+(4, 'Alice', 'Brown', 103, 6000, NULL),
+(5, 'Charlie', 'Davis', 102, 3800, 2);
+
+-- Insert data into Departments table
+INSERT INTO Departments (department_id, department_name, location_id) VALUES
+(101, 'IT', 201),
+(102, 'HR', 202),
+(103, 'Sales', 203);
+
+-- Insert data into Locations table
+INSERT INTO Locations (location_id, city, country) VALUES
+(201, 'New York', 'USA'),
+(202, 'London', 'UK'),
+(203, 'Sydney', 'Australia');
+
+-- Insert data into Projects table
+INSERT INTO Projects (project_id, project_name, department_id) VALUES
+(301, 'Alpha', 101),
+(302, 'Beta', 102),
+(303, 'Gamma', 103);
+
+-- Insert data into Employee_Projects table
+INSERT INTO Employee_Projects (employee_id, project_id) VALUES
+(1, 301),
+(2, 302),
+(3, 301),
+(5, 302);
+
+
+
 
 
 
