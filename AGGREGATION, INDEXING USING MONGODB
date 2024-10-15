@@ -1,0 +1,81 @@
+Exp 5 : Implement aggregation and indexing with suitable example
+using MongoDB.
+
+
+
+use ecommerce; // Switch to the 'ecommerce' database
+
+db.sales.drop(); // Drop the collection if it exists
+
+db.sales.insertMany([
+    { item: "apple", quantity: 10, price: 1.00, date: ISODate("2023-10-01") },
+    { item: "banana", quantity: 5, price: 0.50, date: ISODate("2023-10-02") },
+    { item: "orange", quantity: 15, price: 0.80, date: ISODate("2023-10-03") },
+    { item: "apple", quantity: 20, price: 1.00, date: ISODate("2023-10-04") },
+    { item: "banana", quantity: 10, price: 0.50, date: ISODate("2023-10-05") }
+]);
+
+Example 1: Using $sum, $avg, $min, $max
+
+db.sales.aggregate([
+    {
+        $group: {
+            _id: null,
+            totalQuantity: { $sum: "$quantity" },
+            averagePrice: { $avg: "$price" },
+            minPrice: { $min: "$price" },
+            maxPrice: { $max: "$price" }
+        }
+    }
+]);
+
+Example 2: Using $push and $addToSet
+
+db.sales.aggregate([
+    {
+        $group: {
+            _id: null,
+            allItems: { $push: "$item" },
+            uniqueItems: { $addToSet: "$item" }
+        }
+    }
+]);
+
+Example 3: Using $first and $last
+
+db.sales.aggregate([
+    {
+        $sort: { date: 1 }
+    },
+    {
+        $group: {
+            _id: null,
+            firstItem: { $first: "$item" },
+            lastItem: { $last: "$item" }
+        }
+    }
+]);
+
+( Indexing Examples )
+
+Example 1: Create an Index on a Single Field
+
+db.sales.createIndex({ item: 1 });
+
+Example 2: Create a Unique Index
+
+db.sales.createIndex({ item: 1 }, { unique: true });
+
+Example 3: Sparse Indexes
+
+db.sales.createIndex({ quantity: 1 }, { sparse: true });
+
+Example 4: Create a Hashed Index
+
+db.sales.createIndex({ item: "hashed" });
+
+Example 5: Drop the Index
+
+db.sales.getIndexes();
+
+
