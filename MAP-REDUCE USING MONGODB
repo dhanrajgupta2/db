@@ -1,0 +1,37 @@
+exp 6 : Implement Map reduce operations with suitable example using
+MongoDB
+
+
+# Create a database and collection
+use salesDB
+
+# Insert sample data
+db.sales.insertMany([
+    { item: "apple", quantity: 10, price: 1.5 },
+    { item: "banana", quantity: 20, price: 0.5 },
+    { item: "orange", quantity: 15, price: 0.8 },
+    { item: "apple", quantity: 5, price: 1.5 },
+    { item: "banana", quantity: 25, price: 0.5 }
+])
+
+# Define Map function
+var mapFunction = function() {
+    emit(this.item, this.quantity);
+};
+
+# Define Reduce function
+var reduceFunction = function(key, values) {
+    return Array.sum(values);
+};
+
+# Execute MapReduce
+db.sales.mapReduce(
+    mapFunction,
+    reduceFunction,
+    { out: "sales_summary" }
+)
+
+# View results
+db.sales_summary.find().pretty()
+
+
