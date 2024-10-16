@@ -1,0 +1,95 @@
+exp 4 : Write a database trigger on Library table. The System should keep 
+track of the records that are being updated or deleted. The old value of updated or deleted 
+records should be added in Library_Audit table
+
+step 1 
+
+-- Drop the Library table if it exists
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE Library';
+EXCEPTION
+    WHEN OTHERS THEN
+        NULL; -- Ignore errors if table does not exist
+END;
+/
+
+-- Create the Library table
+CREATE TABLE Library (
+    Book_ID NUMBER PRIMARY KEY,
+    Title VARCHAR2(200),
+    Author VARCHAR2(100),
+    Published_Year NUMBER,
+    Status VARCHAR2(20) -- e.g., 'Available', 'Checked Out'
+);
+
+step 2 
+
+-- Drop the Library_Audit table if it exists
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE Library_Audit';
+EXCEPTION
+    WHEN OTHERS THEN
+        NULL; -- Ignore errors if table does not exist
+END;
+/
+
+-- Create the Library_Audit table
+CREATE TABLE Library_Audit (
+    Audit_ID NUMBER PRIMARY KEY,
+    Book_ID NUMBER,
+    Title VARCHAR2(200),
+    Author VARCHAR2(100),
+    Published_Year NUMBER,
+    Status VARCHAR2(20),
+    Change_Type VARCHAR2(10), -- 'UPDATE' or 'DELETE'
+    Change_Timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+step 3:
+
+-- Create a sequence for Audit_ID
+CREATE SEQUENCE Audit_Seq START WITH 1 INCREMENT BY 1;
+
+step 4 :
+
+CREATE OR REPLACE TRIGGER trg_Library_Audit
+AFTER UPDATE OR DELETE ON Library
+FOR EACH ROW
+BEGIN
+    IF DELETING THEN
+        INSERT INTO Library_Audit (Audit_ID, Book_ID, Title, Author, Published_Year, Status, Change_Type)
+        VALUES (Audit_Seq.NEXTVAL, :OLD.Book_ID, :OLD.Title, :OLD.Author, :OLD.Published_Year, :OLD.Status, 'DELETE');
+    ELSIF UPDATING THEN
+        INSERT INTO Library_Audit (Audit_ID, Book_ID, Title, Author, Published_Year, Status, Change_Type)
+        VALUES (Audit_Seq.NEXTVAL, :OLD.Book_ID, :OLD.Title, :OLD.Author, :OLD.Published_Year, :OLD.Status, 'UPDATE');
+    END IF;
+END;
+/
+
+step 5 :
+
+-- Insert sample data into Library
+INSERT INTO Library (Book_ID, Title, Author, Published_Year, Status) VALUES (1, 'The Great Gatsby', 'F. Scott Fitzgerald', 1925, 'Available');
+INSERT INTO Library (Book_ID, Title, Author, Published_Year, Status) VALUES (2, 'To Kill a Mockingbird', 'Harper Lee', 1960, 'Available');
+INSERT INTO Library (Book_ID, Title, Author, Published_Year, Status) VALUES (3, '1984', 'George Orwell', 1949, 'Checked Out');
+
+COMMIT;
+
+step 6 :
+
+-- Update a record in Library
+UPDATE Library
+SET Status = 'Checked Out'
+WHERE Book_ID = 1;
+
+-- Delete a record from Library
+DELETE FROM Library
+WHERE Book_ID = 2;
+
+COMMIT;
+
+step 7 :
+
+-- Query the Library_Audit table to see the audit logs
+SELECT * FROM Library_Audit;
+
