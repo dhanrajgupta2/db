@@ -1,0 +1,96 @@
+exp 2 : Write a Stored Procedure namely proc_Grade for the
+categorization of student. If marks scored by students in examination is <=1500 and
+marks>=990 then student will be placed in distinction category if marks scored are between
+989 and900 category is first class, if marks 899 and 825 category is Higher Second Class.
+Write a PL/SQL block for using procedure created with above requirement.
+Stud_Marks(name, total_marks) Result (Roll,Name, Class)
+
+
+-- Drop the Result table if it exists
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE Result';
+EXCEPTION
+    WHEN OTHERS THEN
+        NULL; -- Ignore errors if the table does not exist
+END;
+/
+
+-- Drop the Stud_Marks table if it exists
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE Stud_Marks';
+EXCEPTION
+    WHEN OTHERS THEN
+        NULL; -- Ignore errors if the table does not exist
+END;
+/
+
+step 1:
+
+-- Create the Stud_Marks table
+CREATE TABLE Stud_Marks (
+    Roll NUMBER PRIMARY KEY,
+    Name VARCHAR2(100),
+    Total_Marks NUMBER
+);
+
+-- Create the Result table
+CREATE TABLE Result (
+    Roll NUMBER,
+    Name VARCHAR2(100),
+    Class VARCHAR2(50),
+    FOREIGN KEY (Roll) REFERENCES Stud_Marks(Roll)
+);
+
+step 2 : 
+
+CREATE OR REPLACE PROCEDURE proc_Grade IS
+    CURSOR student_cursor IS
+        SELECT Roll, Name, Total_Marks FROM Stud_Marks;
+
+    v_class VARCHAR2(50);
+BEGIN
+    FOR student IN student_cursor LOOP
+        -- Determine the class based on Total_Marks
+        IF student.Total_Marks <= 1500 AND student.Total_Marks >= 990 THEN
+            v_class := 'Distinction';
+        ELSIF student.Total_Marks < 990 AND student.Total_Marks >= 900 THEN
+            v_class := 'First Class';
+        ELSIF student.Total_Marks < 900 AND student.Total_Marks >= 825 THEN
+            v_class := 'Higher Second Class';
+        ELSE
+            v_class := 'Fail'; -- For marks below 825
+        END IF;
+
+        -- Insert the result into the Result table
+        INSERT INTO Result (Roll, Name, Class)
+        VALUES (student.Roll, student.Name, v_class);
+    END LOOP;
+
+    COMMIT;
+END;
+/
+
+Step 3: Insert Sample Data
+
+-- Insert sample data into Stud_Marks
+INSERT INTO Stud_Marks (Roll, Name, Total_Marks) VALUES (1, 'Alice', 1200);
+INSERT INTO Stud_Marks (Roll, Name, Total_Marks) VALUES (2, 'Bob', 850);
+INSERT INTO Stud_Marks (Roll, Name, Total_Marks) VALUES (3, 'Charlie', 950);
+INSERT INTO Stud_Marks (Roll, Name, Total_Marks) VALUES (4, 'Diana', 780);
+INSERT INTO Stud_Marks (Roll, Name, Total_Marks) VALUES (5, 'Eve', 1300);
+
+COMMIT;
+
+Step 4: Execute the Procedure
+
+-- Execute the stored procedure
+BEGIN
+    proc_Grade;
+END;
+/
+
+
+Step 5: Check the Results
+
+-- Query the Result table to see the classifications
+SELECT * FROM Result;
