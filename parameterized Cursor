@@ -1,0 +1,90 @@
+exp 3 : Write a PL/SQL block of code using parameterized Cursor that
+will merge the data available in the newly created table N_RollCall with the data available in
+the table O_RollCall. If the data in the first table already exist in the second table then that data
+should be skipped. Also demonstrate working of all types of cursors.
+
+step 1 :
+
+-- Drop tables if they already exist (to avoid errors)
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE N_RollCall';
+    EXECUTE IMMEDIATE 'DROP TABLE O_RollCall';
+EXCEPTION
+    WHEN OTHERS THEN
+        NULL; -- Ignore errors if tables do not exist
+END;
+/
+
+-- Create the O_RollCall table
+CREATE TABLE O_RollCall (
+    Roll NUMBER PRIMARY KEY,
+    Name VARCHAR2(100)
+);
+
+-- Create the N_RollCall table
+CREATE TABLE N_RollCall (
+    Roll NUMBER,
+    Name VARCHAR2(100)
+);
+
+step 2 : 
+
+-- Insert sample data into O_RollCall (existing data)
+INSERT INTO O_RollCall (Roll, Name) VALUES (1, 'Alice');
+INSERT INTO O_RollCall (Roll, Name) VALUES (2, 'Bob');
+INSERT INTO O_RollCall (Roll, Name) VALUES (3, 'Charlie');
+
+-- Insert sample data into N_RollCall (new data)
+INSERT INTO N_RollCall (Roll, Name) VALUES (2, 'Bob');      -- Duplicate
+INSERT INTO N_RollCall (Roll, Name) VALUES (4, 'Diana');    -- New entry
+INSERT INTO N_RollCall (Roll, Name) VALUES (5, 'Eve');      -- New entry
+
+COMMIT;
+
+step 3 : 
+
+DECLARE
+    -- Define a parameterized cursor to select data from N_RollCall
+    CURSOR n_cursor (p_roll NUMBER) IS
+        SELECT Roll, Name FROM N_RollCall WHERE Roll = p_roll;
+
+    v_roll NUMBER;
+    v_name VARCHAR2(100);
+    v_found NUMBER; -- Change from BOOLEAN to NUMBER
+BEGIN
+    -- Loop through each entry in N_RollCall
+    FOR n_rec IN (SELECT Roll, Name FROM N_RollCall) LOOP
+        -- Check if the current Roll exists in O_RollCall
+        SELECT COUNT(*)
+        INTO v_found
+        FROM O_RollCall
+        WHERE Roll = n_rec.Roll;
+
+        -- If the roll does not exist, merge it into O_RollCall
+        IF v_found = 0 THEN
+            -- Use the parameterized cursor to get the roll and name
+            OPEN n_cursor(n_rec.Roll);
+            FETCH n_cursor INTO v_roll, v_name;
+            
+            -- Ensure that the cursor fetches successfully before inserting
+            IF n_cursor%FOUND THEN
+                INSERT INTO O_RollCall (Roll, Name) VALUES (v_roll, v_name);
+            END IF;
+            CLOSE n_cursor;
+        END IF;
+    END LOOP;
+
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('Merge completed. New entries added.');
+
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('An error occurred: ' || SQLERRM);
+        ROLLBACK;
+END;
+/
+
+step 4 :
+
+-- Query the O_RollCall table to see the results
+SELECT * FROM O_RollCall;
