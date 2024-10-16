@@ -1,0 +1,881 @@
+Exp 1 : To design and develop SQL DDL statements which demonstrate
+the use of SQL objects such as Table, View, Index, Sequence and Synonym.
+
+
+-- 1. Create a Table
+CREATE TABLE employees (
+    employee_id SERIAL PRIMARY KEY,  -- Automatically uses a sequence for unique IDs
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    email VARCHAR(100) UNIQUE,  -- Ensure unique emails
+    hire_date DATE NOT NULL,
+    salary NUMERIC(10, 2)
+);
+
+-- 2. Create a View to show high-earning employees
+CREATE VIEW high_earning_employees AS
+SELECT first_name, last_name, salary
+FROM employees
+WHERE salary > 50000;
+
+-- 3. Create an Index for fast lookups by email
+CREATE INDEX idx_employee_email ON employees(email);
+
+-- 4. Create a Sequence (though SERIAL already does this, here’s how to create one manually)
+CREATE SEQUENCE emp_seq
+START WITH 1000
+INCREMENT BY 1;
+
+-- 5. Create a Synonym for the employees table
+-- Note: PostgreSQL does not support synonyms natively. 
+--       However, you can use a view or alias. For other databases, the syntax may be different.
+-- Example for Oracle or other databases:
+-- CREATE SYNONYM emp_synonym FOR employees;
+
+-- Since PostgreSQL doesn't have synonyms, we'll use an alias here as a placeholder
+-- In Oracle, the following would be valid: CREATE SYNONYM emp_synonym FOR employees;
+-- In PostgreSQL, you can use this approach instead:
+CREATE VIEW emp_synonym AS SELECT * FROM employees;
+
+-- Optional: Insert some sample data into the employees table
+INSERT INTO employees (first_name, last_name, email, hire_date, salary)
+VALUES 
+('John', 'Doe', 'john.doe@example.com', '2023-08-10', 60000),
+('Jane', 'Smith', 'jane.smith@example.com', '2022-05-15', 45000),
+('Alice', 'Johnson', 'alice.johnson@example.com', '2021-03-22', 75000);
+
+<======================================================================================================================================================================================================================================================================================================>
+
+exp 1 : Write a PL/SQL block of code for the following requirements:-
+Schema:
+1. Borrower(Rollin, Name, DateofIssue, NameofBook, Status)
+2. Fine(Roll_no,Date,Amt)
+Accept roll_no & name of book from user. Check the number of days (from date of issue), if
+days are between 15 to 30 then fine amount will be Rs 5 per day. If no. of days>30, per day
+fine will be Rs 50 per day & for days less than 30, Rs. 5 per day. After submitting the book,
+status will change from I to R. If condition of fine is true, then details will be stored into fine
+table.
+
+
+-- Drop the tables if they exist (to avoid conflicts)
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE Fine';
+    EXECUTE IMMEDIATE 'DROP TABLE Borrower';
+EXCEPTION
+    WHEN OTHERS THEN
+        NULL; -- Ignore errors if tables do not exist
+END;
+/
+step 1 :
+
+-- Create the Borrower table
+CREATE TABLE Borrower (
+    Rollin NUMBER PRIMARY KEY,
+    Name VARCHAR2(100),
+    DateofIssue DATE,
+    NameOfBook VARCHAR2(100), -- Corrected column name to "NameOfBook"
+    Status CHAR(1) CHECK (Status IN ('I', 'R')) -- I for Issued, R for Returned
+);
+
+-- Create the Fine table
+CREATE TABLE Fine (
+    Roll_no NUMBER,
+    Fine_Date DATE,
+    Amt NUMBER,
+    FOREIGN KEY (Roll_no) REFERENCES Borrower(Rollin)
+);
+
+step 2 :
+-- Insert sample data into Borrower
+INSERT INTO Borrower (Rollin, Name, DateofIssue, NameOfBook, Status) -- Use "NameOfBook"
+VALUES (3, 'Charlie', TO_DATE('2024-09-05', 'YYYY-MM-DD'), 'Database Fundamentals', 'I');
+
+INSERT INTO Borrower (Rollin, Name, DateofIssue, NameOfBook, Status) -- Use "NameOfBook"
+VALUES (4, 'Diana', TO_DATE('2024-09-20', 'YYYY-MM-DD'), 'Advanced SQL', 'I');
+
+COMMIT;
+
+step 3:
+
+DECLARE
+    v_roll_no NUMBER;
+    v_name_of_book VARCHAR2(100);
+    v_date_of_issue DATE;
+    v_days INT;
+    v_fine_amt NUMBER := 0;
+    v_current_date DATE := SYSDATE; -- Current date
+    v_status CHAR(1) := 'R'; -- Set status to Returned
+
+BEGIN
+    -- Accept inputs
+    v_roll_no := &roll_no; -- Prompt user for roll_no
+    v_name_of_book := '&name_of_book'; -- Prompt user for name of book
+
+    -- Fetch the Date of Issue from Borrower table
+    SELECT DateofIssue INTO v_date_of_issue
+    FROM Borrower
+    WHERE Rollin = v_roll_no AND NameofBook = v_name_of_book AND Status = 'I';
+
+    -- Calculate number of days between current date and date of issue
+    v_days := TRUNC(v_current_date - v_date_of_issue);
+
+    -- Calculate fine based on the number of days
+    IF v_days > 30 THEN
+        v_fine_amt := (v_days - 30) * 50 + 30 * 5; -- Fine for more than 30 days
+    ELSIF v_days >= 15 AND v_days <= 30 THEN
+        v_fine_amt := v_days * 5; -- Fine for 15 to 30 days
+    ELSIF v_days < 15 THEN
+        v_fine_amt := 0; -- No fine for less than 15 days
+    END IF;
+
+    -- Update status in Borrower table
+    UPDATE Borrower
+    SET Status = v_status
+    WHERE Rollin = v_roll_no AND NameofBook = v_name_of_book AND Status = 'I';
+
+    -- Insert fine record if applicable
+    IF v_fine_amt > 0 THEN
+        INSERT INTO Fine (Roll_no, Fine_Date, Amt)
+        VALUES (v_roll_no, v_current_date, v_fine_amt);
+    END IF;
+
+    -- Commit the transaction
+    COMMIT;
+
+    -- Output the fine amount if any
+    IF v_fine_amt > 0 THEN
+        DBMS_OUTPUT.PUT_LINE('Fine Amount: ' || v_fine_amt);
+    ELSE
+        DBMS_OUTPUT.PUT_LINE('No fine applicable.');
+    END IF;
+
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('No record found for the provided Roll No and Book Name.');
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('An error occurred: ' || SQLERRM);
+        ROLLBACK;
+END;
+
+<=======================================================================================================================================================================================================================================================================================================>
+
+Exp 2 : Design and Develop MongoDB Queries using CRUD
+operations. (Use CRUD operations, SAVE method, logical operators)
+
+
+to start mongodb using crud operation
+
+commands to start it
+
+- sudo systemctl enable mongod (after this statement write password which is student)
+
+
+( after password is accepted)
+
+- sudo systemctl start mongod
+- mongosh
+
+( mongodb is started )
+
+
+- show databases
+
+( random data will be displayed )
+
+- use db ( to make a folder )
+
+(after the folder has been made we will start our operation )
+
+- db.createCollection("users")
+
+( any random text with the message ok )
+
+- db.createCollection("posts")
+
+( any random text with the message ok )
+
+- show collections 
+
+( random text will displayed that the things users have putted inside )
+
+- db.users.insertMany([{"Name":"Dhanraj"},{"Name":"Adesh"}])
+
+( random text with the message of acknowledgement true )
+
+- db.users.find()
+
+( random text will tell the users that he found the data ) 
+
+- db.users.update({Name:"Adesh"},{$set:{Name:"Aryan"}}) 
+
+( it will change the name of Adesh to Aryan with the message of acknolwedgement true )
+
+- db.users.find() 
+
+( to check did our data updated or not ) 
+
+- db.users.deleteOne({Name:"Aryan"}) 
+
+( to delete the name Aryan )
+
+
+( TO USE COMPARISION STATEMENT )
+
+
+- db.createCollection("products")
+
+
+
+- db.products.insertMany([
+    { name: 'Laptop', price: 1200, category: 'Electronics' },
+    { name: 'Mouse', price: 25, category: 'Electronics' },
+    { name: 'Keyboard', price: 50, category: 'Electronics' },
+    { name: 'Desk', price: 300, category: 'Furniture' },
+    { name: 'Chair', price: 150, category: 'Furniture' }
+])
+
+ ( Using $eq and $ne)
+
+// Products in the Electronics category
+
+- db.products.find({ category: { $eq: 'Electronics' } })
+
+// Products not in the Electronics category
+
+- db.products.find({ category: { $ne: 'Electronics' } })
+
+( Using $gt and $lt )
+
+// Products costing more than $100
+
+- db.products.find({ price: { $gt: 100 } })
+
+// Products costing less than $100
+
+- db.products.find({ price: { $lt: 100 } })
+
+( Using $gte and $lte )
+
+// Products costing $50 or more
+
+- db.products.find({ price: { $gte: 50 } })
+
+// Products costing $150 or less
+
+- db.products.find({ price: { $lte: 150 } })
+
+( Using $in )
+
+// Products in selected categories
+
+- db.products.find({ category: { $in: ['Electronics', 'Furniture'] } })
+
+- db.products.find().pretty()
+
+
+( USING LOGICAL OPERATOR ) 
+
+
+- db.createCollection("product")
+
+- db.product.insertMany([
+    { name: 'Laptop', price: 1200, category: 'Electronics' },
+    { name: 'Mouse', price: 25, category: 'Electronics' },
+    { name: 'Keyboard', price: 50, category: 'Electronics' },
+    { name: 'Desk', price: 300, category: 'Furniture' },
+    { name: 'Chair', price: 150, category: 'Furniture' },
+    { name: 'Monitor', price: 300, category: 'Electronics' },
+    { name: 'Lamp', price: 40, category: 'Furniture' }
+])
+
+
+( Using $and Find products that are in the Electronics category and cost more than $100: )
+
+- db.product.find({
+    $and: [
+        { category: { $eq: 'Electronics' } },
+        { price: { $gt: 100 } }
+    ]
+})
+
+
+( Using $or Find products that are either in Electronics or cost less than $50:)
+
+- db.product.find({
+    $or: [
+        { category: { $eq: 'Electronics' } },
+        { price: { $lt: 50 } }
+    ]
+})
+
+( Using $nor Find products that are neither in the Electronics category nor cost more than $150:)
+
+- db.product.find({
+    $nor: [
+        { category: { $eq: 'Electronics' } },
+        { price: { $gt: 150 } }
+    ]
+})
+
+( Using $not Find products that do not cost more than $150:
+
+- db.product.find({
+    price: { $not: { $gt: 150 } }
+})
+
+<===================================================================================================================================================================================================================================================================================================>
+
+exp 2 : Write a Stored Procedure namely proc_Grade for the
+categorization of student. If marks scored by students in examination is <=1500 and
+marks>=990 then student will be placed in distinction category if marks scored are between
+989 and900 category is first class, if marks 899 and 825 category is Higher Second Class.
+Write a PL/SQL block for using procedure created with above requirement.
+Stud_Marks(name, total_marks) Result (Roll,Name, Class)
+
+
+-- Drop the Result table if it exists
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE Result';
+EXCEPTION
+    WHEN OTHERS THEN
+        NULL; -- Ignore errors if the table does not exist
+END;
+/
+
+-- Drop the Stud_Marks table if it exists
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE Stud_Marks';
+EXCEPTION
+    WHEN OTHERS THEN
+        NULL; -- Ignore errors if the table does not exist
+END;
+/
+
+step 1:
+
+-- Create the Stud_Marks table
+CREATE TABLE Stud_Marks (
+    Roll NUMBER PRIMARY KEY,
+    Name VARCHAR2(100),
+    Total_Marks NUMBER
+);
+
+-- Create the Result table
+CREATE TABLE Result (
+    Roll NUMBER,
+    Name VARCHAR2(100),
+    Class VARCHAR2(50),
+    FOREIGN KEY (Roll) REFERENCES Stud_Marks(Roll)
+);
+
+step 2 : 
+
+CREATE OR REPLACE PROCEDURE proc_Grade IS
+    CURSOR student_cursor IS
+        SELECT Roll, Name, Total_Marks FROM Stud_Marks;
+
+    v_class VARCHAR2(50);
+BEGIN
+    FOR student IN student_cursor LOOP
+        -- Determine the class based on Total_Marks
+        IF student.Total_Marks <= 1500 AND student.Total_Marks >= 990 THEN
+            v_class := 'Distinction';
+        ELSIF student.Total_Marks < 990 AND student.Total_Marks >= 900 THEN
+            v_class := 'First Class';
+        ELSIF student.Total_Marks < 900 AND student.Total_Marks >= 825 THEN
+            v_class := 'Higher Second Class';
+        ELSE
+            v_class := 'Fail'; -- For marks below 825
+        END IF;
+
+        -- Insert the result into the Result table
+        INSERT INTO Result (Roll, Name, Class)
+        VALUES (student.Roll, student.Name, v_class);
+    END LOOP;
+
+    COMMIT;
+END;
+/
+
+Step 3: Insert Sample Data
+
+-- Insert sample data into Stud_Marks
+INSERT INTO Stud_Marks (Roll, Name, Total_Marks) VALUES (1, 'Alice', 1200);
+INSERT INTO Stud_Marks (Roll, Name, Total_Marks) VALUES (2, 'Bob', 850);
+INSERT INTO Stud_Marks (Roll, Name, Total_Marks) VALUES (3, 'Charlie', 950);
+INSERT INTO Stud_Marks (Roll, Name, Total_Marks) VALUES (4, 'Diana', 780);
+INSERT INTO Stud_Marks (Roll, Name, Total_Marks) VALUES (5, 'Eve', 1300);
+
+COMMIT;
+
+Step 4: Execute the Procedure
+
+-- Execute the stored procedure
+BEGIN
+    proc_Grade;
+END;
+/
+
+
+Step 5: Check the Results
+
+-- Query the Result table to see the classifications
+SELECT * FROM Result;
+
+<======================================================================================================================================================================================================================================================================================================>
+
+exp 3 : Write a PL/SQL block of code using parameterized Cursor that
+will merge the data available in the newly created table N_RollCall with the data available in
+the table O_RollCall. If the data in the first table already exist in the second table then that data
+should be skipped. Also demonstrate working of all types of cursors.
+
+step 1 :
+
+-- Drop tables if they already exist (to avoid errors)
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE N_RollCall';
+    EXECUTE IMMEDIATE 'DROP TABLE O_RollCall';
+EXCEPTION
+    WHEN OTHERS THEN
+        NULL; -- Ignore errors if tables do not exist
+END;
+/
+
+-- Create the O_RollCall table
+CREATE TABLE O_RollCall (
+    Roll NUMBER PRIMARY KEY,
+    Name VARCHAR2(100)
+);
+
+-- Create the N_RollCall table
+CREATE TABLE N_RollCall (
+    Roll NUMBER,
+    Name VARCHAR2(100)
+);
+
+step 2 : 
+
+-- Insert sample data into O_RollCall (existing data)
+INSERT INTO O_RollCall (Roll, Name) VALUES (1, 'Alice');
+INSERT INTO O_RollCall (Roll, Name) VALUES (2, 'Bob');
+INSERT INTO O_RollCall (Roll, Name) VALUES (3, 'Charlie');
+
+-- Insert sample data into N_RollCall (new data)
+INSERT INTO N_RollCall (Roll, Name) VALUES (2, 'Bob');      -- Duplicate
+INSERT INTO N_RollCall (Roll, Name) VALUES (4, 'Diana');    -- New entry
+INSERT INTO N_RollCall (Roll, Name) VALUES (5, 'Eve');      -- New entry
+
+COMMIT;
+
+step 3 : 
+
+DECLARE
+    -- Define a parameterized cursor to select data from N_RollCall
+    CURSOR n_cursor (p_roll NUMBER) IS
+        SELECT Roll, Name FROM N_RollCall WHERE Roll = p_roll;
+
+    v_roll NUMBER;
+    v_name VARCHAR2(100);
+    v_found NUMBER; -- Change from BOOLEAN to NUMBER
+BEGIN
+    -- Loop through each entry in N_RollCall
+    FOR n_rec IN (SELECT Roll, Name FROM N_RollCall) LOOP
+        -- Check if the current Roll exists in O_RollCall
+        SELECT COUNT(*)
+        INTO v_found
+        FROM O_RollCall
+        WHERE Roll = n_rec.Roll;
+
+        -- If the roll does not exist, merge it into O_RollCall
+        IF v_found = 0 THEN
+            -- Use the parameterized cursor to get the roll and name
+            OPEN n_cursor(n_rec.Roll);
+            FETCH n_cursor INTO v_roll, v_name;
+            
+            -- Ensure that the cursor fetches successfully before inserting
+            IF n_cursor%FOUND THEN
+                INSERT INTO O_RollCall (Roll, Name) VALUES (v_roll, v_name);
+            END IF;
+            CLOSE n_cursor;
+        END IF;
+    END LOOP;
+
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('Merge completed. New entries added.');
+
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('An error occurred: ' || SQLERRM);
+        ROLLBACK;
+END;
+/
+
+step 4 :
+
+-- Query the O_RollCall table to see the results
+SELECT * FROM O_RollCall;
+
+<==================================================================================================================================================================================================================================================================================================>
+
+Exp 3 : To design SQL Queries for suitable database application using all types of Joins, Sub-Query and
+View. Write at least10 SQL queries for suitable database application using SQL DML
+statements.
+
+
+-- Query 1: Inner Join - Retrieve employee names and the department they work in.
+SELECT e.first_name, e.last_name, d.department_name
+FROM Employees e
+INNER JOIN Departments d ON e.department_id = d.department_id;
+
+-- Query 2: Left Join - Retrieve all employees and their assigned projects.
+SELECT e.first_name, e.last_name, p.project_name
+FROM Employees e
+LEFT JOIN Employee_Projects ep ON e.employee_id = ep.employee_id
+LEFT JOIN Projects p ON ep.project_id = p.project_id;
+
+-- Query 3: Right Join - List all departments and their employees.
+SELECT d.department_name, e.first_name, e.last_name
+FROM Employees e
+RIGHT JOIN Departments d ON e.department_id = d.department_id;
+
+-- Query 4: Full Outer Join - List all employees and departments.
+SELECT e.first_name, e.last_name, d.department_name
+FROM Employees e
+FULL OUTER JOIN Departments d ON e.department_id = d.department_id;
+
+-- Query 5: Correlated Sub-query - List employees with a salary above the average in their department.
+SELECT first_name, last_name, salary
+FROM Employees e1
+WHERE salary > (SELECT AVG(salary) 
+                FROM Employees e2 
+                WHERE e1.department_id = e2.department_id);
+
+-- Query 6: Non-correlated Sub-query - Find employees working in the same city as the "Sales" department.
+SELECT first_name, last_name
+FROM Employees
+WHERE department_id IN (SELECT department_id
+                        FROM Departments d
+                        JOIN Locations l ON d.location_id = l.location_id
+                        WHERE d.department_name = 'Sales');
+
+-- Query 7: Self Join - List employees along with their managers' names.
+SELECT e.first_name AS Employee, m.first_name AS Manager
+FROM Employees e
+LEFT JOIN Employees m ON e.manager_id = m.employee_id;
+
+-- Query 8: Create a View - Employee details with department and location.
+CREATE VIEW EmployeeDetails AS
+SELECT e.first_name, e.last_name, d.department_name, l.city, l.country
+FROM Employees e
+JOIN Departments d ON e.department_id = d.department_id
+JOIN Locations l ON d.location_id = l.location_id;
+
+-- Query 9: Using the View - Retrieve employee details using the created view.
+SELECT *
+FROM EmployeeDetails;
+
+-- Query 10: Sub-query with EXISTS - List employees assigned to at least one project.
+SELECT first_name, last_name
+FROM Employees e
+WHERE EXISTS (SELECT 1 
+              FROM Employee_Projects ep 
+              WHERE e.employee_id = ep.employee_id);
+
+EXAMPLE WITH TABLES 
+
+
+( CREATE TABLE )
+
+
+
+-- Create Employees table
+CREATE TABLE Employees (
+    employee_id INT PRIMARY KEY,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    department_id INT,
+    salary DECIMAL(10, 2),
+    manager_id INT
+);
+
+-- Create Departments table
+CREATE TABLE Departments (
+    department_id INT PRIMARY KEY,
+    department_name VARCHAR(50),
+    location_id INT
+);
+
+-- Create Locations table
+CREATE TABLE Locations (
+    location_id INT PRIMARY KEY,
+    city VARCHAR(50),
+    country VARCHAR(50)
+);
+
+-- Create Projects table
+CREATE TABLE Projects (
+    project_id INT PRIMARY KEY,
+    project_name VARCHAR(50),
+    department_id INT
+);
+
+-- Create Employee_Projects table (junction table for many-to-many relationship)
+CREATE TABLE Employee_Projects (
+    employee_id INT,
+    project_id INT,
+    PRIMARY KEY (employee_id, project_id)
+);
+
+
+( INSERT DATA )
+
+
+-- Insert data into Employees table
+INSERT INTO Employees (employee_id, first_name, last_name, department_id, salary, manager_id) VALUES
+(1, 'John', 'Doe', 101, 5000, NULL),
+(2, 'Jane', 'Smith', 102, 4000, 1),
+(3, 'Bob', 'Johnson', 101, 4500, 1),
+(4, 'Alice', 'Brown', 103, 6000, NULL),
+(5, 'Charlie', 'Davis', 102, 3800, 2);
+
+-- Insert data into Departments table
+INSERT INTO Departments (department_id, department_name, location_id) VALUES
+(101, 'IT', 201),
+(102, 'HR', 202),
+(103, 'Sales', 203);
+
+-- Insert data into Locations table
+INSERT INTO Locations (location_id, city, country) VALUES
+(201, 'New York', 'USA'),
+(202, 'London', 'UK'),
+(203, 'Sydney', 'Australia');
+
+-- Insert data into Projects table
+INSERT INTO Projects (project_id, project_name, department_id) VALUES
+(301, 'Alpha', 101),
+(302, 'Beta', 102),
+(303, 'Gamma', 103);
+
+-- Insert data into Employee_Projects table
+INSERT INTO Employee_Projects (employee_id, project_id) VALUES
+(1, 301),
+(2, 302),
+(3, 301),
+(5, 302);
+
+<========================================================================================================================================================================================================================================================================================================>
+
+exp 4 : Write a database trigger on Library table. The System should keep 
+track of the records that are being updated or deleted. The old value of updated or deleted 
+records should be added in Library_Audit table
+
+step 1 
+
+-- Drop the Library table if it exists
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE Library';
+EXCEPTION
+    WHEN OTHERS THEN
+        NULL; -- Ignore errors if table does not exist
+END;
+/
+
+-- Create the Library table
+CREATE TABLE Library (
+    Book_ID NUMBER PRIMARY KEY,
+    Title VARCHAR2(200),
+    Author VARCHAR2(100),
+    Published_Year NUMBER,
+    Status VARCHAR2(20) -- e.g., 'Available', 'Checked Out'
+);
+
+step 2 
+
+-- Drop the Library_Audit table if it exists
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE Library_Audit';
+EXCEPTION
+    WHEN OTHERS THEN
+        NULL; -- Ignore errors if table does not exist
+END;
+/
+
+-- Create the Library_Audit table
+CREATE TABLE Library_Audit (
+    Audit_ID NUMBER PRIMARY KEY,
+    Book_ID NUMBER,
+    Title VARCHAR2(200),
+    Author VARCHAR2(100),
+    Published_Year NUMBER,
+    Status VARCHAR2(20),
+    Change_Type VARCHAR2(10), -- 'UPDATE' or 'DELETE'
+    Change_Timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+step 3:
+
+-- Create a sequence for Audit_ID
+CREATE SEQUENCE Audit_Seq START WITH 1 INCREMENT BY 1;
+
+step 4 :
+
+CREATE OR REPLACE TRIGGER trg_Library_Audit
+AFTER UPDATE OR DELETE ON Library
+FOR EACH ROW
+BEGIN
+    IF DELETING THEN
+        INSERT INTO Library_Audit (Audit_ID, Book_ID, Title, Author, Published_Year, Status, Change_Type)
+        VALUES (Audit_Seq.NEXTVAL, :OLD.Book_ID, :OLD.Title, :OLD.Author, :OLD.Published_Year, :OLD.Status, 'DELETE');
+    ELSIF UPDATING THEN
+        INSERT INTO Library_Audit (Audit_ID, Book_ID, Title, Author, Published_Year, Status, Change_Type)
+        VALUES (Audit_Seq.NEXTVAL, :OLD.Book_ID, :OLD.Title, :OLD.Author, :OLD.Published_Year, :OLD.Status, 'UPDATE');
+    END IF;
+END;
+/
+
+step 5 :
+
+-- Insert sample data into Library
+INSERT INTO Library (Book_ID, Title, Author, Published_Year, Status) VALUES (1, 'The Great Gatsby', 'F. Scott Fitzgerald', 1925, 'Available');
+INSERT INTO Library (Book_ID, Title, Author, Published_Year, Status) VALUES (2, 'To Kill a Mockingbird', 'Harper Lee', 1960, 'Available');
+INSERT INTO Library (Book_ID, Title, Author, Published_Year, Status) VALUES (3, '1984', 'George Orwell', 1949, 'Checked Out');
+
+COMMIT;
+
+step 6 :
+
+-- Update a record in Library
+UPDATE Library
+SET Status = 'Checked Out'
+WHERE Book_ID = 1;
+
+-- Delete a record from Library
+DELETE FROM Library
+WHERE Book_ID = 2;
+
+COMMIT;
+
+step 7 :
+
+-- Query the Library_Audit table to see the audit logs
+SELECT * FROM Library_Audit;
+
+<=====================================================================================================================================================================================================================================================================================================>
+
+Exp 5 : Implement aggregation and indexing with suitable example
+using MongoDB.
+
+
+
+use ecommerce; // Switch to the 'ecommerce' database
+
+db.sales.drop(); // Drop the collection if it exists
+
+db.sales.insertMany([
+    { item: "apple", quantity: 10, price: 1.00, date: ISODate("2023-10-01") },
+    { item: "banana", quantity: 5, price: 0.50, date: ISODate("2023-10-02") },
+    { item: "orange", quantity: 15, price: 0.80, date: ISODate("2023-10-03") },
+    { item: "apple", quantity: 20, price: 1.00, date: ISODate("2023-10-04") },
+    { item: "banana", quantity: 10, price: 0.50, date: ISODate("2023-10-05") }
+]);
+
+Example 1: Using $sum, $avg, $min, $max
+
+db.sales.aggregate([
+    {
+        $group: {
+            _id: null,
+            totalQuantity: { $sum: "$quantity" },
+            averagePrice: { $avg: "$price" },
+            minPrice: { $min: "$price" },
+            maxPrice: { $max: "$price" }
+        }
+    }
+]);
+
+Example 2: Using $push and $addToSet
+
+db.sales.aggregate([
+    {
+        $group: {
+            _id: null,
+            allItems: { $push: "$item" },
+            uniqueItems: { $addToSet: "$item" }
+        }
+    }
+]);
+
+Example 3: Using $first and $last
+
+db.sales.aggregate([
+    {
+        $sort: { date: 1 }
+    },
+    {
+        $group: {
+            _id: null,
+            firstItem: { $first: "$item" },
+            lastItem: { $last: "$item" }
+        }
+    }
+]);
+
+( Indexing Examples )
+
+Example 1: Create an Index on a Single Field
+
+db.sales.createIndex({ item: 1 });
+
+Example 2: Create a Unique Index
+
+db.sales.createIndex({ item: 1 }, { unique: true });
+
+Example 3: Sparse Indexes
+
+db.sales.createIndex({ quantity: 1 }, { sparse: true });
+
+Example 4: Create a Hashed Index
+
+db.sales.createIndex({ item: "hashed" });
+
+Example 5: Drop the Index
+
+db.sales.getIndexes();
+
+<====================================================================================================================================================================================================================================================================================================>
+
+exp 6 : Implement Map reduce operations with suitable example using
+MongoDB
+
+
+# Create a database and collection
+use salesDB
+
+# Insert sample data
+db.sales.insertMany([
+    { item: "apple", quantity: 10, price: 1.5 },
+    { item: "banana", quantity: 20, price: 0.5 },
+    { item: "orange", quantity: 15, price: 0.8 },
+    { item: "apple", quantity: 5, price: 1.5 },
+    { item: "banana", quantity: 25, price: 0.5 }
+])
+
+# Define Map function
+var mapFunction = function() {
+    emit(this.item, this.quantity);
+};
+
+# Define Reduce function
+var reduceFunction = function(key, values) {
+    return Array.sum(values);
+};
+
+# Execute MapReduce
+db.sales.mapReduce(
+    mapFunction,
+    reduceFunction,
+    { out: "sales_summary" }
+)
+
+# View results
+db.sales_summary.find().pretty()
