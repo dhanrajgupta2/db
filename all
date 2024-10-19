@@ -879,3 +879,148 @@ db.sales.mapReduce(
 
 # View results
 db.sales_summary.find().pretty()
+
+<==================================================================================================================================================================================================================================================================================================>
+
+exp 8 Write a program to implement MogoDB database connectivity
+with Java. Implement Database navigation operations (add, delete, edit etc.)
+
+  package Shradha;
+
+import com.mongodb.*;
+import java.util.Scanner;
+import java.net.UnknownHostException;
+import java.util.List;
+
+public class Ta_Ga {
+    private static MongoClient mongoClient;
+    private static DBCollection collection;
+
+    public static void main(String[] args) {
+        // Initialize connection to MongoDB
+        try {
+            mongoClient = new MongoClient("localhost", 27017);
+            DB db = mongoClient.getDB("Ta_Shradha");
+            collection = db.getCollection("Shradha_Hiremath");
+        } catch (UnknownHostException e) {
+            System.err.println("Error: Unable to connect to the MongoDB server. Please ensure it is running.");
+            return;
+        } catch (MongoException e) {
+            System.err.println("MongoDB error: " + e.getMessage());
+            return;
+        }
+
+        // Menu driven system to perform MongoDB operations
+        int choice;
+        Scanner scanner = new Scanner(System.in);
+
+        do {
+            // Display menu options
+            System.out.println("\nMenu:");
+            System.out.println("1. Insert Data");
+            System.out.println("2. Update Data");
+            System.out.println("3. Delete Data");
+            System.out.println("4. Display All Data");
+            System.out.println("5. Exit");
+            System.out.print("Enter your choice: ");
+            choice = scanner.nextInt();
+
+            // Handle user choices
+            switch (choice) {
+                case 1:
+                    insertData(scanner);
+                    break;
+                case 2:
+                    updateData(scanner);
+                    break;
+                case 3:
+                    deleteData(scanner);
+                    break;
+                case 4:
+                    displayAllData();
+                    break;
+                case 5:
+                    System.out.println("Exiting...");
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        } while (choice != 5);
+
+        scanner.close(); // Close scanner
+        mongoClient.close(); // Close MongoDB connection
+    }
+
+    // Method to insert data into MongoDB
+    private static void insertData(Scanner scanner) {
+        System.out.print("Enter name: ");
+        String name = scanner.next();
+        System.out.print("Enter age: ");
+        int age = scanner.nextInt();
+        System.out.print("Enter email: ");
+        String email = scanner.next();
+
+        // Create a document to insert
+        DBObject insertDoc = new BasicDBObject("name", name)
+                                    .append("age", age)
+                                    .append("email", email);
+        collection.insert(insertDoc); // Insert document
+        System.out.println("Data inserted successfully.");
+    }
+
+    // Method to update data in MongoDB
+    private static void updateData(Scanner scanner) {
+        System.out.print("Enter name of the user to update: ");
+        String name = scanner.next();
+
+        DBObject query = new BasicDBObject("name", name);
+        DBObject user = collection.findOne(query);
+
+        if (user != null) {
+            System.out.print("Enter new age: ");
+            int newAge = scanner.nextInt();
+            System.out.print("Enter new email: ");
+            String newEmail = scanner.next();
+
+            // Update age and email
+            DBObject updateDoc = new BasicDBObject("$set", 
+                                        new BasicDBObject("age", newAge)
+                                            .append("email", newEmail));
+            collection.update(query, updateDoc);
+            System.out.println("Data updated successfully.");
+        } else {
+            System.out.println("User not found.");
+        }
+    }
+
+    // Method to delete data from MongoDB
+    private static void deleteData(Scanner scanner) {
+        System.out.print("Enter name of the user to delete: ");
+        String name = scanner.next();
+
+        DBObject query = new BasicDBObject("name", name);
+        WriteResult result = collection.remove(query);
+
+        if (result.getN() > 0) {
+            System.out.println("Data deleted successfully.");
+        } else {
+            System.out.println("User not found.");
+        }
+    }
+
+    // Method to display all data from MongoDB
+    private static void displayAllData() {
+        DBCursor cursor = collection.find();
+        
+        if (!cursor.hasNext()) {
+            System.out.println("No data found.");
+            return;
+        }
+
+        System.out.println("Displaying all data:");
+        while (cursor.hasNext()) {
+            DBObject user = cursor.next();
+            System.out.println("Name: " + user.get("name") + ", Age: " + user.get("age") + ", Email: " + user.get("email"));
+        }
+    }
+}
