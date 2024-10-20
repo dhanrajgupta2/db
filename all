@@ -1024,3 +1024,178 @@ public class Ta_Ga {
         }
     }
 }
+
+<==================================================================================================================================================================================================================================================================================================>
+
+exp 8 : Implement MYSQL database connectivity with PHP. Implement
+Database navigation operations (add, delete, edit,)
+
+( connectivity )
+
+<?php
+$con=mysqli_connect('localhost','root','','student_info') or die("connection failed : ".mysqli_connect_error());
+if ($con) {
+  echo"Connection Established Successfully";
+}
+else{
+  echo"Connection Could not be Established. Some Error has occured";
+}
+if (mysqli_connect_errno())
+  {
+  echo"Failed to connect to MySQL: " . mysqli_connect_error();
+  }
+?>
+
+( home page )
+
+<!DOCTYPEhtml>
+<html>
+<head>
+    <title>insert records</title>
+</head>
+<body>
+<divclass="row text-center">
+    <divclass="container">
+        <h1>Insert Student Information</h1>
+    <formaction="home_page.php"method="post">
+    <b> Roll Number :     </b><inputtype="text"name="Roll_Number"placeholder="Enter Roll Number"><br><br>
+    <b> Student Name:    </b><inputtype="text"name="Student_Name"placeholder="Enter Student Name"><br><br>
+    <b>Class :                 </b><inputtype="text"name="Class"placeholder="Enter Class Name (TE A or TE B)"><br><br>
+    <b>Subject :     </b><inputtype="text"name="Subject"placeholder="Enter Subject Name"><br><br>
+    <b> Marks Obtained : </b><inputtype="text"name="Marks"placeholder="Enter Marks Obtained"><br><br>
+    <inputtype="submit"name="submit"value="Add Student Record"><br><br>
+    </form>
+<button><ahref="show_record.php">Show Students Records</a></button>
+    </div>
+</div>
+</body>
+</html>
+<?php
+error_reporting(0);
+include'db_connection.php';
+if (isset($_POST['submit'])) {
+    $Roll_Number = $_POST['Roll_Number'];
+    $Student_Name = $_POST['Student_Name'];
+    $Class = $_POST['Class'];
+    $Subject = $_POST['Subject'];
+    $Marks = $_POST['Marks'];
+    $sql = "INSERT INTO `te_2023` VALUES ('$Roll_Number','$Student_Name','$Class','$Subject','$Marks')";
+    $data=mysqli_query($con,$sql);
+    if ($data) {
+        echo"Student Record Inserted Sucessfully";
+    }else
+    {
+        echo"Record Could not be inserted. Some Error Occured";
+    }
+}
+?>
+
+( Delete page )
+
+<?php
+include ('db_connection.php');
+$id = $_GET['roll_no'];
+$sql ="DELETEFROM `te_2023` WHERERoll_No='$id'";
+$data = mysqli_query($con,$sql);
+if ($data) {
+    echo"deleted";
+    header('location:show_record.php');
+}else
+{
+    echo"error";
+}
+ ?>
+
+( show record )
+
+<!DOCTYPEhtml>
+<html>
+<head>
+    <title>show records</title>
+</head>
+<body>
+<?php
+include ('db_connection.php');
+$sql ="select * from te_2023";
+$data =mysqli_query($con,$sql);
+$total=mysqli_num_rows($data);
+if ($total=mysqli_num_rows($data)) {
+?>
+    <tableborder="2">
+<tr>
+<th>Roll Number</th>
+<th>Student Name</th>
+<th>Class</th>
+<th>Subject</th>
+<th>Marks Obtained</th>
+<th>Update Record</th>
+<th>Delete Record</th>
+</tr>
+    <?php
+    while ($result = mysqli_fetch_array($data)) {
+        echo"
+            <tr>
+                <td>".$result['Roll_No']."</td>
+                <td>".$result['Student_Name']."</td>
+                <td>".$result['Class']."</td>
+                <td>".$result['Subject']."</td>
+                <td>".$result['Marks_Obtained']."</td>
+                <td><a href='update_record.php?roll_no=$result[Roll_No] &studentname=$result[Student_Name] & class=$result[Class] & subject=$result[Subject] & marks=$result[Marks_Obtained]'> Update </a></td>
+                <td><a href='delete_record.php?roll_no=$result[Roll_No] '>Delete </a></td>
+            </tr>
+        ";
+    }
+}
+else
+{
+    echo"no record found";
+}
+?>
+</table>
+</body>
+</html>
+
+( update record )
+
+<!DOCTYPEhtml>
+<html>
+<head>
+    <title>update</title>
+</head>
+<body>
+<formaction=""method="get">
+    <inputtype="text"name="roll_no"placeholder="Enter Roll Number"value="<?phpecho$_GET['roll_no']; ?>"><br><br>
+    <inputtype="text"name="studentname"placeholder="Enter Student Name"value="<?phpecho$_GET['studentname']; ?>"><br><br>
+    <inputtype="text"name="class"placeholder="Enter Class"value="<?phpecho$_GET['class']; ?>"><br><br>
+    <inputtype="text"name="subject"placeholder="Enter Subject Name"value="<?phpecho$_GET['subject']; ?>"><br><br>
+    <inputtype="text"name="marks"placeholder="Enter Marks Obtained"value="<?phpecho$_GET['marks']; ?>"><br><br>
+    <inputtype="submit"name="submit"value="Update Record">
+</form>
+<?php
+error_reporting(0);
+include ('db_connection.php');
+
+if ($_GET['submit'])
+{
+    $roll_no = $_GET['roll_no'];
+    $studentname = $_GET['studentname'];
+    $class = $_GET['class'];
+    $subject = $_GET['subject'];
+    $marks = $_GET['marks'];
+    $sql="UPDATE te_2023 SETRoll_No='$roll_no' ,Student_Name='$studentname', Class='$class' , Subject='$subject', Marks_Obtained='$marks'   WHERERoll_No='$roll_no'";
+    $data=mysqli_query($con, $sql);
+    if ($data) {
+        echo"Record Updated Successfully";
+        header('location:show_record.php');
+    }
+    else{
+        echo"Record is not updated";
+    }
+}
+else
+{
+    echo"Click on  button to save the changes";
+}
+?>
+</body>
+</html>
