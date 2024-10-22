@@ -88,3 +88,169 @@ step 4 :
 
 -- Query the O_RollCall table to see the results
 SELECT * FROM O_RollCall;
+
+
+question 2 : Write a PL/SQL block of code demonstrating Implicit Cursor that will
+display total number of tuples from RollCall Table having schema as
+follows.
+RollCall (RollNo, Date, Attendance) The Attendance column can take
+values as ‘P’ or ‘A’
+Use Cursor Attributes to demonstrate the working of Implicit cursor.
+
+solution 
+
+Step 1: Create the StudentGrades Table
+
+-- Create the StudentGrades table
+CREATE TABLE StudentGrades (
+    StudentID NUMBER,                     -- Unique identifier for each student
+    Course VARCHAR2(50),                  -- Course name
+    Grade CHAR(1) CHECK (Grade IN ('A', 'B', 'C', 'D', 'F'))  -- Grade with a constraint
+);
+
+Step 2: Insert Sample Data into the StudentGrades Table
+
+-- Inserting sample data into StudentGrades table
+INSERT INTO StudentGrades (StudentID, Course, Grade) VALUES (1, 'Math', 'A');
+INSERT INTO StudentGrades (StudentID, Course, Grade) VALUES (2, 'Math', 'B');
+INSERT INTO StudentGrades (StudentID, Course, Grade) VALUES (3, 'Math', 'A');
+INSERT INTO StudentGrades (StudentID, Course, Grade) VALUES (4, 'Math', 'C');
+INSERT INTO StudentGrades (StudentID, Course, Grade) VALUES (5, 'Math', 'A');
+
+
+Step 3: PL/SQL Block to Count Students with Grade 'A'
+
+DECLARE
+    total_a_count NUMBER;  -- Variable to store the count of 'A' grades
+BEGIN
+    -- Implicit cursor to select count of students with grade 'A'
+    SELECT COUNT(*)
+    INTO total_a_count
+    FROM StudentGrades
+    WHERE Grade = 'A';
+
+    -- Display the total count using DBMS_OUTPUT
+    DBMS_OUTPUT.PUT_LINE('Total number of students with grade A: ' || total_a_count);
+
+    -- Display the row count using SQL%ROWCOUNT
+    DBMS_OUTPUT.PUT_LINE('Rows processed by the last SQL statement: ' || SQL%ROWCOUNT);
+END;
+/
+
+
+ question 3 : Write a PL/SQL block of code using Parameterized Cursor that will
+display all Attendance details of Roll No entered by the user.
+
+Step 1 : Create the StudentAttendance Table
+
+-- Create the StudentAttendance table
+CREATE TABLE StudentAttendance (
+    StudentID NUMBER,                       -- Unique identifier for each student
+    ClassDate DATE,                         -- Date of the class
+    Status VARCHAR2(10) CHECK (Status IN ('Present', 'Absent'))  -- Attendance status
+);
+
+Step 2: Insert Sample Data into the StudentAttendance Table
+
+-- Inserting sample data into StudentAttendance table
+INSERT INTO StudentAttendance (StudentID, ClassDate, Status) VALUES (101, TO_DATE('2024-10-01', 'YYYY-MM-DD'), 'Present');
+INSERT INTO StudentAttendance (StudentID, ClassDate, Status) VALUES (101, TO_DATE('2024-10-02', 'YYYY-MM-DD'), 'Absent');
+INSERT INTO StudentAttendance (StudentID, ClassDate, Status) VALUES (102, TO_DATE('2024-10-01', 'YYYY-MM-DD'), 'Present');
+INSERT INTO StudentAttendance (StudentID, ClassDate, Status) VALUES (102, TO_DATE('2024-10-02', 'YYYY-MM-DD'), 'Present');
+INSERT INTO StudentAttendance (StudentID, ClassDate, Status) VALUES (101, TO_DATE('2024-10-03', 'YYYY-MM-DD'), 'Present');
+
+Step 3: PL/SQL Block to Retrieve Attendance Records
+
+DECLARE
+    -- Variable to hold user input
+    v_student_id NUMBER;  
+    
+    -- Cursor declaration with a parameter
+    CURSOR attendance_cursor (student_id_param NUMBER) IS
+        SELECT ClassDate, Status
+        FROM StudentAttendance
+        WHERE StudentID = student_id_param;
+
+BEGIN
+    -- Simulating user input; replace with actual user input mechanism as needed
+    v_student_id := 101;  -- For demonstration, we're setting it directly
+
+    -- Open the cursor with the specified student ID
+    FOR attendance_record IN attendance_cursor(v_student_id) LOOP
+        DBMS_OUTPUT.PUT_LINE('Class Date: ' || attendance_record.ClassDate || 
+                             ' - Status: ' || attendance_record.Status);
+    END LOOP;
+
+    -- Check if no records were processed and print a message if so
+    IF SQL%ROWCOUNT = 0 THEN
+        DBMS_OUTPUT.PUT_LINE('No attendance records found for Student ID: ' || v_student_id);
+    END IF;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('An error occurred: ' || SQLERRM);
+END;
+/
+
+question 4 : 4.	Consider the following schema for Products table.
+Products(Product_id, Product_Name, Product_Type, Price)
+Write a parameterized cursor to display all products in the given price range
+of price and type ‘Apparel’.
+Hint: Take the user input for minimum and maximum price for price range.
+
+Step 1: Create the Products Table
+
+-- Create the Products table
+CREATE TABLE Products (
+    Product_id NUMBER PRIMARY KEY,        -- Unique identifier for each product
+    Product_Name VARCHAR2(50),            -- Name of the product
+    Product_Type VARCHAR2(50),            -- Type of the product (e.g., Apparel, Footwear)
+    Price NUMBER                           -- Price of the product
+);
+
+Step 2: Insert Sample Data into the Products Table
+
+-- Inserting sample data into Products table
+INSERT INTO Products (Product_id, Product_Name, Product_Type, Price) VALUES (1, 'T-Shirt', 'Apparel', 25);
+INSERT INTO Products (Product_id, Product_Name, Product_Type, Price) VALUES (2, 'Jeans', 'Apparel', 50);
+INSERT INTO Products (Product_id, Product_Name, Product_Type, Price) VALUES (3, 'Sneakers', 'Footwear', 70);
+INSERT INTO Products (Product_id, Product_Name, Product_Type, Price) VALUES (4, 'Jacket', 'Apparel', 80);
+INSERT INTO Products (Product_id, Product_Name, Product_Type, Price) VALUES (5, 'Hat', 'Apparel', 15);
+
+Step 3: PL/SQL Block to Retrieve Apparel Products within a Price Range
+
+DECLARE
+    -- Variables to hold user input for price range
+    v_min_price NUMBER;  -- Minimum price
+    v_max_price NUMBER;  -- Maximum price
+
+    -- Cursor declaration with parameters for price range
+    CURSOR product_cursor (min_price_param NUMBER, max_price_param NUMBER) IS
+        SELECT Product_id, Product_Name, Price
+        FROM Products
+        WHERE Product_Type = 'Apparel'
+          AND Price BETWEEN min_price_param AND max_price_param;
+
+BEGIN
+    -- Simulating user input; replace with actual user input mechanism as needed
+    v_min_price := 20;  -- For demonstration, setting it directly
+    v_max_price := 60;  -- For demonstration, setting it directly
+
+    -- Open the cursor with the specified price range
+    FOR product_record IN product_cursor(v_min_price, v_max_price) LOOP
+        DBMS_OUTPUT.PUT_LINE('Product ID: ' || product_record.Product_id || 
+                             ' - Name: ' || product_record.Product_Name || 
+                             ' - Price: ' || product_record.Price);
+    END LOOP;
+
+    -- Check if no records were processed and print a message if so
+    IF SQL%ROWCOUNT = 0 THEN
+        DBMS_OUTPUT.PUT_LINE('No products found in the specified price range.');
+    END IF;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('An error occurred: ' || SQLERRM);
+END;
+/
+
