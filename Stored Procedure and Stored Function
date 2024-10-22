@@ -94,3 +94,266 @@ Step 5: Check the Results
 
 -- Query the Result table to see the classifications
 SELECT * FROM Result;
+
+
+question 1 : Write a stored function in PL/SQL for given requirement and use the same
+in PL/SQL block.
+Account no. and branch name will be accepted from user. The same will
+be searched in table acct_details. If status of account is active then display
+appropriate message and also store the account details in
+active_acc_details table, otherwise display message on screen “account is
+inactive”.
+
+solution : 
+
+Step 1: Create the Tables in Oracle
+
+-- Create table to store account details
+CREATE TABLE acct_details (
+    account_no NUMBER PRIMARY KEY,   -- Account number (Primary Key)
+    branch_name VARCHAR2(100),       -- Name of the branch
+    status VARCHAR2(10)              -- Status of the account ('active' or 'inactive')
+);
+
+-- Create table to store active account details
+CREATE TABLE active_acc_details (
+    account_no NUMBER PRIMARY KEY,   -- Account number (Primary Key)
+    branch_name VARCHAR2(100),       -- Name of the branch
+    added_on DATE                    -- Date when the account was added to the active account details
+);
+
+step 2 : Create the PL/SQL Function
+
+-- Create or replace a function to check and store active accounts
+CREATE OR REPLACE FUNCTION check_and_store_active_account (
+    p_account_no IN NUMBER,          -- Account number (input parameter)
+    p_branch_name IN VARCHAR2        -- Branch name (input parameter)
+) RETURN VARCHAR2 IS
+    v_status acct_details.status%TYPE;  -- Variable to hold the status of the account
+BEGIN
+    -- Search for the account number and branch name in the acct_details table
+    SELECT status
+    INTO v_status
+    FROM acct_details
+    WHERE account_no = p_account_no
+      AND branch_name = p_branch_name;
+
+    -- Check if the account is active
+    IF v_status = 'active' THEN
+        -- Insert the account details into the active_acc_details table
+        INSERT INTO active_acc_details (account_no, branch_name, added_on)
+        VALUES (p_account_no, p_branch_name, SYSDATE);  -- SYSDATE records the current date
+
+        RETURN 'Account is active and details stored successfully.';  -- Success message
+    ELSE
+        RETURN 'Account is inactive.';  -- Message if the account is inactive
+    END IF;
+
+EXCEPTION
+    -- Handle the case where no account is found in the acct_details table
+    WHEN NO_DATA_FOUND THEN
+        RETURN 'Account not found.';  -- Message if no matching account is found
+END check_and_store_active_account;
+/
+
+Step 3: Use the Function in an Anonymous PL/SQL Block
+
+-- Anonymous PL/SQL block to use the function
+DECLARE
+    v_account_no NUMBER;            -- Variable to hold the input account number
+    v_branch_name VARCHAR2(100);    -- Variable to hold the input branch name
+    v_message VARCHAR2(255);        -- Variable to hold the result message from the function
+BEGIN
+    -- Accept input from the user (use substitution variables in SQL*Plus or SQL Developer)
+    v_account_no := &account_no;    -- User enters account number
+    v_branch_name := '&branch_name';-- User enters branch name
+
+    -- Call the function and store the result in v_message
+    v_message := check_and_store_active_account(v_account_no, v_branch_name);
+
+    -- Display the message returned by the function
+    DBMS_OUTPUT.PUT_LINE(v_message);  -- Output the result message to the console
+END;
+/
+
+
+question 3 : Consider following schema for Bank database. Account(Account_No,
+Cust_Name, Balance, NoOfYears) Earned_Interest(Account_No,
+Interest_Amt) Write a PL/SQL procedure for following requirement. Take
+as input Account_No and Interest Rate from User. Calculate the
+Interest_Amt as simple interest for the given Account_No and store it in
+Earned_Interest table. Display all the details of Earned_Interest Table.
+
+solution 
+
+Step 1: Create the Tables
+
+-- Table to store account details
+CREATE TABLE Account (
+    Account_No NUMBER PRIMARY KEY,  -- Unique account number (Primary Key)
+    Cust_Name VARCHAR2(100),        -- Customer's name
+    Balance NUMBER,                 -- Balance in the account
+    NoOfYears NUMBER                -- Number of years the account has been active
+);
+
+-- Table to store earned interest details
+CREATE TABLE Earned_Interest (
+    Account_No NUMBER PRIMARY KEY,  -- Account number (Primary Key)
+    Interest_Amt NUMBER              -- Calculated interest amount
+);
+
+Step 2: Create the PL/SQL Procedure
+
+CREATE OR REPLACE PROCEDURE proc_Calculate_Interest (
+    p_account_no IN NUMBER,          -- Account number input
+    p_interest_rate IN NUMBER         -- Interest rate input
+) IS
+    v_balance Account.Balance%TYPE;   -- Variable to hold the account balance
+    v_no_of_years Account.NoOfYears%TYPE;  -- Variable to hold the number of years
+    v_interest_amt NUMBER;            -- Variable to hold the calculated interest amount
+BEGIN
+    -- Fetch the Balance and NoOfYears for the given Account_No from the Account table
+    SELECT Balance, NoOfYears
+    INTO v_balance, v_no_of_years
+    FROM Account
+    WHERE Account_No = p_account_no;
+
+    -- Calculate the interest amount as simple interest
+    v_interest_amt := (v_balance * v_no_of_years * p_interest_rate) / 100;
+
+    -- Insert or update the interest amount in the Earned_Interest table
+    MERGE INTO Earned_Interest ei
+    USING (SELECT p_account_no AS Account_No FROM dual) src
+    ON (ei.Account_No = src.Account_No)
+    WHEN MATCHED THEN
+        UPDATE SET ei.Interest_Amt = v_interest_amt
+    WHEN NOT MATCHED THEN
+        INSERT (Account_No, Interest_Amt) 
+        VALUES (p_account_no, v_interest_amt);
+
+    -- Commit the transaction
+    COMMIT;
+
+    -- Display the updated Earned_Interest table
+    DBMS_OUTPUT.PUT_LINE('Account No  |  Interest Amount');
+    FOR rec IN (SELECT * FROM Earned_Interest) LOOP
+        DBMS_OUTPUT.PUT_LINE(rec.Account_No || '          |  ' || rec.Interest_Amt);
+    END LOOP;
+
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('Account not found.');  -- Handle case when account not found
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);   -- Handle other exceptions
+END proc_Calculate_Interest;
+/
+
+Step 3: Declare and Execute the Procedure
+
+-- Declare variables to hold input values
+DECLARE
+    v_account_no NUMBER;            -- Variable to hold account number
+    v_interest_rate NUMBER;         -- Variable to hold interest rate
+BEGIN
+    -- Accept input from user
+    v_account_no := &account_no;    -- User enters account number
+    v_interest_rate := &interest_rate;  -- User enters interest rate
+
+    -- Call the procedure to calculate interest
+    proc_Calculate_Interest(v_account_no, v_interest_rate);
+END;
+/
+
+Step 4: Insert Sample Data into the Account Table
+
+-- Insert sample data into Account table
+INSERT INTO Account (Account_No, Cust_Name, Balance, NoOfYears) 
+VALUES (101, 'John Doe', 50000, 5);
+
+INSERT INTO Account (Account_No, Cust_Name, Balance, NoOfYears) 
+VALUES (102, 'Jane Doe', 30000, 3);
+
+Step 5: Execute the Procedure with Specific Inputs
+
+-- Execute the PL/SQL block
+DECLARE
+    v_account_no NUMBER;            -- Variable to hold account number
+    v_interest_rate NUMBER;         -- Variable to hold interest rate
+BEGIN
+    v_account_no := 102;            -- Example account number
+    v_interest_rate := 3;           -- Example interest rate
+
+    -- Call the procedure to calculate interest
+    proc_Calculate_Interest(v_account_no, v_interest_rate);
+END;
+/
+
+Step 6: View the Results
+
+-- Select all records from the Earned_Interest table to view results
+SELECT * FROM Earned_Interest;
+
+quetion 4 : Consider following schema for Sales table
+Sales (Item_No int, Quantity int, Unit_Price number, Status varchar(20))
+Status can be “Shipped” or “Delivered” or “Returned”
+Write a PLSQL function to calculate the total amount of Sales for Items
+with status “Shipped”. (total_amount = SUM(Quantity * Unit_Price)
+Display the Total Amount of sales.
+
+solution 
+
+Step 1: Create the Sales Table
+
+-- Create the Sales table
+CREATE TABLE Sales (
+    Item_No INT PRIMARY KEY,          -- Unique identifier for each item (Primary Key)
+    Quantity INT,                     -- Quantity of the item sold
+    Unit_Price NUMBER,                -- Price per unit of the item
+    Status VARCHAR2(20)               -- Status of the sale (e.g., Shipped, Delivered, Returned)
+);
+
+Step 2: Insert Sample Data into the Sales Table
+
+-- Insert sample data into Sales table
+INSERT INTO Sales (Item_No, Quantity, Unit_Price, Status) VALUES (101, 10, 100, 'Shipped');
+INSERT INTO Sales (Item_No, Quantity, Unit_Price, Status) VALUES (102, 5, 200, 'Delivered');
+INSERT INTO Sales (Item_No, Quantity, Unit_Price, Status) VALUES (103, 8, 150, 'Shipped');
+INSERT INTO Sales (Item_No, Quantity, Unit_Price, Status) VALUES (104, 2, 300, 'Returned');
+
+Step 3: Create the Function to Calculate Total Shipped Sales
+
+-- Create a function to calculate the total shipped sales amount
+CREATE OR REPLACE FUNCTION calc_total_shipped_sales RETURN NUMBER IS
+    v_total_amount NUMBER := 0;      -- Variable to hold the total amount
+BEGIN
+    -- Calculate the total amount for items with status 'Shipped'
+    SELECT SUM(Quantity * Unit_Price)
+    INTO v_total_amount
+    FROM Sales
+    WHERE Status = 'Shipped';
+
+    -- Return the total amount; if no records are found, return 0
+    RETURN NVL(v_total_amount, 0);
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN 0;  -- Return 0 if no records are found
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);  -- Output any errors
+        RETURN 0;
+END calc_total_shipped_sales;
+/
+
+Step 4: Execute the Function in an Anonymous PL/SQL Block
+
+-- Execute the PL/SQL block to display total amount of shipped sales
+DECLARE
+    v_total_amount NUMBER;            -- Variable to hold the total amount
+BEGIN
+    -- Call the function to calculate the total amount of shipped sales
+    v_total_amount := calc_total_shipped_sales;
+
+    -- Display the total amount
+    DBMS_OUTPUT.PUT_LINE('Total Amount of Shipped Sales: ' || v_total_amount);
+END;
+/
+
