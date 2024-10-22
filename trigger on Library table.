@@ -93,3 +93,228 @@ step 7 :
 -- Query the Library_Audit table to see the audit logs
 SELECT * FROM Library_Audit;
 
+quetion 2 : Write a update, delete trigger on clientmstr table. The System should keep
+track of the records that ARE BEING updated or deleted. The old value of
+updated or deleted records should be added in audit_trade table. (Separate
+implementation using both row and statement triggers)
+
+solution 
+
+Step 1: Create the products Table
+
+-- Create the products table
+CREATE TABLE products (
+    ProductID NUMBER PRIMARY KEY,     -- Unique identifier for each product
+    ProductName VARCHAR2(100),        -- Name of the product
+    Quantity NUMBER,                  -- Available quantity of the product
+    Price NUMBER                      -- Price of the product
+);
+
+Step 2: Insert Sample Data into the products Table
+
+-- Insert sample data
+INSERT INTO products (ProductID, ProductName, Quantity, Price) VALUES (1, 'Laptop', 50, 1000);
+INSERT INTO products (ProductID, ProductName, Quantity, Price) VALUES (2, 'Smartphone', 200, 700);
+
+Step 3: Create the audit_log Table
+
+-- Create the audit_log table
+CREATE TABLE audit_log (
+    AuditID NUMBER PRIMARY KEY,       -- Unique identifier for each audit record
+    ProductID NUMBER,                 -- ID of the affected product
+    ProductName VARCHAR2(100),        -- Name of the affected product
+    Quantity NUMBER,                  -- Quantity of the affected product
+    Price NUMBER,                     -- Price of the affected product
+    Action VARCHAR2(10),              -- Action taken ('UPDATE' or 'DELETE')
+    AuditTimestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP  -- Timestamp of the action
+);
+
+Step 4: Create the audit_seq Sequence
+
+-- Create the audit_seq sequence
+CREATE SEQUENCE audit_seq START WITH 1 INCREMENT BY 1;
+
+Step 5: Create Row-Level Trigger for Auditing Updates and Deletes
+
+-- Create row-level trigger
+CREATE OR REPLACE TRIGGER trg_products_row
+AFTER UPDATE OR DELETE ON products
+FOR EACH ROW
+BEGIN
+    IF UPDATING THEN
+        INSERT INTO audit_log (AuditID, ProductID, ProductName, Quantity, Price, Action)
+        VALUES (audit_seq.NEXTVAL, :OLD.ProductID, :OLD.ProductName, :OLD.Quantity, :OLD.Price, 'UPDATE');
+    
+    ELSIF DELETING THEN
+        INSERT INTO audit_log (AuditID, ProductID, ProductName, Quantity, Price, Action)
+        VALUES (audit_seq.NEXTVAL, :OLD.ProductID, :OLD.ProductName, :OLD.Quantity, :OLD.Price, 'DELETE');
+    END IF;
+END;
+/
+
+Step 6: Create Statement-Level Trigger for Batch Updates and Deletes
+
+-- Create statement-level trigger
+CREATE OR REPLACE TRIGGER trg_products_statement
+AFTER UPDATE OR DELETE ON products
+BEGIN
+    IF UPDATING THEN
+        INSERT INTO audit_log (AuditID, ProductID, ProductName, Quantity, Price, Action)
+        VALUES (audit_seq.NEXTVAL, NULL, NULL, NULL, NULL, 'BATCH UPDATE');
+    END IF;
+
+    IF DELETING THEN
+        INSERT INTO audit_log (AuditID, ProductID, ProductName, Quantity, Price, Action)
+        VALUES (audit_seq.NEXTVAL, NULL, NULL, NULL, NULL, 'BATCH DELETE');
+    END IF;
+END;
+/
+
+Step 7: Update and Delete Products
+
+-- Update product price
+UPDATE products
+SET Price = 950
+WHERE ProductID = 1;
+
+-- Delete a product
+DELETE FROM products
+WHERE ProductID = 2;
+
+Step 8: Select from the audit_log Table
+
+-- Select from the audit_log to view audit records
+SELECT * FROM audit_log;
+
+
+question 3 : Write a before trigger for Insert, update event considering following
+requirement:
+Emp(e_no, e_name, salary)
+I) Trigger action should be initiated when salary is tried to be inserted is
+less than Rs. 50,000/-
+II) Trigger action should be initiated when salary is tried to be updated for
+value less than Rs. 50,000/-
+Action should be rejection of update or Insert operation by displaying
+appropriate error message. Also, the new values expected to be inserted
+will be stored in new table Tracking(e_no, salary).
+
+solution :
+
+Step 1: Create the Emp Table
+
+-- Create the Emp table if it doesn't exist
+CREATE TABLE Emp (
+    e_no NUMBER PRIMARY KEY,          -- Employee number (Primary Key)
+    e_name VARCHAR2(100),             -- Employee name
+    salary NUMBER                     -- Employee salary
+);
+
+Step 2: Create the Tracking Table
+
+-- Create the Tracking table if it doesn't exist
+CREATE TABLE Tracking (
+    e_no NUMBER,                      -- Employee number
+    salary NUMBER                     -- The salary attempted to be inserted/updated
+);
+
+Step 3: Create the trg_emp_salary_check Trigger
+
+-- Create or replace the trigger for salary validation
+CREATE OR REPLACE TRIGGER trg_emp_salary_check
+BEFORE INSERT OR UPDATE ON Emp
+FOR EACH ROW
+DECLARE
+    v_msg VARCHAR2(100);              -- Variable to hold the error message
+BEGIN
+    -- Check if the new salary is below Rs. 50,000
+    IF :NEW.salary < 50000 THEN
+        -- Define the error message
+        v_msg := 'Salary must be at least Rs. 50,000/-';
+        
+        -- Insert the rejected salary into the Tracking table
+        INSERT INTO Tracking (e_no, salary) VALUES (:NEW.e_no, :NEW.salary);
+        
+        -- Raise an application error to reject the insert or update
+        RAISE_APPLICATION_ERROR(-20001, v_msg);
+    END IF;
+END;
+/
+
+Step 4: Test the Trigger by Inserting Data into the Emp Table
+
+-- Attempt to insert a new employee with a salary below Rs. 50,000
+INSERT INTO Emp (e_no, e_name, salary) VALUES (2, 'Jane Smith', 40000);
+
+Step 5: Query the Tracking Table to View the Rejected Salary Entries
+
+-- View the entries in the Tracking table
+SELECT * FROM Tracking;
+
+question 4 : Employee (emp_id, dept_id emp_name, DoJ, salary, commission,job_title)
+Consider the schema given above. Write a trigger to ensure that whenever
+the job title is changed for an employee write the following details into
+job_history table. Employee ID, old job title, old department ID, DoJ for
+start date, system date for end date.
+
+solution 
+
+Step 1: Create the Employee Table
+
+-- Create the Employee table
+CREATE TABLE Employee (
+    emp_id NUMBER PRIMARY KEY,        -- Employee ID (Primary Key)
+    dept_id NUMBER,                   -- Department ID
+    emp_name VARCHAR2(100),           -- Employee name
+    DoJ DATE,                         -- Date of Joining
+    salary NUMBER,                    -- Salary
+    commission NUMBER,                -- Commission
+    job_title VARCHAR2(100)           -- Job title
+);
+
+Step 2: Create the job_history Table
+
+-- Create the job_history table
+CREATE TABLE job_history (
+    emp_id NUMBER,                    -- Employee ID
+    old_job_title VARCHAR2(100),      -- Old job title
+    old_dept_id NUMBER,               -- Old department ID
+    start_date DATE,                  -- Start date of the old job
+    end_date DATE                     -- End date of the old job
+);
+
+Step 3: Create the trg_job_title_history Trigger
+
+-- Create the trigger for tracking job title changes
+CREATE OR REPLACE TRIGGER trg_job_title_history
+BEFORE UPDATE OF job_title ON Employee
+FOR EACH ROW
+BEGIN
+    -- Check if the old and new job titles are different
+    IF :OLD.job_title IS NOT NULL AND :NEW.job_title IS NOT NULL AND :OLD.job_title != :NEW.job_title THEN
+        -- Insert old job details into the job_history table
+        INSERT INTO job_history (emp_id, old_job_title, old_dept_id, start_date, end_date)
+        VALUES (:OLD.emp_id, :OLD.job_title, :OLD.dept_id, :OLD.DoJ, SYSDATE);  -- SYSDATE captures the end date
+    END IF;
+END;
+/
+
+Step 4: Insert Sample Data into the Employee Table
+
+-- Insert sample data into the Employee table
+INSERT INTO Employee (emp_id, dept_id, emp_name, DoJ, salary, commission, job_title)
+VALUES (1, 101, 'John Doe', TO_DATE('2020-01-01', 'YYYY-MM-DD'), 60000, 5000, 'Software Engineer');
+
+INSERT INTO Employee (emp_id, dept_id, emp_name, DoJ, salary, commission, job_title)
+VALUES (2, 102, 'Jane Smith', TO_DATE('2019-05-15', 'YYYY-MM-DD'), 55000, 3000, 'Data Analyst');
+
+Step 5: Update the job_title for an Employee
+
+-- Update the job title for an employee
+UPDATE Employee
+SET job_title = 'Senior Software Engineer'
+WHERE emp_id = 1;
+
+Step 6: Query the job_history Table to View the Log
+
+-- Query the job_history table to see the log
+SELECT * FROM job_history;
