@@ -43,3 +43,272 @@ VALUES
 ('John', 'Doe', 'john.doe@example.com', '2023-08-10', 60000),
 ('Jane', 'Smith', 'jane.smith@example.com', '2022-05-15', 45000),
 ('Alice', 'Johnson', 'alice.johnson@example.com', '2021-03-22', 75000);
+
+
+ 
+
+question 1 : Create following tables using given schema and insert appropriate data into these tables.
+
+1. Student(StudID, Name, Address, Marks)
+
+2. Employee( EmplyeeID, Name, Address, Salary, DateOfJoining ,Department)
+
+3. Weather(CityID, CityName, MinTemp, MaxTemp)
+
+solution :
+
+step 1:
+
+CREATE DATABASE SchoolDB;
+USE SchoolDB;
+
+step 2 :
+
+-- Create Student table
+CREATE TABLE Student (
+    StudID INT PRIMARY KEY,
+    Name VARCHAR(100),
+    Address VARCHAR(255),
+    Marks DECIMAL(5, 2)
+);
+
+-- Create Employee table
+CREATE TABLE Employee (
+    EmployeeID INT PRIMARY KEY,
+    Name VARCHAR(100),
+    Address VARCHAR(255),
+    Salary DECIMAL(10, 2),
+    DateOfJoining DATE,
+    Department VARCHAR(100)
+);
+
+-- Create Weather table
+CREATE TABLE Weather (
+    CityID INT PRIMARY KEY,
+    CityName VARCHAR(100),
+    MinTemp DECIMAL(5, 2),
+    MaxTemp DECIMAL(5, 2)
+);
+
+
+step 3 : 
+
+-- Insert data into Student table
+INSERT INTO Student (StudID, Name, Address, Marks) VALUES
+(1, 'Alice Johnson', '123 Main St, Anytown', 85.50),
+(2, 'Bob Smith', '456 Elm St, Othertown', 90.00),
+(3, 'Charlie Brown', '789 Maple St, Sometown', 78.25);
+
+-- Insert data into Employee table
+INSERT INTO Employee (EmployeeID, Name, Address, Salary, DateOfJoining, Department) VALUES
+(1, 'John Doe', '101 Pine St, Anytown', 60000.00, '2020-01-15', 'HR'),
+(2, 'Jane Smith', '202 Oak St, Othertown', 70000.00, '2019-03-22', 'IT'),
+(3, 'Emily Davis', '303 Birch St, Sometown', 80000.00, '2021-07-10', 'Finance');
+
+-- Insert data into Weather table
+INSERT INTO Weather (CityID, CityName, MinTemp, MaxTemp) VALUES
+(1, 'Anytown', 15.0, 25.0),
+(2, 'Othertown', 10.0, 20.0),
+(3, 'Sometown', 5.0, 15.0);
+
+step 4 : 
+
+SELECT * FROM Student;
+SELECT * FROM Employee;
+SELECT * FROM Weather;
+
+question 2 : Alter Student and Employee table to add Not Null constraint on all columns.
+
+solution : 
+
+USE SchoolDB;
+
+step 1 :
+
+ALTER TABLE Student 
+MODIFY StudID INT NOT NULL,
+MODIFY Name VARCHAR(100) NOT NULL,
+MODIFY Address VARCHAR(255) NOT NULL,
+MODIFY Marks DECIMAL(5, 2) NOT NULL;
+
+step 2 : 
+
+ALTER TABLE Employee 
+MODIFY EmployeeID INT NOT NULL,
+MODIFY Name VARCHAR(100) NOT NULL,
+MODIFY Address VARCHAR(255) NOT NULL,
+MODIFY Salary DECIMAL(10, 2) NOT NULL,
+MODIFY DateOfJoining DATE NOT NULL,
+MODIFY Department VARCHAR(100) NOT NULL;
+
+step 3 :
+
+DESCRIBE Student;
+DESCRIBE Employee;
+
+question 3 : Alter the Student table to add Primary key constraint on StudID column.
+
+soltuion : 
+
+To add a primary key constraint to the StudID column of the Student table in MySQL, you can use the ALTER TABLE statement. However, since you have already defined StudID as the primary key during table creation, this step is typically unnecessary unless you want to enforce it again or if it was not set initially.
+
+USE SchoolDB;
+
+step 1 : 
+
+ALTER TABLE Student 
+ADD CONSTRAINT pk_Student_StudID PRIMARY KEY (StudID);
+
+step 2 : 
+
+DESCRIBE Student;
+
+question 4 : Create a view JoiningInfo on Employee table displaying Employee ID, Name and
+DateOfJoining of employees.
+
+solution : 
+
+USE SchoolDB;
+
+step 1 : 
+
+CREATE VIEW JoiningInfo AS
+SELECT EmployeeID, Name, DateOfJoining
+FROM Employee;
+
+step 2 : 
+
+SELECT * FROM JoiningInfo;
+
+question 5 : Crete index on primary key columns of all the tables.
+
+solution : 
+
+USE SchoolDB;
+
+step 1 : 
+
+-- Create index on StudID column of Student table
+CREATE INDEX idx_Student_StudID ON Student (StudID);
+
+-- Create index on EmployeeID column of Employee table
+CREATE INDEX idx_Employee_EmployeeID ON Employee (EmployeeID);
+
+-- Create index on CityID column of Weather table
+CREATE INDEX idx_Weather_CityID ON Weather (CityID);
+
+step 2 : 
+
+SHOW INDEX FROM Student;
+SHOW INDEX FROM Employee;
+SHOW INDEX FROM Weather;
+
+question 6 : Create view MarksInfo on Student table displaying StuID and Marks.
+
+solution : 
+
+USE SchoolDB;
+
+step 1 : 
+
+CREATE VIEW MarksInfo AS
+SELECT StudID, Marks
+FROM Student;
+
+step 2 :
+
+SELECT * FROM MarksInfo;
+
+question 7 : Change the name of Weather table to WeatherData.
+
+solution : 
+
+USE SchoolDB;
+
+step 1 : 
+
+RENAME TABLE Weather TO WeatherData;
+
+step 2 : 
+
+SHOW TABLES;
+
+question 8 : Drop column CityName from WeatherData table.
+
+solution : 
+
+USE SchoolDB;
+
+step 1 : 
+
+ALTER TABLE WeatherData 
+DROP COLUMN CityName;
+
+step 2 :
+
+DESCRIBE WeatherData;
+
+question 9 : Add column Grade to Student table.
+
+solution : 
+
+USE SchoolDB;
+
+step 1 : 
+
+ALTER TABLE Student 
+ADD COLUMN Grade VARCHAR(10);
+
+step 2 : 
+
+DESCRIBE Student;
+
+question 10 : Crate a view “DistinctionStudents” on student table displaying data of students having
+Distinction as Grade.
+
+solution : 
+
+USE SchoolDB;
+
+step 1 : 
+
+CREATE VIEW DistinctionStudents AS
+SELECT *
+FROM Student
+WHERE Grade = 'Distinction';
+
+step 2 : 
+
+SELECT * FROM DistinctionStudents;
+
+question 11 : Create a sequence on StudID in student table.
+
+solution : 
+
+USE SchoolDB;
+
+step 1 : 
+
+ALTER TABLE Student 
+MODIFY StudID INT NOT NULL AUTO_INCREMENT;
+
+step 2 :
+
+DESCRIBE Student;
+
+question 12 : Create a synonym ‘Emp_Info’ for Employee table.
+
+solution : 
+
+USE SchoolDB;
+
+step 1 : 
+
+CREATE VIEW Emp_Info AS
+SELECT *
+FROM Employee;
+
+step 2 :
+
+SELECT * FROM Emp_Info;
+
