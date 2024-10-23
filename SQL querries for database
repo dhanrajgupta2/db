@@ -146,6 +146,338 @@ INSERT INTO Employee_Projects (employee_id, project_id) VALUES
 
 
 
+Q1.Consider the following schema:
+Sailors (sid, sname, rating, age)
+Boats (bid, bname, color)
+Reserves (sid, bid, day(date))
+1. Find all information of sailors who have reserved boat number 101.
+2. Find the name of the boat reserved by Bob.
+3. Find the names of sailors who have reserved a red boat, and list in the order of age.
+4. Find the names of sailors who have reserved at least one boat.
+5. Find the ids and names of sailors who have reserved two different boats on the same
+day.
+6. Find the ids of sailors who have reserved a red boat or a green boat.
+7. Find the name and the age of the youngest sailor.
+8. Count the number of different sailor names.
+9. Find the average age of sailors for each rating level.
+10. Find the average age of sailors for each rating level that has at least two sailors
+
+solution : 
+
+CREATE DATABASE SailorDB;
+USE SailorDB;
+
+step 1 :
+
+-- Create Sailors table
+CREATE TABLE Sailors (
+    sid INT PRIMARY KEY,
+    sname VARCHAR(100),
+    rating INT,
+    age INT
+);
+
+-- Create Boats table
+CREATE TABLE Boats (
+    bid INT PRIMARY KEY,
+    bname VARCHAR(100),
+    color VARCHAR(50)
+);
+
+-- Create Reserves table
+CREATE TABLE Reserves (
+    sid INT,
+    bid INT,
+    day DATE,
+    PRIMARY KEY (sid, bid, day),
+    FOREIGN KEY (sid) REFERENCES Sailors(sid),
+    FOREIGN KEY (bid) REFERENCES Boats(bid)
+);
+
+-- Insert data into Sailors
+INSERT INTO Sailors (sid, sname, rating, age) VALUES
+(1, 'Bob', 7, 25),
+(2, 'Alice', 10, 22),
+(3, 'Charlie', 5, 30),
+(4, 'David', 8, 27);
+
+-- Insert data into Boats
+INSERT INTO Boats (bid, bname, color) VALUES
+(101, 'Boat A', 'red'),
+(102, 'Boat B', 'blue'),
+(103, 'Boat C', 'green');
+
+-- Insert data into Reserves
+INSERT INTO Reserves (sid, bid, day) VALUES
+(1, 101, '2023-01-01'),
+(1, 102, '2023-01-02'),
+(2, 101, '2023-01-03'),
+(3, 103, '2023-01-01'),
+(4, 101, '2023-01-01'),
+(4, 102, '2023-01-01'),
+(2, 103, '2023-01-04');
+
+1. Find all information of sailors who have reserved boat number 101.
+
+SELECT *
+FROM Sailors
+WHERE sid IN (SELECT sid FROM Reserves WHERE bid = 101);
+
+2. Find the name of the boat reserved by Bob.
+
+SELECT b.bname
+FROM Boats b
+JOIN Reserves r ON b.bid = r.bid
+JOIN Sailors s ON r.sid = s.sid
+WHERE s.sname = 'Bob';
+
+3. Find the names of sailors who have reserved a red boat, and list in the order of age.
+
+SELECT DISTINCT s.sname, s.age
+FROM Sailors s
+JOIN Reserves r ON s.sid = r.sid
+JOIN Boats b ON r.bid = b.bid
+WHERE b.color = 'red'
+ORDER BY s.age;
+
+4. Find the names of sailors who have reserved at least one boat.
+
+SELECT DISTINCT s.sname
+FROM Sailors s
+JOIN Reserves r ON s.sid = r.sid;
+
+5. Find the ids and names of sailors who have reserved two different boats on the same day.
+
+SELECT r1.sid, s.sname
+FROM Reserves r1
+JOIN Reserves r2 ON r1.sid = r2.sid AND r1.bid <> r2.bid AND r1.day = r2.day
+JOIN Sailors s ON r1.sid = s.sid
+GROUP BY r1.sid, s.sname;
+
+6. Find the ids of sailors who have reserved a red boat or a green boat.
+
+SELECT DISTINCT r.sid
+FROM Reserves r
+JOIN Boats b ON r.bid = b.bid
+WHERE b.color IN ('red', 'green');
+
+7. Find the name and the age of the youngest sailor.
+
+SELECT s.sname, s.age
+FROM Sailors s
+WHERE s.age = (SELECT MIN(age) FROM Sailors);
+
+8. Count the number of different sailor names.
+
+SELECT COUNT(DISTINCT sname) AS unique_sailor_names
+FROM Sailors;
+
+9. Find the average age of sailors for each rating level.
+
+SELECT rating, AVG(age) AS average_age
+FROM Sailors
+GROUP BY rating;
+
+10. Find the average age of sailors for each rating level that has at least two sailors.
+
+SELECT rating, AVG(age) AS average_age
+FROM Sailors
+GROUP BY rating
+HAVING COUNT(*) >= 2;
+
+Q2.Consider a parallel DBMS in which each relation is stored by horizontally partitioning its
+tuples across all disks. Employees(eid: integer, did: integer, sal: real) Departments(did:
+integer, mgrid: integer, budget: integer)
+1.Find the highest paid employee.
+2. Find the highest paid employee in the department with did 55.
+3. Find the highest paid employee over all departments with a budget less than 100,000.
+4. Find the highest paid employee over all departments with a budget less than 300,000.
+5. Find the average salary over all departments with a budget less than 300,000.
+6. Find the salaries of all managers. 7. Find the salaries of all managers who manage a
+department with a budget less than 300,000 and earn more than 100,000.
+
+solution : 
+
+CREATE DATABASE CompanyDB;
+USE CompanyDB;
+
+-- Create Employees table
+CREATE TABLE Employees (
+    eid INT PRIMARY KEY,
+    did INT,
+    sal REAL
+);
+
+-- Create Departments table
+CREATE TABLE Departments (
+    did INT PRIMARY KEY,
+    mgrid INT,
+    budget INT
+);
+
+-- Insert data into Employees
+INSERT INTO Employees (eid, did, sal) VALUES
+(1, 10, 95000),
+(2, 20, 120000),
+(3, 30, 85000),
+(4, 55, 110000),
+(5, 20, 130000),
+(6, 10, 75000);
+
+-- Insert data into Departments
+INSERT INTO Departments (did, mgrid, budget) VALUES
+(10, 1, 500000),
+(20, 2, 150000),
+(30, 3, 80000),
+(55, 4, 90000);
+
+1. Find the highest paid employee.
+
+SELECT *
+FROM Employees
+ORDER BY sal DESC
+LIMIT 1;
+
+2. Find the highest paid employee in the department with did 55.
+
+SELECT *
+FROM Employees
+WHERE did = 55
+ORDER BY sal DESC
+LIMIT 1;
+
+3. Find the highest paid employee over all departments with a budget less than 100,000.
+
+SELECT *
+FROM Employees
+WHERE did IN (SELECT did FROM Departments WHERE budget < 100000)
+ORDER BY sal DESC
+LIMIT 1;
+
+4. Find the highest paid employee over all departments with a budget less than 300,000.
+
+SELECT *
+FROM Employees
+WHERE did IN (SELECT did FROM Departments WHERE budget < 300000)
+ORDER BY sal DESC
+LIMIT 1;
+
+5. Find the average salary over all departments with a budget less than 300,000.
+
+SELECT AVG(sal) AS average_salary
+FROM Employees
+WHERE did IN (SELECT did FROM Departments WHERE budget < 300000);
+
+6. Find the salaries of all managers.
+
+SELECT DISTINCT e.sal
+FROM Employees e
+JOIN Departments d ON e.did = d.did
+WHERE e.eid = d.mgrid;
+
+7. Find the salaries of all managers who manage a department with a budget less than 300,000 and earn more than 100,000.
+
+SELECT DISTINCT e.sal
+FROM Employees e
+JOIN Departments d ON e.did = d.did
+WHERE e.eid = d.mgrid AND d.budget < 300000 AND e.sal > 100000;
+
+question 3 : Create tables and perform the following
+1. How the resulting salaries if every employee working on the ‘Research’ Departments is
+given a 10 percent raise.
+2. Find the sum of the salaries of all employees of the ‘Accounts’ department, as well as the
+maximum salary, the minimum salary, and the average salary in this department
+3. Retrieve the name of each employee Controlled by department number 5 (use EXISTS
+operator).
+
+4. Retrieve the name of each dept and number of employees working in each department
+which has at least 2 employees
+5. Retrieve the name of employees who were born in the year 1990’s
+6. Retrieve the name of employees and their dept name (using JOIN).
+
+solution : 
+
+CREATE TABLE employee (
+    employee_id INT PRIMARY KEY,
+    fname VARCHAR(50),
+    minit CHAR(1),
+    lname VARCHAR(50),
+    ssn CHAR(9),
+    bdate DATE,
+    address VARCHAR(100),
+    sex CHAR(1),
+    salary INT,
+    supersssn CHAR(9),
+    dno INT
+);
+
+CREATE TABLE department (
+    dname VARCHAR(50) PRIMARY KEY,
+    dnumber INT,
+    mgrssn CHAR(9),
+    mgrstartdate DATE
+);
+
+INSERT INTO employee (employee_id, fname, minit, lname, ssn, bdate, address, sex, salary, supersssn, dno) VALUES
+(1, 'John', 'B', 'Smith', '123456780', '1965-01-09', '731 Fondren, Houston, TX', 'M', 30000, '333445555', 5),
+(2, 'Franklin', 'T', 'Wong', '333445555', '1955-12-08', '638 Voss, Houston, TX', 'M', 40000, '060065555', 5),
+-- ... (continue with remaining employee data)
+
+INSERT INTO department (dname, dnumber, mgrssn, mgrstartdate) VALUES
+('Research', 5, '333445555', '1988-05-22'),
+('Administration', 4, '987654321', '1995-01-01'),
+-- ... (continue with remaining department data)
+
+1. 10% Raise for Research Department
+
+UPDATE employee
+SET salary = salary * 1.1
+WHERE dno = (SELECT dnumber FROM department WHERE dname = 'Research');
+
+2. Calculations for Accounts Department (Assuming dname = 'Accounts')
+
+SELECT SUM(salary), MAX(salary), MIN(salary), AVG(salary)
+FROM employee
+WHERE dno = (SELECT dnumber FROM department WHERE dname = 'Accounts');
+
+3. Employees Controlled by Department 5 (using EXISTS)
+
+SELECT e.fname, e.lname
+FROM employee e
+WHERE EXISTS (
+    SELECT 1
+    FROM department d
+    WHERE d.dnumber = 5 AND d.mgrssn = e.ssn
+);
+
+4. Departments with at least 2 employees
+
+SELECT d.dname, COUNT(e.employee_id) AS num_employees
+FROM department d
+JOIN employee e ON d.dnumber = e.dno
+GROUP BY d.dname
+HAVING COUNT(e.employee_id) >= 2;
+
+5. Employees born in the 1990s
+
+SELECT fname, lname
+FROM employee
+WHERE YEAR(bdate) BETWEEN 1990 AND 1999;
+
+6. Employees and their departments (using JOIN)
+
+SELECT e.fname, e.lname, d.dname
+FROM employee e
+JOIN department d ON e.dno = d.dnumber;
+
+
+
+
+
+
+
+
+
 
 
 
