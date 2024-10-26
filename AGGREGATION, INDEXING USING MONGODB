@@ -586,3 +586,71 @@ db.Student_Data.createIndex({ Student_Name: 1, Department: 1 });
 
 db.Student_Data.dropIndex({ Student_Name: 1, Department: 1 });
 
+
+form aggregation and Indexing using mongodb on below database
+1. Create a database department
+2. Create a collection as teacher with fields as name , department ,experience and salary
+3. Display the department wise average salary.
+4. Display the no. Of employees working in each department.
+5. Display the department wise minimum salary.
+6. Apply index and drop index
+
+solution 
+
+1. Create a database department
+
+use department
+
+2. Create a collection as teacher with fields as name , department ,experience and salary
+
+db.teacher.insertMany([
+    { name: "Alice", department: "Math", experience: 5, salary: 50000 },
+    { name: "Bob", department: "Science", experience: 7, salary: 60000 },
+    { name: "Charlie", department: "Math", experience: 3, salary: 55000 },
+    { name: "David", department: "History", experience: 10, salary: 70000 },
+    { name: "Eve", department: "Science", experience: 4, salary: 52000 },
+    { name: "Frank", department: "History", experience: 2, salary: 48000 }
+]);
+
+3. Display the department wise average salary.
+
+db.teacher.aggregate([
+   {
+       $group: {
+           _id: "$department",
+           averageSalary: { $avg: "$salary" }
+       }
+   }
+]);
+
+4. Display the no. Of employees working in each department.
+
+db.teacher.aggregate([
+   {
+       $group: {
+           _id: "$department",
+           employeeCount: { $sum: 1 }
+       }
+   }
+]);
+
+5. Display the department wise minimum salary.
+
+db.teacher.aggregate([
+   {
+       $group: {
+           _id: "$department",
+           minimumSalary: { $min: "$salary" }
+       }
+   }
+]);
+
+6. Apply index and drop index
+
+db.teacher.createIndex({ department: 1 });
+
+db.teacher.dropIndex({ department: 1 });
+
+
+
+
