@@ -35,3 +35,190 @@ db.sales.mapReduce(
 db.sales_summary.find().pretty()
 
 
+Map reduce questions 
+
+1. Consider the following document structure that stores book details
+author wise. The document stores author_name of the book author and
+the status of book.
+
+Now, use the mapReduce function
+• To select all the active books,
+• Group them together on the basis of author_name and
+• Then count the number of books by each author by using the
+following code in MongoDB.
+
+
+solution : 
+
+use booksDB
+
+db.books.insertMany([
+    { author_name: "Author A", status: "active" },
+    { author_name: "Author A", status: "inactive" },
+    { author_name: "Author B", status: "active" },
+    { author_name: "Author B", status: "active" },
+    { author_name: "Author C", status: "inactive" },
+    { author_name: "Author D", status: "active" }
+]);
+
+• To select all the active books,
+• Group them together on the basis of author_name and
+• Then count the number of books by each author
+
+Step 1: Define the Map and Reduce Functions
+
+var mapFunction = function() {
+    if (this.status === "active") {
+        emit(this.author_name, 1);
+    }
+};
+
+var reduceFunction = function(key, values) {
+    return Array.sum(values);
+};
+
+Step 2: Run the MapReduce Operation
+
+db.books.mapReduce(
+    mapFunction,
+    reduceFunction,
+    { out: "activeBooksCount" }
+);
+
+Step 3: view result
+
+db.activeBooksCount.find().pretty();
+
+
+2. Apply the MapReduce operation to find the total salary of each department,avg,highest,lowest
+
+solution : 
+
+use department
+
+
+db.teacher.insertMany([
+    { name: "Alice", department: "Math", salary: 50000 },
+    { name: "Bob", department: "Science", salary: 60000 },
+    { name: "Charlie", department: "Math", salary: 55000 },
+    { name: "David", department: "History", salary: 70000 },
+    { name: "Eve", department: "Science", salary: 52000 },
+    { name: "Frank", department: "History", salary: 48000 }
+]);
+
+Step 1: Define the Map and Reduce Functions
+
+var mapFunction = function() {
+    emit(this.department, this.salary);
+};
+
+var reduceFunction = function(key, values) {
+    return Array.sum(values);
+};
+
+Step 2: Run the MapReduce Operation
+
+db.teacher.mapReduce(
+    mapFunction,
+    reduceFunction,
+    { out: "totalSalaryByDepartment" }
+);
+
+Step 3: View the Results
+
+db.totalSalaryByDepartment.find().pretty();
+
+step 4 : average,highest,lowest
+
+db.teacher.aggregate([
+    {
+        $group: {
+            _id: "$department",
+            averageSalary: { $avg: "$salary" },
+            highestSalary: { $max: "$salary" },
+            lowestSalary: { $min: "$salary" }
+        }
+    }
+]);
+
+3. three divisions TE,SE,BE in a college give me there marks and departments name with highest,lowest and avg marks
+
+solution: 
+
+use college
+
+db.students.insertMany([
+    { division: "TE", marks: 85 },
+    { division: "TE", marks: 78 },
+    { division: "TE", marks: 92 },
+    { division: "SE", marks: 67 },
+    { division: "SE", marks: 73 },
+    { division: "SE", marks: 88 },
+    { division: "BE", marks: 90 },
+    { division: "BE", marks: 75 },
+    { division: "BE", marks: 80 }
+]);
+
+step 1 : define map reduce
+
+var mapFunction = function() {
+    emit(this.division, { totalMarks: this.marks, count: 1, highest: this.marks, lowest: this.marks });
+};
+
+var reduceFunction = function(key, values) {
+    var reducedValue = { totalMarks: 0, count: 0, highest: -Infinity, lowest: Infinity };
+
+    values.forEach(function(value) {
+        reducedValue.totalMarks += value.totalMarks;
+        reducedValue.count += value.count;
+        reducedValue.highest = Math.max(reducedValue.highest, value.highest);
+        reducedValue.lowest = Math.min(reducedValue.lowest, value.lowest);
+    });
+
+    return reducedValue;
+};
+
+step 2 : run map reduce 
+
+db.students.mapReduce(
+    mapFunction,
+    reduceFunction,
+    { out: "divisionMarks" }
+);
+
+step 3 : calculate avg,highest,lowest marks 
+
+db.divisionMarks.find().forEach(function(doc) {
+    doc.averageMarks = doc.value.totalMarks / doc.value.count;
+    print("Division: " + doc._id + ", Total Marks: " + doc.value.totalMarks + 
+          ", Average Marks: " + doc.averageMarks + 
+          ", Highest Marks: " + doc.value.highest + 
+          ", Lowest Marks: " + doc.value.lowest);
+});
+
+step 4 : total marks of TE
+
+step 4 (a) : Define the Map and Reduce Functions
+
+var mapFunction = function() {
+    if (this.division === "TE") {
+        emit("TE", this.marks);
+    }
+};
+
+var reduceFunction = function(key, values) {
+    return Array.sum(values);
+};
+
+step 4 (b) : Run the MapReduce Operation
+
+db.students.mapReduce(
+    mapFunction,
+    reduceFunction,
+    { out: "totalMarksTE" }
+);
+
+step 4 (c) : view the result
+
+db.totalMarksTE.find().pretty();
+
