@@ -44,6 +44,274 @@ VALUES
 ('Jane', 'Smith', 'jane.smith@example.com', '2022-05-15', 45000),
 ('Alice', 'Johnson', 'alice.johnson@example.com', '2021-03-22', 75000);
 
+
+ 
+
+question 1 : Create following tables using given schema and insert appropriate data into these tables.
+
+1. Student(StudID, Name, Address, Marks)
+
+2. Employee( EmplyeeID, Name, Address, Salary, DateOfJoining ,Department)
+
+3. Weather(CityID, CityName, MinTemp, MaxTemp)
+
+solution :
+
+step 1:
+
+CREATE DATABASE SchoolDB;
+USE SchoolDB;
+
+step 2 :
+
+-- Create Student table
+CREATE TABLE Student (
+    StudID INT PRIMARY KEY,
+    Name VARCHAR(100),
+    Address VARCHAR(255),
+    Marks DECIMAL(5, 2)
+);
+
+-- Create Employee table
+CREATE TABLE Employee (
+    EmployeeID INT PRIMARY KEY,
+    Name VARCHAR(100),
+    Address VARCHAR(255),
+    Salary DECIMAL(10, 2),
+    DateOfJoining DATE,
+    Department VARCHAR(100)
+);
+
+-- Create Weather table
+CREATE TABLE Weather (
+    CityID INT PRIMARY KEY,
+    CityName VARCHAR(100),
+    MinTemp DECIMAL(5, 2),
+    MaxTemp DECIMAL(5, 2)
+);
+
+
+step 3 : 
+
+-- Insert data into Student table
+INSERT INTO Student (StudID, Name, Address, Marks) VALUES
+(1, 'Alice Johnson', '123 Main St, Anytown', 85.50),
+(2, 'Bob Smith', '456 Elm St, Othertown', 90.00),
+(3, 'Charlie Brown', '789 Maple St, Sometown', 78.25);
+
+-- Insert data into Employee table
+INSERT INTO Employee (EmployeeID, Name, Address, Salary, DateOfJoining, Department) VALUES
+(1, 'John Doe', '101 Pine St, Anytown', 60000.00, '2020-01-15', 'HR'),
+(2, 'Jane Smith', '202 Oak St, Othertown', 70000.00, '2019-03-22', 'IT'),
+(3, 'Emily Davis', '303 Birch St, Sometown', 80000.00, '2021-07-10', 'Finance');
+
+-- Insert data into Weather table
+INSERT INTO Weather (CityID, CityName, MinTemp, MaxTemp) VALUES
+(1, 'Anytown', 15.0, 25.0),
+(2, 'Othertown', 10.0, 20.0),
+(3, 'Sometown', 5.0, 15.0);
+
+step 4 : 
+
+SELECT * FROM Student;
+SELECT * FROM Employee;
+SELECT * FROM Weather;
+
+question 2 : Alter Student and Employee table to add Not Null constraint on all columns.
+
+solution : 
+
+USE SchoolDB;
+
+step 1 :
+
+ALTER TABLE Student 
+MODIFY StudID INT NOT NULL,
+MODIFY Name VARCHAR(100) NOT NULL,
+MODIFY Address VARCHAR(255) NOT NULL,
+MODIFY Marks DECIMAL(5, 2) NOT NULL;
+
+step 2 : 
+
+ALTER TABLE Employee 
+MODIFY EmployeeID INT NOT NULL,
+MODIFY Name VARCHAR(100) NOT NULL,
+MODIFY Address VARCHAR(255) NOT NULL,
+MODIFY Salary DECIMAL(10, 2) NOT NULL,
+MODIFY DateOfJoining DATE NOT NULL,
+MODIFY Department VARCHAR(100) NOT NULL;
+
+step 3 :
+
+DESCRIBE Student;
+DESCRIBE Employee;
+
+question 3 : Alter the Student table to add Primary key constraint on StudID column.
+
+soltuion : 
+
+To add a primary key constraint to the StudID column of the Student table in MySQL, you can use the ALTER TABLE statement. However, since you have already defined StudID as the primary key during table creation, this step is typically unnecessary unless you want to enforce it again or if it was not set initially.
+
+USE SchoolDB;
+
+step 1 : 
+
+ALTER TABLE Student 
+ADD CONSTRAINT pk_Student_StudID PRIMARY KEY (StudID);
+
+step 2 : 
+
+DESCRIBE Student;
+
+question 4 : Create a view JoiningInfo on Employee table displaying Employee ID, Name and
+DateOfJoining of employees.
+
+solution : 
+
+USE SchoolDB;
+
+step 1 : 
+
+CREATE VIEW JoiningInfo AS
+SELECT EmployeeID, Name, DateOfJoining
+FROM Employee;
+
+step 2 : 
+
+SELECT * FROM JoiningInfo;
+
+question 5 : Crete index on primary key columns of all the tables.
+
+solution : 
+
+USE SchoolDB;
+
+step 1 : 
+
+-- Create index on StudID column of Student table
+CREATE INDEX idx_Student_StudID ON Student (StudID);
+
+-- Create index on EmployeeID column of Employee table
+CREATE INDEX idx_Employee_EmployeeID ON Employee (EmployeeID);
+
+-- Create index on CityID column of Weather table
+CREATE INDEX idx_Weather_CityID ON Weather (CityID);
+
+step 2 : 
+
+SHOW INDEX FROM Student;
+SHOW INDEX FROM Employee;
+SHOW INDEX FROM Weather;
+
+question 6 : Create view MarksInfo on Student table displaying StuID and Marks.
+
+solution : 
+
+USE SchoolDB;
+
+step 1 : 
+
+CREATE VIEW MarksInfo AS
+SELECT StudID, Marks
+FROM Student;
+
+step 2 :
+
+SELECT * FROM MarksInfo;
+
+question 7 : Change the name of Weather table to WeatherData.
+
+solution : 
+
+USE SchoolDB;
+
+step 1 : 
+
+RENAME TABLE Weather TO WeatherData;
+
+step 2 : 
+
+SHOW TABLES;
+
+question 8 : Drop column CityName from WeatherData table.
+
+solution : 
+
+USE SchoolDB;
+
+step 1 : 
+
+ALTER TABLE WeatherData 
+DROP COLUMN CityName;
+
+step 2 :
+
+DESCRIBE WeatherData;
+
+question 9 : Add column Grade to Student table.
+
+solution : 
+
+USE SchoolDB;
+
+step 1 : 
+
+ALTER TABLE Student 
+ADD COLUMN Grade VARCHAR(10);
+
+step 2 : 
+
+DESCRIBE Student;
+
+question 10 : Crate a view “DistinctionStudents” on student table displaying data of students having
+Distinction as Grade.
+
+solution : 
+
+USE SchoolDB;
+
+step 1 : 
+
+CREATE VIEW DistinctionStudents AS
+SELECT *
+FROM Student
+WHERE Grade = 'Distinction';
+
+step 2 : 
+
+SELECT * FROM DistinctionStudents;
+
+question 11 : Create a sequence on StudID in student table.
+
+solution : 
+
+USE SchoolDB;
+
+step 1 : 
+
+ALTER TABLE Student 
+MODIFY StudID INT NOT NULL AUTO_INCREMENT;
+
+step 2 :
+
+DESCRIBE Student;
+
+question 12 : Create a synonym ‘Emp_Info’ for Employee table.
+
+solution : 
+
+USE SchoolDB;
+
+step 1 : 
+
+CREATE VIEW Emp_Info AS
+SELECT *
+FROM Employee;
+
+step 2 :
+
+SELECT * FROM Emp_Info;
+
 <======================================================================================================================================================================================================================================================================================================>
 
 exp 1 : Write a PL/SQL block of code for the following requirements:-
@@ -157,6 +425,174 @@ EXCEPTION
         ROLLBACK;
 END;
 
+
+question 1 : Consider table Stud(Roll, Att,Status) Write a PL/SQL block for following
+requirement and handle the exceptions. Roll no. of student will be entered
+by user. Attendance of roll no. entered by user will be checked in Stud
+table. If attendance is less than 75% then display the message “Term not
+granted” and set the status in stud table as “D”. Otherwise display
+message “Term granted” and set the status in stud table as “ND”
+
+solution 1 : 
+
+step 1 : 
+
+CREATE TABLE Student1 (
+    St_roll_no NUMBER,        -- Student roll number
+    St_name VARCHAR(20),      -- Student name (max 20 characters)
+    Att_percentage NUMBER,    -- Attendance percentage
+    Status VARCHAR(20)        -- Detained status ('ND' for Not Detained, 'D' for Detained)
+);
+
+step 2 : 
+
+SET SERVEROUTPUT ON;  -- Enables output to the console
+
+DECLARE
+    roll NUMBER;       -- Variable to store the student roll number
+    atp NUMBER;        -- Variable to store the attendance percentage
+
+BEGIN
+    roll := &St_roll_no;  -- Input the student roll number at runtime
+    -- Fetch the attendance percentage for the student from the Student1 table
+    SELECT Att_percentage INTO atp 
+    FROM Student1 
+    WHERE St_roll_no = roll;
+
+    -- Check if the attendance percentage is greater than 75
+    IF (atp > 75) THEN
+        -- If attendance is more than 75, student is not detained
+        dbms_output.put_line(roll || ' is not detained');
+        -- Update the status to 'ND' (Not Detained)
+        UPDATE Student1 
+        SET Status = 'ND' 
+        WHERE St_roll_no = roll;
+    ELSE
+        -- If attendance is 75 or less, student is detained
+        dbms_output.put_line(roll || ' is detained');
+        -- Update the status to 'D' (Detained)
+        UPDATE Student1 
+        SET Status = 'D' 
+        WHERE St_roll_no = roll;
+    END IF;
+END;
+
+question 3 : Write a PL/SQL block for following requirement using user defined
+exception handling.
+The account_master table records the current balance for an account,
+which is updated whenever, any deposits or withdrawals takes place.
+(Acc_no, Cust_name, Balance)
+Input: Acc_no, Operation, Amount
+If the withdrawal attempted is more than the current balance held in the
+account. The user defined exception is raised, displaying an appropriate
+message. Write a PL/SQL block for above requirement using user defined
+exception handling.
+
+solution : 
+
+DROP TABLE account_master;
+
+step 1 : 
+
+CREATE TABLE account_master (
+    Acc_no NUMBER PRIMARY KEY,        -- Account number (Primary Key)
+    Cust_name VARCHAR(50),            -- Customer name
+    Balance NUMBER                    -- Current balance in the account
+);
+
+step 2 : 
+
+SET SERVEROUTPUT ON;
+
+DECLARE
+    acc_no NUMBER;                   -- Variable to store the account number
+    operation CHAR(1);               -- Variable to store the operation (D for Deposit, W for Withdrawal)
+    amount NUMBER;                   -- Variable to store the amount for deposit or withdrawal
+    current_balance NUMBER;          -- Variable to store the current balance of the account
+    insufficient_funds EXCEPTION;    -- User-defined exception for insufficient funds
+
+BEGIN
+    -- Accept inputs for account number, operation, and amount
+    acc_no := &Acc_no;
+    operation := '&Operation';       -- D for Deposit, W for Withdrawal
+    amount := &Amount;
+
+    -- Fetch the current balance for the given account number
+    SELECT Balance INTO current_balance
+    FROM account_master
+    WHERE Acc_no = acc_no;
+
+    -- Perform operation based on input (D for Deposit, W for Withdrawal)
+    IF operation = 'D' THEN
+        -- Deposit operation: Add the amount to the current balance
+        UPDATE account_master
+        SET Balance = current_balance + amount
+        WHERE Acc_no = acc_no;
+        
+        dbms_output.put_line('Deposit successful. New Balance: ' || (current_balance + amount));
+
+    ELSIF operation = 'W' THEN
+        -- Withdrawal operation: Check if there are sufficient funds
+        IF amount > current_balance THEN
+            -- Raise user-defined exception if withdrawal amount exceeds current balance
+            RAISE insufficient_funds;
+        ELSE
+            -- Perform the withdrawal by subtracting the amount from the current balance
+            UPDATE account_master
+            SET Balance = current_balance - amount
+            WHERE Acc_no = acc_no;
+
+            dbms_output.put_line('Withdrawal successful. New Balance: ' || (current_balance - amount));
+        END IF;
+    ELSE
+        dbms_output.put_line('Invalid operation. Please enter D for Deposit or W for Withdrawal.');
+    END IF;
+
+EXCEPTION
+    -- Handle the insufficient funds exception
+    WHEN insufficient_funds THEN
+        dbms_output.put_line('Error: Insufficient funds for withdrawal. Current Balance: ' || current_balance);
+
+    -- Handle any other unexpected errors
+    WHEN OTHERS THEN
+        dbms_output.put_line('An unexpected error occurred: ' || SQLERRM);
+
+END;
+
+question 4 : Write a PL/SQL code block to calculate the area of a circle for a value of
+radius varying from 5 to 9. Store the radius and the corresponding values
+of calculated area in an empty table named areas, consisting of two
+columns, radius and area.
+
+step 1 : 
+
+CREATE TABLE circle (
+    RADIUS NUMBER,  -- The radius of the circle
+    AREA NUMBER     -- The calculated area of the circle
+);
+
+step 2 :
+
+SET serveroutput ON;  -- Enable output to the console
+
+DECLARE
+    rad NUMBER := &r;  -- Variable to store the input radius (r), entered by the user
+    a NUMBER;          -- Variable to store the calculated area
+BEGIN
+    -- Check if the radius is between 5 and 9
+    IF (rad >= 5 AND rad <= 9) THEN
+        -- Calculate the area of the circle (Area = π * radius^2)
+        a := 3.14 * (rad ** 2);
+        
+        -- Insert the radius and calculated area into the circle table
+        INSERT INTO circle (RADIUS, AREA) 
+        VALUES (rad, a);
+        
+    ELSE
+        -- If the radius is outside the 5 to 9 range, display a message
+        DBMS_OUTPUT.put_line('Please enter radius between 5 and 9');
+    END IF;
+END;
 <=======================================================================================================================================================================================================================================================================================================>
 
 Exp 2 : Design and Develop MongoDB Queries using CRUD
@@ -321,7 +757,7 @@ commands to start it
 
 - db.product.find({
     price: { $not: { $gt: 150 } }
-})
+})    
 
 <===================================================================================================================================================================================================================================================================================================>
 
@@ -422,6 +858,268 @@ Step 5: Check the Results
 -- Query the Result table to see the classifications
 SELECT * FROM Result;
 
+
+question 1 : Write a stored function in PL/SQL for given requirement and use the same
+in PL/SQL block.
+Account no. and branch name will be accepted from user. The same will
+be searched in table acct_details. If status of account is active then display
+appropriate message and also store the account details in
+active_acc_details table, otherwise display message on screen “account is
+inactive”.
+
+solution : 
+
+Step 1: Create the Tables in Oracle
+
+-- Create table to store account details
+CREATE TABLE acct_details (
+    account_no NUMBER PRIMARY KEY,   -- Account number (Primary Key)
+    branch_name VARCHAR2(100),       -- Name of the branch
+    status VARCHAR2(10)              -- Status of the account ('active' or 'inactive')
+);
+
+-- Create table to store active account details
+CREATE TABLE active_acc_details (
+    account_no NUMBER PRIMARY KEY,   -- Account number (Primary Key)
+    branch_name VARCHAR2(100),       -- Name of the branch
+    added_on DATE                    -- Date when the account was added to the active account details
+);
+
+step 2 : Create the PL/SQL Function
+
+-- Create or replace a function to check and store active accounts
+CREATE OR REPLACE FUNCTION check_and_store_active_account (
+    p_account_no IN NUMBER,          -- Account number (input parameter)
+    p_branch_name IN VARCHAR2        -- Branch name (input parameter)
+) RETURN VARCHAR2 IS
+    v_status acct_details.status%TYPE;  -- Variable to hold the status of the account
+BEGIN
+    -- Search for the account number and branch name in the acct_details table
+    SELECT status
+    INTO v_status
+    FROM acct_details
+    WHERE account_no = p_account_no
+      AND branch_name = p_branch_name;
+
+    -- Check if the account is active
+    IF v_status = 'active' THEN
+        -- Insert the account details into the active_acc_details table
+        INSERT INTO active_acc_details (account_no, branch_name, added_on)
+        VALUES (p_account_no, p_branch_name, SYSDATE);  -- SYSDATE records the current date
+
+        RETURN 'Account is active and details stored successfully.';  -- Success message
+    ELSE
+        RETURN 'Account is inactive.';  -- Message if the account is inactive
+    END IF;
+
+EXCEPTION
+    -- Handle the case where no account is found in the acct_details table
+    WHEN NO_DATA_FOUND THEN
+        RETURN 'Account not found.';  -- Message if no matching account is found
+END check_and_store_active_account;
+/
+
+Step 3: Use the Function in an Anonymous PL/SQL Block
+
+-- Anonymous PL/SQL block to use the function
+DECLARE
+    v_account_no NUMBER;            -- Variable to hold the input account number
+    v_branch_name VARCHAR2(100);    -- Variable to hold the input branch name
+    v_message VARCHAR2(255);        -- Variable to hold the result message from the function
+BEGIN
+    -- Accept input from the user (use substitution variables in SQL*Plus or SQL Developer)
+    v_account_no := &account_no;    -- User enters account number
+    v_branch_name := '&branch_name';-- User enters branch name
+
+    -- Call the function and store the result in v_message
+    v_message := check_and_store_active_account(v_account_no, v_branch_name);
+
+    -- Display the message returned by the function
+    DBMS_OUTPUT.PUT_LINE(v_message);  -- Output the result message to the console
+END;
+/
+
+
+question 3 : Consider following schema for Bank database. Account(Account_No,
+Cust_Name, Balance, NoOfYears) Earned_Interest(Account_No,
+Interest_Amt) Write a PL/SQL procedure for following requirement. Take
+as input Account_No and Interest Rate from User. Calculate the
+Interest_Amt as simple interest for the given Account_No and store it in
+Earned_Interest table. Display all the details of Earned_Interest Table.
+
+solution 
+
+Step 1: Create the Tables
+
+-- Table to store account details
+CREATE TABLE Account (
+    Account_No NUMBER PRIMARY KEY,  -- Unique account number (Primary Key)
+    Cust_Name VARCHAR2(100),        -- Customer's name
+    Balance NUMBER,                 -- Balance in the account
+    NoOfYears NUMBER                -- Number of years the account has been active
+);
+
+-- Table to store earned interest details
+CREATE TABLE Earned_Interest (
+    Account_No NUMBER PRIMARY KEY,  -- Account number (Primary Key)
+    Interest_Amt NUMBER              -- Calculated interest amount
+);
+
+Step 2: Create the PL/SQL Procedure
+
+CREATE OR REPLACE PROCEDURE proc_Calculate_Interest (
+    p_account_no IN NUMBER,          -- Account number input
+    p_interest_rate IN NUMBER         -- Interest rate input
+) IS
+    v_balance Account.Balance%TYPE;   -- Variable to hold the account balance
+    v_no_of_years Account.NoOfYears%TYPE;  -- Variable to hold the number of years
+    v_interest_amt NUMBER;            -- Variable to hold the calculated interest amount
+BEGIN
+    -- Fetch the Balance and NoOfYears for the given Account_No from the Account table
+    SELECT Balance, NoOfYears
+    INTO v_balance, v_no_of_years
+    FROM Account
+    WHERE Account_No = p_account_no;
+
+    -- Calculate the interest amount as simple interest
+    v_interest_amt := (v_balance * v_no_of_years * p_interest_rate) / 100;
+
+    -- Insert or update the interest amount in the Earned_Interest table
+    MERGE INTO Earned_Interest ei
+    USING (SELECT p_account_no AS Account_No FROM dual) src
+    ON (ei.Account_No = src.Account_No)
+    WHEN MATCHED THEN
+        UPDATE SET ei.Interest_Amt = v_interest_amt
+    WHEN NOT MATCHED THEN
+        INSERT (Account_No, Interest_Amt) 
+        VALUES (p_account_no, v_interest_amt);
+
+    -- Commit the transaction
+    COMMIT;
+
+    -- Display the updated Earned_Interest table
+    DBMS_OUTPUT.PUT_LINE('Account No  |  Interest Amount');
+    FOR rec IN (SELECT * FROM Earned_Interest) LOOP
+        DBMS_OUTPUT.PUT_LINE(rec.Account_No || '          |  ' || rec.Interest_Amt);
+    END LOOP;
+
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('Account not found.');  -- Handle case when account not found
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);   -- Handle other exceptions
+END proc_Calculate_Interest;
+/
+
+Step 3: Declare and Execute the Procedure
+
+-- Declare variables to hold input values
+DECLARE
+    v_account_no NUMBER;            -- Variable to hold account number
+    v_interest_rate NUMBER;         -- Variable to hold interest rate
+BEGIN
+    -- Accept input from user
+    v_account_no := &account_no;    -- User enters account number
+    v_interest_rate := &interest_rate;  -- User enters interest rate
+
+    -- Call the procedure to calculate interest
+    proc_Calculate_Interest(v_account_no, v_interest_rate);
+END;
+/
+
+Step 4: Insert Sample Data into the Account Table
+
+-- Insert sample data into Account table
+INSERT INTO Account (Account_No, Cust_Name, Balance, NoOfYears) 
+VALUES (101, 'John Doe', 50000, 5);
+
+INSERT INTO Account (Account_No, Cust_Name, Balance, NoOfYears) 
+VALUES (102, 'Jane Doe', 30000, 3);
+
+Step 5: Execute the Procedure with Specific Inputs
+
+-- Execute the PL/SQL block
+DECLARE
+    v_account_no NUMBER;            -- Variable to hold account number
+    v_interest_rate NUMBER;         -- Variable to hold interest rate
+BEGIN
+    v_account_no := 102;            -- Example account number
+    v_interest_rate := 3;           -- Example interest rate
+
+    -- Call the procedure to calculate interest
+    proc_Calculate_Interest(v_account_no, v_interest_rate);
+END;
+/
+
+Step 6: View the Results
+
+-- Select all records from the Earned_Interest table to view results
+SELECT * FROM Earned_Interest;
+
+quetion 4 : Consider following schema for Sales table
+Sales (Item_No int, Quantity int, Unit_Price number, Status varchar(20))
+Status can be “Shipped” or “Delivered” or “Returned”
+Write a PLSQL function to calculate the total amount of Sales for Items
+with status “Shipped”. (total_amount = SUM(Quantity * Unit_Price)
+Display the Total Amount of sales.
+
+solution 
+
+Step 1: Create the Sales Table
+
+-- Create the Sales table
+CREATE TABLE Sales (
+    Item_No INT PRIMARY KEY,          -- Unique identifier for each item (Primary Key)
+    Quantity INT,                     -- Quantity of the item sold
+    Unit_Price NUMBER,                -- Price per unit of the item
+    Status VARCHAR2(20)               -- Status of the sale (e.g., Shipped, Delivered, Returned)
+);
+
+Step 2: Insert Sample Data into the Sales Table
+
+-- Insert sample data into Sales table
+INSERT INTO Sales (Item_No, Quantity, Unit_Price, Status) VALUES (101, 10, 100, 'Shipped');
+INSERT INTO Sales (Item_No, Quantity, Unit_Price, Status) VALUES (102, 5, 200, 'Delivered');
+INSERT INTO Sales (Item_No, Quantity, Unit_Price, Status) VALUES (103, 8, 150, 'Shipped');
+INSERT INTO Sales (Item_No, Quantity, Unit_Price, Status) VALUES (104, 2, 300, 'Returned');
+
+Step 3: Create the Function to Calculate Total Shipped Sales
+
+-- Create a function to calculate the total shipped sales amount
+CREATE OR REPLACE FUNCTION calc_total_shipped_sales RETURN NUMBER IS
+    v_total_amount NUMBER := 0;      -- Variable to hold the total amount
+BEGIN
+    -- Calculate the total amount for items with status 'Shipped'
+    SELECT SUM(Quantity * Unit_Price)
+    INTO v_total_amount
+    FROM Sales
+    WHERE Status = 'Shipped';
+
+    -- Return the total amount; if no records are found, return 0
+    RETURN NVL(v_total_amount, 0);
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN 0;  -- Return 0 if no records are found
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);  -- Output any errors
+        RETURN 0;
+END calc_total_shipped_sales;
+/
+
+Step 4: Execute the Function in an Anonymous PL/SQL Block
+
+-- Execute the PL/SQL block to display total amount of shipped sales
+DECLARE
+    v_total_amount NUMBER;            -- Variable to hold the total amount
+BEGIN
+    -- Call the function to calculate the total amount of shipped sales
+    v_total_amount := calc_total_shipped_sales;
+
+    -- Display the total amount
+    DBMS_OUTPUT.PUT_LINE('Total Amount of Shipped Sales: ' || v_total_amount);
+END;
+/
+
 <======================================================================================================================================================================================================================================================================================================>
 
 exp 3 : Write a PL/SQL block of code using parameterized Cursor that
@@ -514,6 +1212,171 @@ step 4 :
 
 -- Query the O_RollCall table to see the results
 SELECT * FROM O_RollCall;
+
+
+question 2 : Write a PL/SQL block of code demonstrating Implicit Cursor that will
+display total number of tuples from RollCall Table having schema as
+follows.
+RollCall (RollNo, Date, Attendance) The Attendance column can take
+values as ‘P’ or ‘A’
+Use Cursor Attributes to demonstrate the working of Implicit cursor.
+
+solution 
+
+Step 1: Create the StudentGrades Table
+
+-- Create the StudentGrades table
+CREATE TABLE StudentGrades (
+    StudentID NUMBER,                     -- Unique identifier for each student
+    Course VARCHAR2(50),                  -- Course name
+    Grade CHAR(1) CHECK (Grade IN ('A', 'B', 'C', 'D', 'F'))  -- Grade with a constraint
+);
+
+Step 2: Insert Sample Data into the StudentGrades Table
+
+-- Inserting sample data into StudentGrades table
+INSERT INTO StudentGrades (StudentID, Course, Grade) VALUES (1, 'Math', 'A');
+INSERT INTO StudentGrades (StudentID, Course, Grade) VALUES (2, 'Math', 'B');
+INSERT INTO StudentGrades (StudentID, Course, Grade) VALUES (3, 'Math', 'A');
+INSERT INTO StudentGrades (StudentID, Course, Grade) VALUES (4, 'Math', 'C');
+INSERT INTO StudentGrades (StudentID, Course, Grade) VALUES (5, 'Math', 'A');
+
+
+Step 3: PL/SQL Block to Count Students with Grade 'A'
+
+DECLARE
+    total_a_count NUMBER;  -- Variable to store the count of 'A' grades
+BEGIN
+    -- Implicit cursor to select count of students with grade 'A'
+    SELECT COUNT(*)
+    INTO total_a_count
+    FROM StudentGrades
+    WHERE Grade = 'A';
+
+    -- Display the total count using DBMS_OUTPUT
+    DBMS_OUTPUT.PUT_LINE('Total number of students with grade A: ' || total_a_count);
+
+    -- Display the row count using SQL%ROWCOUNT
+    DBMS_OUTPUT.PUT_LINE('Rows processed by the last SQL statement: ' || SQL%ROWCOUNT);
+END;
+/
+
+
+ question 3 : Write a PL/SQL block of code using Parameterized Cursor that will
+display all Attendance details of Roll No entered by the user.
+
+Step 1 : Create the StudentAttendance Table
+
+-- Create the StudentAttendance table
+CREATE TABLE StudentAttendance (
+    StudentID NUMBER,                       -- Unique identifier for each student
+    ClassDate DATE,                         -- Date of the class
+    Status VARCHAR2(10) CHECK (Status IN ('Present', 'Absent'))  -- Attendance status
+);
+
+Step 2: Insert Sample Data into the StudentAttendance Table
+
+-- Inserting sample data into StudentAttendance table
+INSERT INTO StudentAttendance (StudentID, ClassDate, Status) VALUES (101, TO_DATE('2024-10-01', 'YYYY-MM-DD'), 'Present');
+INSERT INTO StudentAttendance (StudentID, ClassDate, Status) VALUES (101, TO_DATE('2024-10-02', 'YYYY-MM-DD'), 'Absent');
+INSERT INTO StudentAttendance (StudentID, ClassDate, Status) VALUES (102, TO_DATE('2024-10-01', 'YYYY-MM-DD'), 'Present');
+INSERT INTO StudentAttendance (StudentID, ClassDate, Status) VALUES (102, TO_DATE('2024-10-02', 'YYYY-MM-DD'), 'Present');
+INSERT INTO StudentAttendance (StudentID, ClassDate, Status) VALUES (101, TO_DATE('2024-10-03', 'YYYY-MM-DD'), 'Present');
+
+Step 3: PL/SQL Block to Retrieve Attendance Records
+
+DECLARE
+    -- Variable to hold user input
+    v_student_id NUMBER;  
+    
+    -- Cursor declaration with a parameter
+    CURSOR attendance_cursor (student_id_param NUMBER) IS
+        SELECT ClassDate, Status
+        FROM StudentAttendance
+        WHERE StudentID = student_id_param;
+
+BEGIN
+    -- Simulating user input; replace with actual user input mechanism as needed
+    v_student_id := 101;  -- For demonstration, we're setting it directly
+
+    -- Open the cursor with the specified student ID
+    FOR attendance_record IN attendance_cursor(v_student_id) LOOP
+        DBMS_OUTPUT.PUT_LINE('Class Date: ' || attendance_record.ClassDate || 
+                             ' - Status: ' || attendance_record.Status);
+    END LOOP;
+
+    -- Check if no records were processed and print a message if so
+    IF SQL%ROWCOUNT = 0 THEN
+        DBMS_OUTPUT.PUT_LINE('No attendance records found for Student ID: ' || v_student_id);
+    END IF;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('An error occurred: ' || SQLERRM);
+END;
+/
+
+question 4 : 4.	Consider the following schema for Products table.
+Products(Product_id, Product_Name, Product_Type, Price)
+Write a parameterized cursor to display all products in the given price range
+of price and type ‘Apparel’.
+Hint: Take the user input for minimum and maximum price for price range.
+
+Step 1: Create the Products Table
+
+-- Create the Products table
+CREATE TABLE Products (
+    Product_id NUMBER PRIMARY KEY,        -- Unique identifier for each product
+    Product_Name VARCHAR2(50),            -- Name of the product
+    Product_Type VARCHAR2(50),            -- Type of the product (e.g., Apparel, Footwear)
+    Price NUMBER                           -- Price of the product
+);
+
+Step 2: Insert Sample Data into the Products Table
+
+-- Inserting sample data into Products table
+INSERT INTO Products (Product_id, Product_Name, Product_Type, Price) VALUES (1, 'T-Shirt', 'Apparel', 25);
+INSERT INTO Products (Product_id, Product_Name, Product_Type, Price) VALUES (2, 'Jeans', 'Apparel', 50);
+INSERT INTO Products (Product_id, Product_Name, Product_Type, Price) VALUES (3, 'Sneakers', 'Footwear', 70);
+INSERT INTO Products (Product_id, Product_Name, Product_Type, Price) VALUES (4, 'Jacket', 'Apparel', 80);
+INSERT INTO Products (Product_id, Product_Name, Product_Type, Price) VALUES (5, 'Hat', 'Apparel', 15);
+
+Step 3: PL/SQL Block to Retrieve Apparel Products within a Price Range
+
+DECLARE
+    -- Variables to hold user input for price range
+    v_min_price NUMBER;  -- Minimum price
+    v_max_price NUMBER;  -- Maximum price
+
+    -- Cursor declaration with parameters for price range
+    CURSOR product_cursor (min_price_param NUMBER, max_price_param NUMBER) IS
+        SELECT Product_id, Product_Name, Price
+        FROM Products
+        WHERE Product_Type = 'Apparel'
+          AND Price BETWEEN min_price_param AND max_price_param;
+
+BEGIN
+    -- Simulating user input; replace with actual user input mechanism as needed
+    v_min_price := 20;  -- For demonstration, setting it directly
+    v_max_price := 60;  -- For demonstration, setting it directly
+
+    -- Open the cursor with the specified price range
+    FOR product_record IN product_cursor(v_min_price, v_max_price) LOOP
+        DBMS_OUTPUT.PUT_LINE('Product ID: ' || product_record.Product_id || 
+                             ' - Name: ' || product_record.Product_Name || 
+                             ' - Price: ' || product_record.Price);
+    END LOOP;
+
+    -- Check if no records were processed and print a message if so
+    IF SQL%ROWCOUNT = 0 THEN
+        DBMS_OUTPUT.PUT_LINE('No products found in the specified price range.');
+    END IF;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('An error occurred: ' || SQLERRM);
+END;
+/
 
 <==================================================================================================================================================================================================================================================================================================>
 
@@ -663,6 +1526,332 @@ INSERT INTO Employee_Projects (employee_id, project_id) VALUES
 (3, 301),
 (5, 302);
 
+
+
+Q1.Consider the following schema:
+Sailors (sid, sname, rating, age)
+Boats (bid, bname, color)
+Reserves (sid, bid, day(date))
+1. Find all information of sailors who have reserved boat number 101.
+2. Find the name of the boat reserved by Bob.
+3. Find the names of sailors who have reserved a red boat, and list in the order of age.
+4. Find the names of sailors who have reserved at least one boat.
+5. Find the ids and names of sailors who have reserved two different boats on the same
+day.
+6. Find the ids of sailors who have reserved a red boat or a green boat.
+7. Find the name and the age of the youngest sailor.
+8. Count the number of different sailor names.
+9. Find the average age of sailors for each rating level.
+10. Find the average age of sailors for each rating level that has at least two sailors
+
+solution : 
+
+CREATE DATABASE SailorDB;
+USE SailorDB;
+
+step 1 :
+
+-- Create Sailors table
+CREATE TABLE Sailors (
+    sid INT PRIMARY KEY,
+    sname VARCHAR(100),
+    rating INT,
+    age INT
+);
+
+-- Create Boats table
+CREATE TABLE Boats (
+    bid INT PRIMARY KEY,
+    bname VARCHAR(100),
+    color VARCHAR(50)
+);
+
+-- Create Reserves table
+CREATE TABLE Reserves (
+    sid INT,
+    bid INT,
+    day DATE,
+    PRIMARY KEY (sid, bid, day),
+    FOREIGN KEY (sid) REFERENCES Sailors(sid),
+    FOREIGN KEY (bid) REFERENCES Boats(bid)
+);
+
+-- Insert data into Sailors
+INSERT INTO Sailors (sid, sname, rating, age) VALUES
+(1, 'Bob', 7, 25),
+(2, 'Alice', 10, 22),
+(3, 'Charlie', 5, 30),
+(4, 'David', 8, 27);
+
+-- Insert data into Boats
+INSERT INTO Boats (bid, bname, color) VALUES
+(101, 'Boat A', 'red'),
+(102, 'Boat B', 'blue'),
+(103, 'Boat C', 'green');
+
+-- Insert data into Reserves
+INSERT INTO Reserves (sid, bid, day) VALUES
+(1, 101, '2023-01-01'),
+(1, 102, '2023-01-02'),
+(2, 101, '2023-01-03'),
+(3, 103, '2023-01-01'),
+(4, 101, '2023-01-01'),
+(4, 102, '2023-01-01'),
+(2, 103, '2023-01-04');
+
+1. Find all information of sailors who have reserved boat number 101.
+
+SELECT *
+FROM Sailors
+WHERE sid IN (SELECT sid FROM Reserves WHERE bid = 101);
+
+2. Find the name of the boat reserved by Bob.
+
+SELECT b.bname
+FROM Boats b
+JOIN Reserves r ON b.bid = r.bid
+JOIN Sailors s ON r.sid = s.sid
+WHERE s.sname = 'Bob';
+
+3. Find the names of sailors who have reserved a red boat, and list in the order of age.
+
+SELECT DISTINCT s.sname, s.age
+FROM Sailors s
+JOIN Reserves r ON s.sid = r.sid
+JOIN Boats b ON r.bid = b.bid
+WHERE b.color = 'red'
+ORDER BY s.age;
+
+4. Find the names of sailors who have reserved at least one boat.
+
+SELECT DISTINCT s.sname
+FROM Sailors s
+JOIN Reserves r ON s.sid = r.sid;
+
+5. Find the ids and names of sailors who have reserved two different boats on the same day.
+
+SELECT r1.sid, s.sname
+FROM Reserves r1
+JOIN Reserves r2 ON r1.sid = r2.sid AND r1.bid <> r2.bid AND r1.day = r2.day
+JOIN Sailors s ON r1.sid = s.sid
+GROUP BY r1.sid, s.sname;
+
+6. Find the ids of sailors who have reserved a red boat or a green boat.
+
+SELECT DISTINCT r.sid
+FROM Reserves r
+JOIN Boats b ON r.bid = b.bid
+WHERE b.color IN ('red', 'green');
+
+7. Find the name and the age of the youngest sailor.
+
+SELECT s.sname, s.age
+FROM Sailors s
+WHERE s.age = (SELECT MIN(age) FROM Sailors);
+
+8. Count the number of different sailor names.
+
+SELECT COUNT(DISTINCT sname) AS unique_sailor_names
+FROM Sailors;
+
+9. Find the average age of sailors for each rating level.
+
+SELECT rating, AVG(age) AS average_age
+FROM Sailors
+GROUP BY rating;
+
+10. Find the average age of sailors for each rating level that has at least two sailors.
+
+SELECT rating, AVG(age) AS average_age
+FROM Sailors
+GROUP BY rating
+HAVING COUNT(*) >= 2;
+
+Q2.Consider a parallel DBMS in which each relation is stored by horizontally partitioning its
+tuples across all disks. Employees(eid: integer, did: integer, sal: real) Departments(did:
+integer, mgrid: integer, budget: integer)
+1.Find the highest paid employee.
+2. Find the highest paid employee in the department with did 55.
+3. Find the highest paid employee over all departments with a budget less than 100,000.
+4. Find the highest paid employee over all departments with a budget less than 300,000.
+5. Find the average salary over all departments with a budget less than 300,000.
+6. Find the salaries of all managers. 7. Find the salaries of all managers who manage a
+department with a budget less than 300,000 and earn more than 100,000.
+
+solution : 
+
+CREATE DATABASE CompanyDB;
+USE CompanyDB;
+
+-- Create Employees table
+CREATE TABLE Employees (
+    eid INT PRIMARY KEY,
+    did INT,
+    sal REAL
+);
+
+-- Create Departments table
+CREATE TABLE Departments (
+    did INT PRIMARY KEY,
+    mgrid INT,
+    budget INT
+);
+
+-- Insert data into Employees
+INSERT INTO Employees (eid, did, sal) VALUES
+(1, 10, 95000),
+(2, 20, 120000),
+(3, 30, 85000),
+(4, 55, 110000),
+(5, 20, 130000),
+(6, 10, 75000);
+
+-- Insert data into Departments
+INSERT INTO Departments (did, mgrid, budget) VALUES
+(10, 1, 500000),
+(20, 2, 150000),
+(30, 3, 80000),
+(55, 4, 90000);
+
+1. Find the highest paid employee.
+
+SELECT *
+FROM Employees
+ORDER BY sal DESC
+LIMIT 1;
+
+2. Find the highest paid employee in the department with did 55.
+
+SELECT *
+FROM Employees
+WHERE did = 55
+ORDER BY sal DESC
+LIMIT 1;
+
+3. Find the highest paid employee over all departments with a budget less than 100,000.
+
+SELECT *
+FROM Employees
+WHERE did IN (SELECT did FROM Departments WHERE budget < 100000)
+ORDER BY sal DESC
+LIMIT 1;
+
+4. Find the highest paid employee over all departments with a budget less than 300,000.
+
+SELECT *
+FROM Employees
+WHERE did IN (SELECT did FROM Departments WHERE budget < 300000)
+ORDER BY sal DESC
+LIMIT 1;
+
+5. Find the average salary over all departments with a budget less than 300,000.
+
+SELECT AVG(sal) AS average_salary
+FROM Employees
+WHERE did IN (SELECT did FROM Departments WHERE budget < 300000);
+
+6. Find the salaries of all managers.
+
+SELECT DISTINCT e.sal
+FROM Employees e
+JOIN Departments d ON e.did = d.did
+WHERE e.eid = d.mgrid;
+
+7. Find the salaries of all managers who manage a department with a budget less than 300,000 and earn more than 100,000.
+
+SELECT DISTINCT e.sal
+FROM Employees e
+JOIN Departments d ON e.did = d.did
+WHERE e.eid = d.mgrid AND d.budget < 300000 AND e.sal > 100000;
+
+question 3 : Create tables and perform the following
+1. How the resulting salaries if every employee working on the ‘Research’ Departments is
+given a 10 percent raise.
+2. Find the sum of the salaries of all employees of the ‘Accounts’ department, as well as the
+maximum salary, the minimum salary, and the average salary in this department
+3. Retrieve the name of each employee Controlled by department number 5 (use EXISTS
+operator).
+
+4. Retrieve the name of each dept and number of employees working in each department
+which has at least 2 employees
+5. Retrieve the name of employees who were born in the year 1990’s
+6. Retrieve the name of employees and their dept name (using JOIN).
+
+solution : 
+
+CREATE TABLE employee (
+    employee_id INT PRIMARY KEY,
+    fname VARCHAR(50),
+    minit CHAR(1),
+    lname VARCHAR(50),
+    ssn CHAR(9),
+    bdate DATE,
+    address VARCHAR(100),
+    sex CHAR(1),
+    salary INT,
+    supersssn CHAR(9),
+    dno INT
+);
+
+CREATE TABLE department (
+    dname VARCHAR(50) PRIMARY KEY,
+    dnumber INT,
+    mgrssn CHAR(9),
+    mgrstartdate DATE
+);
+
+INSERT INTO employee (employee_id, fname, minit, lname, ssn, bdate, address, sex, salary, supersssn, dno) VALUES
+(1, 'John', 'B', 'Smith', '123456780', '1965-01-09', '731 Fondren, Houston, TX', 'M', 30000, '333445555', 5),
+(2, 'Franklin', 'T', 'Wong', '333445555', '1955-12-08', '638 Voss, Houston, TX', 'M', 40000, '060065555', 5),
+-- ... (continue with remaining employee data)
+
+INSERT INTO department (dname, dnumber, mgrssn, mgrstartdate) VALUES
+('Research', 5, '333445555', '1988-05-22'),
+('Administration', 4, '987654321', '1995-01-01'),
+-- ... (continue with remaining department data)
+
+1. 10% Raise for Research Department
+
+UPDATE employee
+SET salary = salary * 1.1
+WHERE dno = (SELECT dnumber FROM department WHERE dname = 'Research');
+
+2. Calculations for Accounts Department (Assuming dname = 'Accounts')
+
+SELECT SUM(salary), MAX(salary), MIN(salary), AVG(salary)
+FROM employee
+WHERE dno = (SELECT dnumber FROM department WHERE dname = 'Accounts');
+
+3. Employees Controlled by Department 5 (using EXISTS)
+
+SELECT e.fname, e.lname
+FROM employee e
+WHERE EXISTS (
+    SELECT 1
+    FROM department d
+    WHERE d.dnumber = 5 AND d.mgrssn = e.ssn
+);
+
+4. Departments with at least 2 employees
+
+SELECT d.dname, COUNT(e.employee_id) AS num_employees
+FROM department d
+JOIN employee e ON d.dnumber = e.dno
+GROUP BY d.dname
+HAVING COUNT(e.employee_id) >= 2;
+
+5. Employees born in the 1990s
+
+SELECT fname, lname
+FROM employee
+WHERE YEAR(bdate) BETWEEN 1990 AND 1999;
+
+6. Employees and their departments (using JOIN)
+
+SELECT e.fname, e.lname, d.dname
+FROM employee e
+JOIN department d ON e.dno = d.dnumber;
+
 <========================================================================================================================================================================================================================================================================================================>
 
 exp 4 : Write a database trigger on Library table. The System should keep 
@@ -760,6 +1949,231 @@ step 7 :
 -- Query the Library_Audit table to see the audit logs
 SELECT * FROM Library_Audit;
 
+quetion 2 : Write a update, delete trigger on clientmstr table. The System should keep
+track of the records that ARE BEING updated or deleted. The old value of
+updated or deleted records should be added in audit_trade table. (Separate
+implementation using both row and statement triggers)
+
+solution 
+
+Step 1: Create the products Table
+
+-- Create the products table
+CREATE TABLE products (
+    ProductID NUMBER PRIMARY KEY,     -- Unique identifier for each product
+    ProductName VARCHAR2(100),        -- Name of the product
+    Quantity NUMBER,                  -- Available quantity of the product
+    Price NUMBER                      -- Price of the product
+);
+
+Step 2: Insert Sample Data into the products Table
+
+-- Insert sample data
+INSERT INTO products (ProductID, ProductName, Quantity, Price) VALUES (1, 'Laptop', 50, 1000);
+INSERT INTO products (ProductID, ProductName, Quantity, Price) VALUES (2, 'Smartphone', 200, 700);
+
+Step 3: Create the audit_log Table
+
+-- Create the audit_log table
+CREATE TABLE audit_log (
+    AuditID NUMBER PRIMARY KEY,       -- Unique identifier for each audit record
+    ProductID NUMBER,                 -- ID of the affected product
+    ProductName VARCHAR2(100),        -- Name of the affected product
+    Quantity NUMBER,                  -- Quantity of the affected product
+    Price NUMBER,                     -- Price of the affected product
+    Action VARCHAR2(10),              -- Action taken ('UPDATE' or 'DELETE')
+    AuditTimestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP  -- Timestamp of the action
+);
+
+Step 4: Create the audit_seq Sequence
+
+-- Create the audit_seq sequence
+CREATE SEQUENCE audit_seq START WITH 1 INCREMENT BY 1;
+
+Step 5: Create Row-Level Trigger for Auditing Updates and Deletes
+
+-- Create row-level trigger
+CREATE OR REPLACE TRIGGER trg_products_row
+AFTER UPDATE OR DELETE ON products
+FOR EACH ROW
+BEGIN
+    IF UPDATING THEN
+        INSERT INTO audit_log (AuditID, ProductID, ProductName, Quantity, Price, Action)
+        VALUES (audit_seq.NEXTVAL, :OLD.ProductID, :OLD.ProductName, :OLD.Quantity, :OLD.Price, 'UPDATE');
+    
+    ELSIF DELETING THEN
+        INSERT INTO audit_log (AuditID, ProductID, ProductName, Quantity, Price, Action)
+        VALUES (audit_seq.NEXTVAL, :OLD.ProductID, :OLD.ProductName, :OLD.Quantity, :OLD.Price, 'DELETE');
+    END IF;
+END;
+/
+
+Step 6: Create Statement-Level Trigger for Batch Updates and Deletes
+
+-- Create statement-level trigger
+CREATE OR REPLACE TRIGGER trg_products_statement
+AFTER UPDATE OR DELETE ON products
+BEGIN
+    IF UPDATING THEN
+        INSERT INTO audit_log (AuditID, ProductID, ProductName, Quantity, Price, Action)
+        VALUES (audit_seq.NEXTVAL, NULL, NULL, NULL, NULL, 'BATCH UPDATE');
+    END IF;
+
+    IF DELETING THEN
+        INSERT INTO audit_log (AuditID, ProductID, ProductName, Quantity, Price, Action)
+        VALUES (audit_seq.NEXTVAL, NULL, NULL, NULL, NULL, 'BATCH DELETE');
+    END IF;
+END;
+/
+
+Step 7: Update and Delete Products
+
+-- Update product price
+UPDATE products
+SET Price = 950
+WHERE ProductID = 1;
+
+-- Delete a product
+DELETE FROM products
+WHERE ProductID = 2;
+
+Step 8: Select from the audit_log Table
+
+-- Select from the audit_log to view audit records
+SELECT * FROM audit_log;
+
+
+question 3 : Write a before trigger for Insert, update event considering following
+requirement:
+Emp(e_no, e_name, salary)
+I) Trigger action should be initiated when salary is tried to be inserted is
+less than Rs. 50,000/-
+II) Trigger action should be initiated when salary is tried to be updated for
+value less than Rs. 50,000/-
+Action should be rejection of update or Insert operation by displaying
+appropriate error message. Also, the new values expected to be inserted
+will be stored in new table Tracking(e_no, salary).
+
+solution :
+
+Step 1: Create the Emp Table
+
+-- Create the Emp table if it doesn't exist
+CREATE TABLE Emp (
+    e_no NUMBER PRIMARY KEY,          -- Employee number (Primary Key)
+    e_name VARCHAR2(100),             -- Employee name
+    salary NUMBER                     -- Employee salary
+);
+
+Step 2: Create the Tracking Table
+
+-- Create the Tracking table if it doesn't exist
+CREATE TABLE Tracking (
+    e_no NUMBER,                      -- Employee number
+    salary NUMBER                     -- The salary attempted to be inserted/updated
+);
+
+Step 3: Create the trg_emp_salary_check Trigger
+
+-- Create or replace the trigger for salary validation
+CREATE OR REPLACE TRIGGER trg_emp_salary_check
+BEFORE INSERT OR UPDATE ON Emp
+FOR EACH ROW
+DECLARE
+    v_msg VARCHAR2(100);              -- Variable to hold the error message
+BEGIN
+    -- Check if the new salary is below Rs. 50,000
+    IF :NEW.salary < 50000 THEN
+        -- Define the error message
+        v_msg := 'Salary must be at least Rs. 50,000/-';
+        
+        -- Insert the rejected salary into the Tracking table
+        INSERT INTO Tracking (e_no, salary) VALUES (:NEW.e_no, :NEW.salary);
+        
+        -- Raise an application error to reject the insert or update
+        RAISE_APPLICATION_ERROR(-20001, v_msg);
+    END IF;
+END;
+/
+
+Step 4: Test the Trigger by Inserting Data into the Emp Table
+
+-- Attempt to insert a new employee with a salary below Rs. 50,000
+INSERT INTO Emp (e_no, e_name, salary) VALUES (2, 'Jane Smith', 40000);
+
+Step 5: Query the Tracking Table to View the Rejected Salary Entries
+
+-- View the entries in the Tracking table
+SELECT * FROM Tracking;
+
+question 4 : Employee (emp_id, dept_id emp_name, DoJ, salary, commission,job_title)
+Consider the schema given above. Write a trigger to ensure that whenever
+the job title is changed for an employee write the following details into
+job_history table. Employee ID, old job title, old department ID, DoJ for
+start date, system date for end date.
+
+solution 
+
+Step 1: Create the Employee Table
+
+-- Create the Employee table
+CREATE TABLE Employee (
+    emp_id NUMBER PRIMARY KEY,        -- Employee ID (Primary Key)
+    dept_id NUMBER,                   -- Department ID
+    emp_name VARCHAR2(100),           -- Employee name
+    DoJ DATE,                         -- Date of Joining
+    salary NUMBER,                    -- Salary
+    commission NUMBER,                -- Commission
+    job_title VARCHAR2(100)           -- Job title
+);
+
+Step 2: Create the job_history Table
+
+-- Create the job_history table
+CREATE TABLE job_history (
+    emp_id NUMBER,                    -- Employee ID
+    old_job_title VARCHAR2(100),      -- Old job title
+    old_dept_id NUMBER,               -- Old department ID
+    start_date DATE,                  -- Start date of the old job
+    end_date DATE                     -- End date of the old job
+);
+
+Step 3: Create the trg_job_title_history Trigger
+
+-- Create the trigger for tracking job title changes
+CREATE OR REPLACE TRIGGER trg_job_title_history
+BEFORE UPDATE OF job_title ON Employee
+FOR EACH ROW
+BEGIN
+    -- Check if the old and new job titles are different
+    IF :OLD.job_title IS NOT NULL AND :NEW.job_title IS NOT NULL AND :OLD.job_title != :NEW.job_title THEN
+        -- Insert old job details into the job_history table
+        INSERT INTO job_history (emp_id, old_job_title, old_dept_id, start_date, end_date)
+        VALUES (:OLD.emp_id, :OLD.job_title, :OLD.dept_id, :OLD.DoJ, SYSDATE);  -- SYSDATE captures the end date
+    END IF;
+END;
+/
+
+Step 4: Insert Sample Data into the Employee Table
+
+-- Insert sample data into the Employee table
+INSERT INTO Employee (emp_id, dept_id, emp_name, DoJ, salary, commission, job_title)
+VALUES (1, 101, 'John Doe', TO_DATE('2020-01-01', 'YYYY-MM-DD'), 60000, 5000, 'Software Engineer');
+
+INSERT INTO Employee (emp_id, dept_id, emp_name, DoJ, salary, commission, job_title)
+VALUES (2, 102, 'Jane Smith', TO_DATE('2019-05-15', 'YYYY-MM-DD'), 55000, 3000, 'Data Analyst');
+
+Step 5: Update the job_title for an Employee
+
+-- Update the job title for an employee
+UPDATE Employee
+SET job_title = 'Senior Software Engineer'
+WHERE emp_id = 1;
+
+Step 6: Query the job_history Table to View the Log
+
+-- Query the job_history table to see the log
+SELECT * FROM job_history;
 <=====================================================================================================================================================================================================================================================================================================>
 
 Exp 5 : Implement aggregation and indexing with suitable example
@@ -842,6 +2256,579 @@ Example 5: Drop the Index
 
 db.sales.getIndexes();
 
+question 1 : Create a collection Social_Media having fields as User_Id, User_Name,
+No_of_Posts, No_of_Friends, Friends_List, Interests. (Hint: Friends_List
+and Interests can be of array type)
+Insert 20 documents in the collection Social_Media. Write queries for
+following.
+1. List all the users from collection Social_Media in formatted manner.
+2. Find all users having number of posts greater than 100.
+3. List the user names and their respetive Friens_List
+4. Display the user ids and Friends list of users who have more than 5
+friends.
+5. Display all users with no of posts in descending order.
+
+solution : 
+
+use socialDB
+
+
+db.Social_Media.insertMany([
+    { User_Id: 1, User_Name: "JohnDoe", No_of_Posts: 50, No_of_Friends: 5, Friends_List: ["Alice", "Bob", "Charlie", "David", "Eva"], Interests: ["Sports", "Music"] },
+    { User_Id: 2, User_Name: "JaneSmith", No_of_Posts: 120, No_of_Friends: 8, Friends_List: ["Frank", "Grace", "Helen"], Interests: ["Travel", "Books"] },
+    { User_Id: 3, User_Name: "SamAdams", No_of_Posts: 80, No_of_Friends: 10, Friends_List: ["Ivy", "Jack", "Kurt", "Leo"], Interests: ["Movies", "Fitness"] },
+    { User_Id: 4, User_Name: "PaulLee", No_of_Posts: 90, No_of_Friends: 3, Friends_List: ["Mike", "Nancy"], Interests: ["Technology", "Gaming"] },
+    { User_Id: 5, User_Name: "EmmaWilson", No_of_Posts: 200, No_of_Friends: 12, Friends_List: ["Oscar", "Paul", "Quincy"], Interests: ["Art", "Cooking"] },
+    { User_Id: 6, User_Name: "LucyBrown", No_of_Posts: 45, No_of_Friends: 4, Friends_List: ["Rick", "Sophia", "Tom"], Interests: ["Music", "Photography"] },
+    { User_Id: 7, User_Name: "HenryJones", No_of_Posts: 110, No_of_Friends: 6, Friends_List: ["Uma", "Victor", "Wendy"], Interests: ["Fitness", "Gaming"] },
+    { User_Id: 8, User_Name: "OliviaMartin", No_of_Posts: 135, No_of_Friends: 9, Friends_List: ["Xander", "Yara", "Zoe"], Interests: ["Fashion", "Travel"] },
+    { User_Id: 9, User_Name: "MarkLee", No_of_Posts: 65, No_of_Friends: 5, Friends_List: ["Ava", "Brian", "Clara"], Interests: ["Technology", "Books"] },
+    { User_Id: 10, User_Name: "SophiaTaylor", No_of_Posts: 95, No_of_Friends: 7, Friends_List: ["David", "Ethan", "Frank"], Interests: ["Fitness", "Movies"] },
+    { User_Id: 11, User_Name: "AvaGarcia", No_of_Posts: 105, No_of_Friends: 4, Friends_List: ["George", "Helen"], Interests: ["Cooking", "Books"] },
+    { User_Id: 12, User_Name: "EthanMartinez", No_of_Posts: 150, No_of_Friends: 11, Friends_List: ["Isaac", "Jack", "Karen"], Interests: ["Sports", "Photography"] },
+    { User_Id: 13, User_Name: "ChloeRobinson", No_of_Posts: 60, No_of_Friends: 6, Friends_List: ["Liam", "Megan"], Interests: ["Art", "Travel"] },
+    { User_Id: 14, User_Name: "JackWilliams", No_of_Posts: 125, No_of_Friends: 10, Friends_List: ["Nina", "Olivia", "Peter"], Interests: ["Technology", "Movies"] },
+    { User_Id: 15, User_Name: "DavidClark", No_of_Posts: 95, No_of_Friends: 5, Friends_List: ["Quinn", "Rachel"], Interests: ["Fitness", "Music"] },
+    { User_Id: 16, User_Name: "MiaRodriguez", No_of_Posts: 130, No_of_Friends: 9, Friends_List: ["Sam", "Tina", "Ursula"], Interests: ["Fashion", "Art"] },
+    { User_Id: 17, User_Name: "LiamWhite", No_of_Posts: 75, No_of_Friends: 7, Friends_List: ["Victor", "Wendy"], Interests: ["Sports", "Gaming"] },
+    { User_Id: 18, User_Name: "NoahGreen", No_of_Posts: 115, No_of_Friends: 8, Friends_List: ["Xander", "Yara"], Interests: ["Books", "Movies"] },
+    { User_Id: 19, User_Name: "EllaHill", No_of_Posts: 55, No_of_Friends: 6, Friends_List: ["Zoe", "Ava"], Interests: ["Cooking", "Photography"] },
+    { User_Id: 20, User_Name: "LucasScott", No_of_Posts: 145, No_of_Friends: 10, Friends_List: ["Brian", "Charlie"], Interests: ["Gaming", "Technology"] }
+]);
+
+
+1. List all users in a formatted manner:
+
+- db.Social_Media.find({}, {User_Id: 1, User_Name: 1, No_of_Posts: 1, No_of_Friends: 1, Friends_List: 1, Interests: 1}).pretty();
+
+2. Find all users having more than 100 posts:
+
+- db.Social_Media.find({No_of_Posts: {$gt: 100}});
+
+3. List the user names and their respective Friends_List:
+
+- db.Social_Media.find({}, {User_Name: 1, Friends_List: 1});
+
+4. Display user ids and Friends_List of users who have more than 5 friends:
+
+- db.Social_Media.find({No_of_Friends: {$gt: 5}}, {User_Id: 1, Friends_List: 1});
+
+5. Display all users ordered by number of posts in descending order:
+
+- db.Social_Media.find().sort({No_of_Posts: -1});
+
+question 2 : Create a collection Employee with fields as Emp_id, Emp_Name,
+Department, Salary, Manager.
+Insert 20 documents in the collection Employee. Write the queries for
+following.
+1. Find the names of Employees having top 5 highest salaries.
+2. List the records of employees having Department as “R&D” or Manager
+as “Smith”.
+3. Update the salary of Emp_id 100 as 200000.
+4. Delete the record of employee having name as “Josh”
+5. List the Department of employees having salary less than 50000.
+
+solution : 
+
+db.Employee.insertMany([
+  { Emp_id: 101, Emp_Name: "Alice", Department: "R&D", Salary: 95000, Manager: "Smith" },
+  { Emp_id: 102, Emp_Name: "Bob", Department: "HR", Salary: 75000, Manager: "Jones" },
+  { Emp_id: 103, Emp_Name: "Carol", Department: "Marketing", Salary: 65000, Manager: "Smith" },
+  { Emp_id: 104, Emp_Name: "David", Department: "Sales", Salary: 105000, Manager: "Brown" },
+  { Emp_id: 105, Emp_Name: "Eve", Department: "R&D", Salary: 85000, Manager: "Smith" },
+  { Emp_id: 106, Emp_Name: "Frank", Department: "IT", Salary: 55000, Manager: "Miller" },
+  { Emp_id: 107, Emp_Name: "Grace", Department: "Finance", Salary: 95000, Manager: "Clark" },
+  { Emp_id: 108, Emp_Name: "Hank", Department: "HR", Salary: 72000, Manager: "Jones" },
+  { Emp_id: 109, Emp_Name: "Ivy", Department: "Sales", Salary: 50000, Manager: "Brown" },
+  { Emp_id: 110, Emp_Name: "Jack", Department: "Marketing", Salary: 60000, Manager: "Smith" },
+  { Emp_id: 111, Emp_Name: "Kim", Department: "Finance", Salary: 70000, Manager: "Clark" },
+  { Emp_id: 112, Emp_Name: "Liam", Department: "IT", Salary: 90000, Manager: "Miller" },
+  { Emp_id: 113, Emp_Name: "Mia", Department: "HR", Salary: 85000, Manager: "Jones" },
+  { Emp_id: 114, Emp_Name: "Nina", Department: "R&D", Salary: 110000, Manager: "Smith" },
+  { Emp_id: 115, Emp_Name: "Oliver", Department: "Sales", Salary: 80000, Manager: "Brown" },
+  { Emp_id: 116, Emp_Name: "Pete", Department: "Finance", Salary: 78000, Manager: "Clark" },
+  { Emp_id: 117, Emp_Name: "Quinn", Department: "IT", Salary: 58000, Manager: "Miller" },
+  { Emp_id: 118, Emp_Name: "Rita", Department: "Marketing", Salary: 62000, Manager: "Smith" },
+  { Emp_id: 119, Emp_Name: "Steve", Department: "R&D", Salary: 98000, Manager: "Smith" },
+  { Emp_id: 120, Emp_Name: "Josh", Department: "IT", Salary: 49000, Manager: "Miller" }
+]);
+
+1. Find the names of employees having the top 5 highest salaries.
+
+db.Employee.find({}, { Emp_Name: 1, Salary: 1, _id: 0 })
+    .sort({ Salary: -1 })
+    .limit(5);
+
+2. List the records of employees having Department as “R&D” or Manager as “Smith”.
+
+db.Employee.find({
+    $or: [
+        { Department: "R&D" },
+        { Manager: "Smith" }
+    ]
+});
+
+3. Update the salary of Emp_id 100 as 200000.
+
+db.Employee.updateOne(
+    { Emp_id: 100 },
+    { $set: { Salary: 200000 } }
+);
+
+4. Delete the record of the employee having name as “Josh”.
+
+db.Employee.deleteOne({ Emp_Name: "Josh" });
+
+5. List the department of employees having salary less than 50000.
+
+db.Employee.find(
+    { Salary: { $lt: 50000 } },
+    { Department: 1, _id: 0 }
+);
+
+question 3 : Create collection Student with fields as Roll_No, Name, Class, Marks,
+Address, Enrolled_Courses.
+(Hint: One student can enroll in multiple courses. Use Array to store the
+names of courses enrolled)
+Insert 10 documents in the collection Student. Write the queries for
+following.
+1. List the names of students who have enrolled in the course “DBMS”,
+“TOC”.
+2. List the Roll numbers and class of students who have marks more than
+50 or class as TE.
+3. Update the entire record of roll_no A10.
+4. Display the names of students having 3rd and 4th highest marks.
+5. Delete the records of students having marks less than 20.
+6. Delete only first record from the collection.
+
+
+solution : 
+
+db.Student.insertMany([
+  { Roll_No: "A01", Name: "John", Class: "FE", Marks: 85, Address: "123 Main St", Enrolled_Courses: ["DBMS", "Math"] },
+  { Roll_No: "A02", Name: "Jane", Class: "SE", Marks: 92, Address: "456 Maple St", Enrolled_Courses: ["TOC", "DBMS"] },
+  { Roll_No: "A03", Name: "Tom", Class: "TE", Marks: 47, Address: "789 Oak St", Enrolled_Courses: ["OS", "DBMS"] },
+  { Roll_No: "A04", Name: "Alice", Class: "TE", Marks: 65, Address: "101 Pine St", Enrolled_Courses: ["Math", "TOC"] },
+  { Roll_No: "A05", Name: "Bob", Class: "FE", Marks: 23, Address: "202 Cedar St", Enrolled_Courses: ["DBMS", "Physics"] },
+  { Roll_No: "A06", Name: "Emma", Class: "SE", Marks: 58, Address: "303 Birch St", Enrolled_Courses: ["TOC", "Math"] },
+  { Roll_No: "A07", Name: "Mike", Class: "TE", Marks: 74, Address: "404 Elm St", Enrolled_Courses: ["DBMS", "TOC"] },
+  { Roll_No: "A08", Name: "Sophia", Class: "SE", Marks: 89, Address: "505 Cherry St", Enrolled_Courses: ["Physics", "OS"] },
+  { Roll_No: "A09", Name: "Ethan", Class: "FE", Marks: 34, Address: "606 Walnut St", Enrolled_Courses: ["Math", "DBMS"] },
+  { Roll_No: "A10", Name: "Josh", Class: "TE", Marks: 77, Address: "707 Redwood St", Enrolled_Courses: ["TOC", "OS"] }
+]);
+
+1. List the names of students who have enrolled in the courses “DBMS”, “TOC”:
+
+db.Student.find({
+  Enrolled_Courses: { $all: ["DBMS", "TOC"] }
+}, {
+  Name: 1, _id: 0
+});
+
+2. List the Roll numbers and class of students who have marks more than 50 or class as TE:
+
+db.Student.find({
+  $or: [
+    { Marks: { $gt: 50 } },
+    { Class: "TE" }
+  ]
+}, {
+  Roll_No: 1, Class: 1, _id: 0
+});
+
+3. Update the entire record of roll_no A10:
+
+db.Student.updateOne(
+  { Roll_No: "A10" },
+  {
+    $set: {
+      Name: "Joshua",
+      Class: "BE",
+      Marks: 95,
+      Address: "808 Ash St",
+      Enrolled_Courses: ["AI", "ML"]
+    }
+  }
+);
+
+4. Display the names of students having 3rd and 4th highest marks:
+
+db.Student.find({}, { Name: 1, Marks: 1, _id: 0 })
+  .sort({ Marks: -1 })
+  .skip(2)
+  .limit(2);
+
+5. Delete the records of students having marks less than 20:
+
+db.Student.deleteMany({ Marks: { $lt: 20 } });
+
+6. Delete only the first record from the collection
+
+db.Student.deleteOne({});
+
+question 4 : Create a collection Products with fields as item_id, item_Name, Price,
+Tags, Status, Quantity.
+Insert 10 documents in the collection Products. Write the queries for
+following.
+1. List all the products with quantity equal to 50.
+2. Find all the procucts having tags as "apparel" or "clothing".
+3. Update the record of Item_id 100 with quanity as 100 and tags as tags: [
+"coats", "outerwear", "clothing" ]
+4. Delete only first record from the collection.
+5. Delete all records from collection with Status as “Pending”.
+
+solution :
+
+
+db.Products.insertMany([
+    { item_id: 100, item_Name: "T-Shirt", Price: 20, Tags: ["apparel", "clothing"], Status: "Available", Quantity: 50 },
+    { item_id: 101, item_Name: "Jeans", Price: 40, Tags: ["apparel", "clothing"], Status: "Available", Quantity: 30 },
+    { item_id: 102, item_Name: "Jacket", Price: 60, Tags: ["outerwear", "clothing"], Status: "Pending", Quantity: 50 },
+    { item_id: 103, item_Name: "Sneakers", Price: 80, Tags: ["footwear"], Status: "Available", Quantity: 10 },
+    { item_id: 104, item_Name: "Hat", Price: 15, Tags: ["accessories"], Status: "Available", Quantity: 5 },
+    { item_id: 105, item_Name: "Socks", Price: 5, Tags: ["footwear", "clothing"], Status: "Pending", Quantity: 50 },
+    { item_id: 106, item_Name: "Scarf", Price: 12, Tags: ["accessories", "apparel"], Status: "Available", Quantity: 20 },
+    { item_id: 107, item_Name: "Gloves", Price: 18, Tags: ["accessories"], Status: "Available", Quantity: 40 },
+    { item_id: 108, item_Name: "Boots", Price: 70, Tags: ["footwear", "clothing"], Status: "Pending", Quantity: 25 },
+    { item_id: 109, item_Name: "Belt", Price: 10, Tags: ["accessories", "clothing"], Status: "Available", Quantity: 15 }
+]);
+
+1. List all the products with quantity equal to 50
+
+db.Products.find({ Quantity: 50 });
+
+2. Find all the products having tags as "apparel" or "clothing"
+
+db.Products.find({ Tags: { $in: ["apparel", "clothing"] } });
+
+3. Update the record of Item_id 100 with quantity as 100 and tags: ["coats", "outerwear", "clothing"]
+
+db.Products.updateOne(
+    { item_id: 100 },
+    { $set: { Quantity: 100, Tags: ["coats", "outerwear", "clothing"] } }
+);
+
+4. Delete only the first record from the collection
+
+db.Products.deleteOne({});
+
+5. Delete all records from the collection with Status as “Pending”
+
+db.Products.deleteMany({ Status: "Pending" });
+
+question 5 : Create the Collection
+Employee_Data ( Employee_ID, Employee_Name, Department,
+Salary) and solve the following:
+1. Display all employees based on their departments along with an
+average salary of a particular department.
+2. Displays the number of employees associated with a particular
+department.
+3. Create an index on field Employee ID.
+4. Create an index on fields “Employee Name‘ and “Department”.
+5. Drop an index on field Employee ID.
+
+solution : 
+
+db.Employee_Data.insertMany([
+  { Employee_ID: 1, Employee_Name: "John", Department: "HR", Salary: 60000 },
+  { Employee_ID: 2, Employee_Name: "Emma", Department: "Finance", Salary: 75000 },
+  { Employee_ID: 3, Employee_Name: "Michael", Department: "HR", Salary: 65000 },
+  { Employee_ID: 4, Employee_Name: "Sophia", Department: "Finance", Salary: 80000 },
+  { Employee_ID: 5, Employee_Name: "David", Department: "IT", Salary: 90000 },
+  { Employee_ID: 6, Employee_Name: "Olivia", Department: "IT", Salary: 85000 },
+  { Employee_ID: 7, Employee_Name: "Liam", Department: "Marketing", Salary: 70000 },
+  { Employee_ID: 8, Employee_Name: "Noah", Department: "Marketing", Salary: 72000 },
+  { Employee_ID: 9, Employee_Name: "Ava", Department: "IT", Salary: 93000 },
+  { Employee_ID: 10, Employee_Name: "Mason", Department: "HR", Salary: 64000 }
+]);
+
+1.  Display all employees based on their departments along with the average salary of each department.
+
+db.Employee_Data.aggregate([
+  { $group: { _id: "$Department", averageSalary: { $avg: "$Salary" }, employees: { $push: "$$ROOT" } } }
+])
+
+2. Display the number of employees associated with each department.
+
+db.Employee_Data.aggregate([
+  { $group: { _id: "$Department", numberOfEmployees: { $sum: 1 } } }
+])
+
+3. Create an index on the field Employee_ID.
+
+db.Employee_Data.createIndex({ Employee_ID: 1 })
+
+4. Create an index on the fields Employee_Name and Department.
+
+db.Employee_Data.createIndex({ Employee_Name: 1, Department: 1 })
+
+5. Drop the index on the field Employee_ID.
+
+db.Employee_Data.dropIndex("Employee_ID_1")
+
+question 6 : Create the Collection Library_Data( Book_ID, Book_Name, Author,
+Genre, Publication) and solve the following:
+1. Display a list stating how many books are written by each “Author”.
+2. Display list books with the highest price in each Genre.
+3. Display list books with the highest price in each Genre in ascending order
+of price.
+4. Create an index on field Book_ID.
+5. Create an index on fields ”Book_Name” and ”Author”.
+6. Drop an index on field Book_ID.
+
+solution :
+
+- db.createCollection("Library_Data")
+
+- db.Library_Data.insertMany([
+  { Book_ID: 1, Book_Name: "Book A", Author: "Author 1", Genre: "Fiction", Publication: "Pub 1", Price: 200 },
+  { Book_ID: 2, Book_Name: "Book B", Author: "Author 2", Genre: "Non-Fiction", Publication: "Pub 2", Price: 300 },
+  { Book_ID: 3, Book_Name: "Book C", Author: "Author 1", Genre: "Fiction", Publication: "Pub 3", Price: 250 },
+  { Book_ID: 4, Book_Name: "Book D", Author: "Author 3", Genre: "Biography", Publication: "Pub 4", Price: 150 },
+  { Book_ID: 5, Book_Name: "Book E", Author: "Author 2", Genre: "Non-Fiction", Publication: "Pub 5", Price: 400 },
+  // Add more documents as needed
+])
+
+1. Display how many books are written by each “Author”:
+
+db.Library_Data.aggregate([
+  { $group: { _id: "$Author", books_written: { $sum: 1 } } }
+])
+
+2. List books with the highest price in each Genre:
+
+db.Library_Data.aggregate([
+  { $sort: { Genre: 1, Price: -1 } },
+  { $group: { _id: "$Genre", highest_priced_book: { $first: "$$ROOT" } } }
+])
+
+3. List books with the highest price in each Genre, sorted by price (ascending):
+
+db.Library_Data.aggregate([
+  { $sort: { Genre: 1, Price: -1 } },
+  { $group: { _id: "$Genre", highest_priced_book: { $first: "$$ROOT" } } },
+  { $sort: { "highest_priced_book.Price": 1 } }
+])
+
+4. Create an index on Book_ID:
+
+db.Library_Data.createIndex({ Book_ID: 1 })
+
+5. Create an index on Book_Name and Author:
+
+db.Library_Data.createIndex({ Book_Name: 1, Author: 1 })
+
+6. Drop an index on Book_ID:
+
+db.Library_Data.dropIndex({ Book_ID: 1 })
+
+question 7 : Create the Collection Movies_Data( Movie_ID, Movie_Name, Director,
+Genre, BoxOfficeCollection) and solve the following:
+1. Display a list stating how many Movies are directed by each “Director”.
+2. Display list of Movies with the highest BoxOfficeCollection in each
+Genre.
+3. Display list of Movies with the highest BoxOfficeCollection in each
+Genre in ascending order of BoxOfficeCollection.
+4. Create an index on field Movie_ID.
+5. Create an index on fields ” Movie_Name” and ” Director”.
+6. Drop an index on fields ” Movie_Name” and ” Director”.
+
+solution : 
+
+db.Movies_Data.insertMany([
+  { Movie_ID: 1, Movie_Name: "Inception", Director: "Christopher Nolan", Genre: "Sci-Fi", BoxOfficeCollection: 800000000 },
+  { Movie_ID: 2, Movie_Name: "Interstellar", Director: "Christopher Nolan", Genre: "Sci-Fi", BoxOfficeCollection: 700000000 },
+  { Movie_ID: 3, Movie_Name: "The Dark Knight", Director: "Christopher Nolan", Genre: "Action", BoxOfficeCollection: 1000000000 },
+  { Movie_ID: 4, Movie_Name: "Titanic", Director: "James Cameron", Genre: "Romance", BoxOfficeCollection: 2200000000 },
+  { Movie_ID: 5, Movie_Name: "Avatar", Director: "James Cameron", Genre: "Sci-Fi", BoxOfficeCollection: 2800000000 },
+  { Movie_ID: 6, Movie_Name: "Pulp Fiction", Director: "Quentin Tarantino", Genre: "Crime", BoxOfficeCollection: 210000000 },
+  { Movie_ID: 7, Movie_Name: "Django Unchained", Director: "Quentin Tarantino", Genre: "Western", BoxOfficeCollection: 425000000 },
+  { Movie_ID: 8, Movie_Name: "The Godfather", Director: "Francis Ford Coppola", Genre: "Crime", BoxOfficeCollection: 250000000 },
+  { Movie_ID: 9, Movie_Name: "The Godfather Part II", Director: "Francis Ford Coppola", Genre: "Crime", BoxOfficeCollection: 190000000 },
+  { Movie_ID: 10, Movie_Name: "The Revenant", Director: "Alejandro G. Iñárritu", Genre: "Adventure", BoxOfficeCollection: 533000000 }
+])
+
+1. Display a list stating how many movies are directed by each “Director”:
+
+db.Movies_Data.aggregate([
+   { $group: { _id: "$Director", movie_count: { $sum: 1 } } },
+   { $project: { _id: 0, Director: "$_id", Total_Movies: "$movie_count" } }
+])
+
+2. Display a list of movies with the highest BoxOfficeCollection in each Genre:
+
+db.Movies_Data.aggregate([
+   { $sort: { Genre: 1, BoxOfficeCollection: -1 } },
+   { $group: { _id: "$Genre", highest_movie: { $first: "$$ROOT" } } },
+   { $project: { _id: 0, Movie_Name: "$highest_movie.Movie_Name", Genre: "$highest_movie.Genre", BoxOfficeCollection: "$highest_movie.BoxOfficeCollection" } }
+])
+
+3. Display a list of movies with the highest BoxOfficeCollection in each Genre in ascending order of BoxOfficeCollection:
+
+db.Movies_Data.aggregate([
+   { $sort: { Genre: 1, BoxOfficeCollection: -1 } },
+   { $group: { _id: "$Genre", highest_movie: { $first: "$$ROOT" } } },
+   { $sort: { "highest_movie.BoxOfficeCollection": 1 } },
+   { $project: { _id: 0, Movie_Name: "$highest_movie.Movie_Name", Genre: "$highest_movie.Genre", BoxOfficeCollection: "$highest_movie.BoxOfficeCollection" } }
+])
+
+4. Create an index on the field Movie_ID:
+
+db.Movies_Data.createIndex({ Movie_ID: 1 })
+
+5. Create an index on fields Movie_Name and Director:
+
+db.Movies_Data.createIndex({ Movie_Name: 1, Director: 1 })
+
+6. Drop an index on fields Movie_Name and Director:
+
+db.Movies_Data.dropIndex({ Movie_Name: 1, Director: 1 })
+
+question 8 : Create the Collection Student_Data( Student _ID, Student _Name,
+Department, Marks )and solve the following:
+1. Display all Students based on their departments along with an average
+Marks of a particular department.
+2. Displays the number of Students associated along with a particular
+department.
+3. Display list of Students with the highest Marks in each Department in
+descending order of Marks.
+4. Create an index on field Student_ID.
+5. Create an index on fields “Student_Name‘ and “Department”.
+6. Drop an index on fields “Student_Name‘ and “Department”.
+
+solution : 
+
+db.Student_Data.insertMany([
+    { Student_ID: 1, Student_Name: "Alice", Department: "CSE", Marks: 85 },
+    { Student_ID: 2, Student_Name: "Bob", Department: "CSE", Marks: 78 },
+    { Student_ID: 3, Student_Name: "Charlie", Department: "ECE", Marks: 92 },
+    { Student_ID: 4, Student_Name: "David", Department: "ECE", Marks: 88 },
+    { Student_ID: 5, Student_Name: "Eve", Department: "EEE", Marks: 74 },
+    { Student_ID: 6, Student_Name: "Frank", Department: "EEE", Marks: 67 },
+    { Student_ID: 7, Student_Name: "Grace", Department: "CSE", Marks: 95 },
+    { Student_ID: 8, Student_Name: "Heidi", Department: "ECE", Marks: 90 },
+    { Student_ID: 9, Student_Name: "Ivan", Department: "EEE", Marks: 83 },
+    { Student_ID: 10, Student_Name: "Judy", Department: "CSE", Marks: 87 }
+]);
+
+1. Display all Students based on their departments along with an average Marks of a particular department:
+
+db.Student_Data.aggregate([
+    {
+        $group: {
+            _id: "$Department",
+            Avg_Marks: { $avg: "$Marks" },
+            Students: { $push: { Student_Name: "$Student_Name", Marks: "$Marks" } }
+        }
+    }
+]);
+
+2. Displays the number of Students associated along with a particular department:
+
+db.Student_Data.aggregate([
+    {
+        $group: {
+            _id: "$Department",
+            Number_of_Students: { $sum: 1 }
+        }
+    }
+]);
+
+3. Display a list of Students with the highest Marks in each Department in descending order of Marks:
+
+db.Student_Data.aggregate([
+    {
+        $sort: { Marks: -1 }
+    },
+    {
+        $group: {
+            _id: "$Department",
+            Top_Student: { $first: "$Student_Name" },
+            Highest_Marks: { $first: "$Marks" }
+        }
+    },
+    {
+        $sort: { Highest_Marks: -1 }
+    }
+]);
+
+4. Create an index on field Student_ID:
+
+db.Student_Data.createIndex({ Student_ID: 1 });
+
+5. Create an index on fields “Student_Name” and “Department”:
+
+db.Student_Data.createIndex({ Student_Name: 1, Department: 1 });
+
+6. Drop an index on fields “Student_Name” and “Department”:
+
+db.Student_Data.dropIndex({ Student_Name: 1, Department: 1 });
+
+
+form aggregation and Indexing using mongodb on below database
+1. Create a database department
+2. Create a collection as teacher with fields as name , department ,experience and salary
+3. Display the department wise average salary.
+4. Display the no. Of employees working in each department.
+5. Display the department wise minimum salary.
+6. Apply index and drop index
+
+solution 
+
+1. Create a database department
+
+use department
+
+2. Create a collection as teacher with fields as name , department ,experience and salary
+
+db.teacher.insertMany([
+    { name: "Alice", department: "Math", experience: 5, salary: 50000 },
+    { name: "Bob", department: "Science", experience: 7, salary: 60000 },
+    { name: "Charlie", department: "Math", experience: 3, salary: 55000 },
+    { name: "David", department: "History", experience: 10, salary: 70000 },
+    { name: "Eve", department: "Science", experience: 4, salary: 52000 },
+    { name: "Frank", department: "History", experience: 2, salary: 48000 }
+]);
+
+3. Display the department wise average salary.
+
+db.teacher.aggregate([
+   {
+       $group: {
+           _id: "$department",
+           averageSalary: { $avg: "$salary" }
+       }
+   }
+]);
+
+4. Display the no. Of employees working in each department.
+
+db.teacher.aggregate([
+   {
+       $group: {
+           _id: "$department",
+           employeeCount: { $sum: 1 }
+       }
+   }
+]);
+
+5. Display the department wise minimum salary.
+
+db.teacher.aggregate([
+   {
+       $group: {
+           _id: "$department",
+           minimumSalary: { $min: "$salary" }
+       }
+   }
+]);
+
+6. Apply index and drop index
+
+db.teacher.createIndex({ department: 1 });
+
+db.teacher.dropIndex({ department: 1 });
+
 <====================================================================================================================================================================================================================================================================================================>
 
 exp 6 : Implement Map reduce operations with suitable example using
@@ -879,6 +2866,194 @@ db.sales.mapReduce(
 
 # View results
 db.sales_summary.find().pretty()
+
+
+Map reduce questions 
+
+1. Consider the following document structure that stores book details
+author wise. The document stores author_name of the book author and
+the status of book.
+
+Now, use the mapReduce function
+• To select all the active books,
+• Group them together on the basis of author_name and
+• Then count the number of books by each author by using the
+following code in MongoDB.
+
+
+solution : 
+
+use booksDB
+
+db.books.insertMany([
+    { author_name: "Author A", status: "active" },
+    { author_name: "Author A", status: "inactive" },
+    { author_name: "Author B", status: "active" },
+    { author_name: "Author B", status: "active" },
+    { author_name: "Author C", status: "inactive" },
+    { author_name: "Author D", status: "active" }
+]);
+
+• To select all the active books,
+• Group them together on the basis of author_name and
+• Then count the number of books by each author
+
+Step 1: Define the Map and Reduce Functions
+
+var mapFunction = function() {
+    if (this.status === "active") {
+        emit(this.author_name, 1);
+    }
+};
+
+var reduceFunction = function(key, values) {
+    return Array.sum(values);
+};
+
+Step 2: Run the MapReduce Operation
+
+db.books.mapReduce(
+    mapFunction,
+    reduceFunction,
+    { out: "activeBooksCount" }
+);
+
+Step 3: view result
+
+db.activeBooksCount.find().pretty();
+
+
+2. Apply the MapReduce operation to find the total salary of each department,avg,highest,lowest
+
+solution : 
+
+use department
+
+
+db.teacher.insertMany([
+    { name: "Alice", department: "Math", salary: 50000 },
+    { name: "Bob", department: "Science", salary: 60000 },
+    { name: "Charlie", department: "Math", salary: 55000 },
+    { name: "David", department: "History", salary: 70000 },
+    { name: "Eve", department: "Science", salary: 52000 },
+    { name: "Frank", department: "History", salary: 48000 }
+]);
+
+Step 1: Define the Map and Reduce Functions
+
+var mapFunction = function() {
+    emit(this.department, this.salary);
+};
+
+var reduceFunction = function(key, values) {
+    return Array.sum(values);
+};
+
+Step 2: Run the MapReduce Operation
+
+db.teacher.mapReduce(
+    mapFunction,
+    reduceFunction,
+    { out: "totalSalaryByDepartment" }
+);
+
+Step 3: View the Results
+
+db.totalSalaryByDepartment.find().pretty();
+
+step 4 : average,highest,lowest
+
+db.teacher.aggregate([
+    {
+        $group: {
+            _id: "$department",
+            averageSalary: { $avg: "$salary" },
+            highestSalary: { $max: "$salary" },
+            lowestSalary: { $min: "$salary" }
+        }
+    }
+]);
+
+3. three divisions TE,SE,BE in a college give me there marks and departments name with highest,lowest and avg marks
+
+solution: 
+
+use college
+
+db.students.insertMany([
+    { division: "TE", marks: 85 },
+    { division: "TE", marks: 78 },
+    { division: "TE", marks: 92 },
+    { division: "SE", marks: 67 },
+    { division: "SE", marks: 73 },
+    { division: "SE", marks: 88 },
+    { division: "BE", marks: 90 },
+    { division: "BE", marks: 75 },
+    { division: "BE", marks: 80 }
+]);
+
+step 1 : define map reduce
+
+var mapFunction = function() {
+    emit(this.division, { totalMarks: this.marks, count: 1, highest: this.marks, lowest: this.marks });
+};
+
+var reduceFunction = function(key, values) {
+    var reducedValue = { totalMarks: 0, count: 0, highest: -Infinity, lowest: Infinity };
+
+    values.forEach(function(value) {
+        reducedValue.totalMarks += value.totalMarks;
+        reducedValue.count += value.count;
+        reducedValue.highest = Math.max(reducedValue.highest, value.highest);
+        reducedValue.lowest = Math.min(reducedValue.lowest, value.lowest);
+    });
+
+    return reducedValue;
+};
+
+step 2 : run map reduce 
+
+db.students.mapReduce(
+    mapFunction,
+    reduceFunction,
+    { out: "divisionMarks" }
+);
+
+step 3 : calculate avg,highest,lowest marks 
+
+db.divisionMarks.find().forEach(function(doc) {
+    doc.averageMarks = doc.value.totalMarks / doc.value.count;
+    print("Division: " + doc._id + ", Total Marks: " + doc.value.totalMarks + 
+          ", Average Marks: " + doc.averageMarks + 
+          ", Highest Marks: " + doc.value.highest + 
+          ", Lowest Marks: " + doc.value.lowest);
+});
+
+step 4 : total marks of TE
+
+step 4 (a) : Define the Map and Reduce Functions
+
+var mapFunction = function() {
+    if (this.division === "TE") {
+        emit("TE", this.marks);
+    }
+};
+
+var reduceFunction = function(key, values) {
+    return Array.sum(values);
+};
+
+step 4 (b) : Run the MapReduce Operation
+
+db.students.mapReduce(
+    mapFunction,
+    reduceFunction,
+    { out: "totalMarksTE" }
+);
+
+step 4 (c) : view the result
+
+db.totalMarksTE.find().pretty();
 
 <==================================================================================================================================================================================================================================================================================================>
 
