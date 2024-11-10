@@ -222,3 +222,130 @@ step 4 (c) : view the result
 
 db.totalMarksTE.find().pretty();
 
+4. Main Task: Use MongoDB’s MapReduce function on a stud1 collection to perform various aggregations and filtering based on student names and marks.
+
+Sub-Questions:
+"How many times does each student's name appear in the stud1 collection?"
+
+Example 1: Counts occurrences of each name.
+"Count occurrences of each student's name, and then sort the result by count in ascending order."
+
+Example 2: Counts and sorts by the count of each name.
+"Count occurrences of each student's name and sort by the name in alphabetical order."
+
+Example 3: Counts occurrences of each name, sorted by name.
+"Retrieve only the first document in the result showing the count of occurrences for each student's name."
+
+Example 4: Limits the output to the first result.
+"What is the total sum of marks for each student?"
+
+Example 5: Sums marks for each student.
+"What is the average mark for each student?"
+
+Example 6: Calculates the average marks for each student.
+"What is the average mark for students who scored exactly 80?"
+
+Example 7: Calculates the average marks, filtered to include only students who scored 80.
+"What is the sum of marks for the student named 'Amit'?"
+
+Example 8: Sums marks for the student with the name "Amit".
+"What is the sum of marks for all students who scored exactly 80?"
+
+Example 9: Sums marks for students who scored exactly 80.
+"What is the sum of marks for all students who scored above 80?"
+
+Example 10: Sums marks for students who scored more than 80.
+
+
+solution : 
+
+Step 1: Create stud1 Collection and Insert Documents
+
+db.stud1.insert([
+    {Name: "Amit", Marks: 80},
+    {Name: "Amit", Marks: 90},
+    {Name: "Shreya", Marks: 40},
+    {Name: "Neha", Marks: 80},
+    {Name: "Neha", Marks: 35}
+])
+
+Example 1: Count Occurrences of Each Name
+
+db.stud1.mapReduce(
+    function() { emit(this.Name, 1); },
+    function(key, value) { return Array.sum(value); },
+    { out: "Name_Total" }
+).find()
+
+Example 2: Count Occurrences of Each Name and Sort by Count
+
+db.stud1.mapReduce(
+    function() { emit(this.Name, 1); },
+    function(key, value) { return Array.sum(value); },
+    { out: "Name_Total" }
+).find().sort({ value: 1 })
+
+Example 3: Count Occurrences of Each Name and Sort by Name
+
+db.stud1.mapReduce(
+    function() { emit(this.Name, 1); },
+    function(key, value) { return Array.sum(value); },
+    { out: "Name_Total" }
+).find().sort({ key: 1 })
+
+Example 4: Limit Output to One Document
+
+db.stud1.mapReduce(
+    function() { emit(this.Name, 1); },
+    function(key, value) { return Array.sum(value); },
+    { out: "Name_Total" }
+).find().limit(1)
+
+Example 5: Sum Marks for Each Name
+
+db.stud1.mapReduce(
+    function() { emit(this.Name, this.Marks); },
+    function(key, value) { return Array.sum(value); },
+    { out: "Name_Total" }
+).find()
+
+Example 6: Calculate Average Marks for Each Name
+
+db.stud1.mapReduce(
+    function() { emit(this.Name, this.Marks); },
+    function(key, value) { return Array.avg(value); },
+    { out: "Name_Total" }
+).find()
+
+Example 7: Calculate Average Marks for Students with Marks = 80
+
+db.stud1.mapReduce(
+    function() { emit(this.Name, this.Marks); },
+    function(key, value) { return Array.avg(value); },
+    { query: { Marks: 80 }, out: "Name_Total" }
+).find()
+
+Example 8: Sum Marks for Students Named "Amit"
+
+db.stud1.mapReduce(
+    function() { emit(this.Name, this.Marks); },
+    function(key, value) { return Array.sum(value); },
+    { query: { Name: "Amit" }, out: "a" }
+).find()
+
+Example 9: Sum Marks for Students with Marks = 80
+
+db.stud1.mapReduce(
+    function() { emit(this.Name, this.Marks); },
+    function(key, value) { return Array.sum(value); },
+    { query: { Marks: 80 }, out: "a" }
+).find()
+
+Example 10: Sum Marks for Students with Marks Greater Than 80
+
+db.stud1.mapReduce(
+    function() { emit(this.Name, this.Marks); },
+    function(key, value) { return Array.sum(value); },
+    { query: { Marks: { $gt: 80 } }, out: "a" }
+).find()
+
