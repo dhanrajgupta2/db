@@ -1,0 +1,231 @@
+Problem Statement 11 (DDL USING MYSQL)
+Create following tables using a given schema and insert appropriate data into the same: Customer (CustID, Name, Cust_Address, Phone_no, Email_ID, Age)
+Branch (Branch ID, Branch_Name, Address)
+Account (Account_no, Branch ID, CustID, date_open, Account_type, Balance)
+1. Create the tables with referential integrity.
+2. Draw the ER diagram for the same.
+3. Create an Index on primary key column of table Account
+4. Create the view as Customer_Info displaying the customer details for age less than 45.
+5. Update the View with open date as 16/4/2017
+6. Create a sequence on Branch able.
+7. Create synonym ‘Branch_info’ for branch table
+
+solution : 
+
+Step 1: Create Tables with Referential Integrity
+
+-- Create the Customer table
+CREATE TABLE Customer (
+    CustID INT PRIMARY KEY,
+    Name VARCHAR(50),
+    Cust_Address VARCHAR(100),
+    Phone_no VARCHAR(15),
+    Email_ID VARCHAR(50),
+    Age INT
+);
+
+-- Create the Branch table
+CREATE TABLE Branch (
+    Branch_ID INT PRIMARY KEY,
+    Branch_Name VARCHAR(50),
+    Address VARCHAR(100)
+);
+
+-- Create the Account table with foreign keys referencing Customer and Branch
+CREATE TABLE Account (
+    Account_no INT PRIMARY KEY,
+    Branch_ID INT,
+    CustID INT,
+    date_open DATE,
+    Account_type VARCHAR(20),
+    Balance DECIMAL(10, 2),
+    FOREIGN KEY (Branch_ID) REFERENCES Branch(Branch_ID),
+    FOREIGN KEY (CustID) REFERENCES Customer(CustID)
+);
+
+-- Insert data into Customer table
+INSERT INTO Customer (CustID, Name, Cust_Address, Phone_no, Email_ID, Age)
+VALUES
+(1, 'John Doe', '123 Main St, Pune', '9876543210', 'john.doe@example.com', 30),
+(2, 'Jane Smith', '456 Oak Rd, Mumbai', '9876543220', 'jane.smith@example.com', 40),
+(3, 'Alice Johnson', '789 Pine Ave, Delhi', '9876543230', 'alice.johnson@example.com', 25),
+(4, 'Bob Brown', '101 Maple Dr, Bangalore', '9876543240', 'bob.brown@example.com', 35);
+
+-- Insert data into Branch table
+INSERT INTO Branch (Branch_ID, Branch_Name, Address)
+VALUES
+(1, 'Pune Branch', '12 IT Park, Pune'),
+(2, 'Mumbai Branch', '45 Business Center, Mumbai'),
+(3, 'Delhi Branch', '78 Corporate Building, Delhi'),
+(4, 'Bangalore Branch', '90 Tech Lane, Bangalore');
+
+-- Insert data into Account table
+INSERT INTO Account (Account_no, Branch_ID, CustID, date_open, Account_type, Balance)
+VALUES
+(101, 1, 1, '2020-01-01', 'Saving', 10000.00),
+(102, 2, 2, '2019-05-15', 'Current', 25000.00),
+(103, 3, 3, '2021-07-20', 'Saving', 15000.00),
+(104, 4, 4, '2018-11-10', 'Current', 5000.00),
+(105, 1, 2, '2022-02-25', 'Saving', 12000.00),
+(106, 2, 3, '2020-06-30', 'Saving', 8000.00);
+
+Step 2: Draw the ER Diagram
+
+The ER Diagram (Entity Relationship Diagram) for the schema will consist of the following entities:
+
+Customer: CustID, Name, Cust_Address, Phone_no, Email_ID, Age.
+Branch: Branch_ID, Branch_Name, Address.
+Account: Account_no, Branch_ID, CustID, date_open, Account_type, Balance.
+The relationships are as follows:
+
+Customer is related to Account via CustID.
+Branch is related to Account via Branch_ID.
+In an ER diagram:
+
+Customer has a one-to-many relationship with Account (one customer can have many accounts).
+Branch has a one-to-many relationship with Account (one branch can have many accounts).
+
+Step 3: Create an Index on the Primary Key Column of the Account Table
+
+-- Create an index on the Account_no column (which is also a primary key)
+CREATE INDEX idx_account_no ON Account(Account_no);
+
+Step 4: Create a View Customer_Info Displaying Customer Details for Age Less Than 45
+
+-- Create the view Customer_Info to display customer details for age less than 45
+CREATE VIEW Customer_Info AS
+SELECT CustID, Name, Cust_Address, Phone_no, Email_ID, Age
+FROM Customer
+WHERE Age < 45;
+
+Step 5: Update the View with Open Date as 16/4/2017
+
+-- Update the open date for accounts linked with customers from the view
+UPDATE Account
+SET date_open = '2017-04-16'
+WHERE CustID IN (SELECT CustID FROM Customer_Info);
+
+Step 6: Create a Sequence on the Branch Table
+
+-- Alter the Branch table to make Branch_ID auto-increment (creating a sequence-like behavior)
+ALTER TABLE Branch
+MODIFY COLUMN Branch_ID INT AUTO_INCREMENT;
+
+Step 7: Create a Synonym for the Branch Table
+
+-- Create a synonym for the Branch table (Oracle only)
+CREATE SYNONYM Branch_info FOR Branch;
+
+<============================================================================================================================================================================================>
+
+Problem Statement 20 (DDL USING MYSQL)
+Create following tables using a given schema and insert appropriate data into the same: Customer (CustID, Name, Cust_Address, Phone_no, Email_ID, Age)
+Branch (Branch ID, Branch_Name, Address)
+Account (Account_no, Branch ID, CustID, open_date, Account_type, Balance)
+1. Create the tables with referential integrity.
+2. Draw the ER diagram for the same.
+3. Create a View as Saving account displaying the customer details with the open date as 16/8/2018.
+4. Update the View with Cust_Address as Pune for CustID =103.
+5. Create a View as Loan account displaying the customer details with the open date as 16/2/2018.
+6. Create an Index on primary key column of table Customer.
+7. Create an Index on primary key column of table Branch.
+8. Create a sequence on Customer Table.
+9. Create synonym ‘Cust_info’ for branch table.
+
+solution : 
+
+-- Create the Customer table
+CREATE TABLE Customer (
+    CustID INT PRIMARY KEY,
+    Name VARCHAR(50),
+    Cust_Address VARCHAR(100),
+    Phone_no VARCHAR(15),
+    Email_ID VARCHAR(50),
+    Age INT
+);
+
+-- Create the Branch table
+CREATE TABLE Branch (
+    Branch_ID INT PRIMARY KEY,
+    Branch_Name VARCHAR(50),
+    Address VARCHAR(100)
+);
+
+-- Create the Account table with foreign keys referencing Customer and Branch
+CREATE TABLE Account (
+    Account_no INT PRIMARY KEY,
+    Branch_ID INT,
+    CustID INT,
+    open_date DATE,
+    Account_type VARCHAR(20),
+    Balance DECIMAL(10, 2),
+    FOREIGN KEY (Branch_ID) REFERENCES Branch(Branch_ID),
+    FOREIGN KEY (CustID) REFERENCES Customer(CustID)
+);
+
+-- Insert sample data into Customer table
+INSERT INTO Customer (CustID, Name, Cust_Address, Phone_no, Email_ID, Age) 
+VALUES
+(101, 'John Doe', '123 Elm St, New York', '1234567890', 'john.doe@example.com', 30),
+(102, 'Jane Smith', '456 Oak St, California', '9876543210', 'jane.smith@example.com', 28),
+(103, 'Alice Johnson', '789 Pine St, Pune', '1122334455', 'alice.johnson@example.com', 35);
+
+-- Insert sample data into Branch table
+INSERT INTO Branch (Branch_ID, Branch_Name, Address) 
+VALUES
+(1, 'New York Branch', '123 New York Blvd, New York'),
+(2, 'California Branch', '456 California Ave, California'),
+(3, 'Pune Branch', '789 Pune Rd, Pune');
+
+-- Insert sample data into Account table
+INSERT INTO Account (Account_no, Branch_ID, CustID, open_date, Account_type, Balance)
+VALUES
+(1, 1, 101, '2017-06-01', 'Saving', 10000),
+(2, 2, 102, '2018-03-12', 'Loan', 5000),
+(3, 3, 103, '2018-08-16', 'Saving', 15000);
+
+step 2 : Create View: Saving Account
+
+CREATE VIEW Saving_account AS
+SELECT * 
+FROM Customer c
+JOIN Account a ON c.CustID = a.CustID
+WHERE a.open_date = '2018-08-16' AND a.Account_type = 'Saving';
+
+step 3 : Update the View
+
+UPDATE Customer
+SET Cust_Address = 'Pune'
+WHERE CustID = 103;
+
+step 4 : Create View: Loan Account
+
+CREATE VIEW Loan_account AS
+SELECT * 
+FROM Customer c
+JOIN Account a ON c.CustID = a.CustID
+WHERE a.open_date = '2018-02-16' AND a.Account_type = 'Loan';
+
+step 5 : Create Index on Primary Key Column of Customer Table
+
+CREATE INDEX idx_customer_id ON Customer (CustID);
+
+step 6 : Create Index on Primary Key Column of Branch Table
+
+CREATE INDEX idx_branch_id ON Branch (Branch_ID);
+
+step 7 : Create a Sequence on the Customer Table
+
+CREATE TABLE Customer (
+    CustID INT AUTO_INCREMENT PRIMARY KEY,
+    Name VARCHAR(50),
+    Cust_Address VARCHAR(100),
+    Phone_no VARCHAR(15),
+    Email_ID VARCHAR(50),
+    Age INT
+);
+
+step 8 : Create Synonym for Branch Table
+
+-- This alias acts as a synonym for the Branch table
+SELECT * FROM Branch AS Cust_info;
