@@ -1,0 +1,263 @@
+Problem Statement 4 (Procedures / Functions)
+Consider following schema for Bank database. Account(Account_No, Cust_Name, Balance, NoOfYears) Earned_Interest(Account_No, Interest_Amt)
+1. Write a PL/SQL procedure for following requirement. Take as input Account_No and Interest Rate from User. Calculate the Interest_Amt as simple interest for the given Account_No and store it in Earned_Interest table. Display all the details of Earned_Interest Table.
+2. Write a PLSQL function to display all records from Account table having Balance greater than 50,000.
+
+solution :
+
+1. Write a PL/SQL procedure for following requirement. Take as input Account_No and Interest Rate from User. Calculate the Interest_Amt as simple interest for the given Account_No and store it in Earned_Interest table. Display all the details of Earned_Interest Table.
+
+Step 1: Create the Tables
+
+-- Table to store account details
+CREATE TABLE Account (
+    Account_No NUMBER PRIMARY KEY,  -- Unique account number (Primary Key)
+    Cust_Name VARCHAR2(100),        -- Customer's name
+    Balance NUMBER,                 -- Balance in the account
+    NoOfYears NUMBER                -- Number of years the account has been active
+);
+
+-- Table to store earned interest details
+CREATE TABLE Earned_Interest (
+    Account_No NUMBER PRIMARY KEY,  -- Account number (Primary Key)
+    Interest_Amt NUMBER              -- Calculated interest amount
+);
+
+Step 2: Create the PL/SQL Procedure
+
+CREATE OR REPLACE PROCEDURE proc_Calculate_Interest (
+    p_account_no IN NUMBER,          -- Account number input
+    p_interest_rate IN NUMBER         -- Interest rate input
+) IS
+    v_balance Account.Balance%TYPE;   -- Variable to hold the account balance
+    v_no_of_years Account.NoOfYears%TYPE;  -- Variable to hold the number of years
+    v_interest_amt NUMBER;            -- Variable to hold the calculated interest amount
+BEGIN
+    -- Fetch the Balance and NoOfYears for the given Account_No from the Account table
+    SELECT Balance, NoOfYears
+    INTO v_balance, v_no_of_years
+    FROM Account
+    WHERE Account_No = p_account_no;
+
+    -- Calculate the interest amount as simple interest
+    v_interest_amt := (v_balance * v_no_of_years * p_interest_rate) / 100;
+
+    -- Insert or update the interest amount in the Earned_Interest table
+    MERGE INTO Earned_Interest ei
+    USING (SELECT p_account_no AS Account_No FROM dual) src
+    ON (ei.Account_No = src.Account_No)
+    WHEN MATCHED THEN
+        UPDATE SET ei.Interest_Amt = v_interest_amt
+    WHEN NOT MATCHED THEN
+        INSERT (Account_No, Interest_Amt) 
+        VALUES (p_account_no, v_interest_amt);
+
+    -- Commit the transaction
+    COMMIT;
+
+    -- Display the updated Earned_Interest table
+    DBMS_OUTPUT.PUT_LINE('Account No  |  Interest Amount');
+    FOR rec IN (SELECT * FROM Earned_Interest) LOOP
+        DBMS_OUTPUT.PUT_LINE(rec.Account_No || '          |  ' || rec.Interest_Amt);
+    END LOOP;
+
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('Account not found.');  -- Handle case when account not found
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);   -- Handle other exceptions
+END proc_Calculate_Interest;
+/
+
+Step 3: Declare and Execute the Procedure
+
+-- Declare variables to hold input values
+DECLARE
+    v_account_no NUMBER;            -- Variable to hold account number
+    v_interest_rate NUMBER;         -- Variable to hold interest rate
+BEGIN
+    -- Accept input from user
+    v_account_no := &account_no;    -- User enters account number
+    v_interest_rate := &interest_rate;  -- User enters interest rate
+
+    -- Call the procedure to calculate interest
+    proc_Calculate_Interest(v_account_no, v_interest_rate);
+END;
+/
+
+Step 4: Insert Sample Data into the Account Table
+
+-- Insert sample data into Account table
+INSERT INTO Account (Account_No, Cust_Name, Balance, NoOfYears) 
+VALUES (101, 'John Doe', 50000, 5);
+
+INSERT INTO Account (Account_No, Cust_Name, Balance, NoOfYears) 
+VALUES (102, 'Jane Doe', 30000, 3);
+
+Step 5: Execute the Procedure with Specific Inputs
+
+-- Execute the PL/SQL block
+DECLARE
+    v_account_no NUMBER;            -- Variable to hold account number
+    v_interest_rate NUMBER;         -- Variable to hold interest rate
+BEGIN
+    v_account_no := 102;            -- Example account number
+    v_interest_rate := 3;           -- Example interest rate
+
+    -- Call the procedure to calculate interest
+    proc_Calculate_Interest(v_account_no, v_interest_rate);
+END;
+/
+
+Step 6: View the Results
+
+-- Select all records from the Earned_Interest table to view results
+SELECT * FROM Earned_Interest;
+
+2. Write a PLSQL function to display all records from Account table having Balance greater than 50,000.
+
+step 1 : 
+
+CREATE OR REPLACE FUNCTION fn_Display_Accounts_With_High_Balance
+RETURN SYS_REFCURSOR IS ~~ SYS_REFCURSOR: This is a special data type used to return a cursor
+    -- Declare a cursor variable to hold the result set
+    accounts_cursor SYS_REFCURSOR;
+BEGIN
+    -- Open the cursor for records where balance > 50,000
+    OPEN accounts_cursor FOR
+        SELECT Account_No, Cust_Name, Balance, NoOfYears
+        FROM Account
+        WHERE Balance > 50000;
+
+    -- Return the cursor to the caller
+    RETURN accounts_cursor;
+END;
+/
+
+Step 2: Calling the Function and Displaying Results
+
+DECLARE
+    -- Declare a cursor variable to hold the result set returned by the function
+    accounts_cursor SYS_REFCURSOR;
+    -- Declare variables to hold account details
+    v_account_no Account.Account_No%TYPE;
+    v_cust_name Account.Cust_Name%TYPE;
+    v_balance Account.Balance%TYPE;
+    v_no_of_years Account.NoOfYears%TYPE;
+BEGIN
+    -- Call the function to get the cursor
+    accounts_cursor := fn_Display_Accounts_With_High_Balance;
+
+    -- Loop through the cursor and fetch each record
+    LOOP
+        FETCH accounts_cursor INTO v_account_no, v_cust_name, v_balance, v_no_of_years;
+        EXIT WHEN accounts_cursor%NOTFOUND;  -- Exit loop when no more rows to fetch
+
+        -- Display the account details
+        DBMS_OUTPUT.PUT_LINE('Account No: ' || v_account_no || ' | Customer: ' || v_cust_name || ' | Balance: ' || v_balance || ' | No. of Years: ' || v_no_of_years);
+    END LOOP;
+
+    -- Close the cursor
+    CLOSE accounts_cursor;
+END;
+/
+
+step 3 : 
+
+SET SERVEROUTPUT ON;
+
+<=========================================================================================================================================================================================================================================================>
+
+Problem Statement 16 (Procedures / Functions)
+Employee( emp_id, dept_idemp_name, DoJ, salary, commission,job_title)
+1. Consider the schema given above. Keep the commission column empty initially. Write a Stored Procedure to record the employee commission based on following conditions. If salary is more than 10000 then commission is 0.4%, if Salary is less than 10000 but experience is more than 10 years then 0.35%, if salary is less than 3000 then commission is 0.25%. In the remaining cases commission is 0.15%.
+2. Write a PLSQL Function that takes department ID and returns the name of the manager of the department
+
+solution :
+
+Step 1: Create the Employee Table
+
+-- Create Employee table
+CREATE TABLE Employee (
+    emp_id INT PRIMARY KEY,
+    dept_id INT,
+    emp_name VARCHAR2(50),
+    DoJ DATE,
+    salary DECIMAL(10, 2),
+    commission DECIMAL(10, 2),
+    job_title VARCHAR2(50)
+);
+
+-- Insert sample data into Employee table
+INSERT INTO Employee (emp_id, dept_id, emp_name, DoJ, salary, commission, job_title) 
+VALUES (1, 101, 'John Doe', TO_DATE('2010-01-01', 'YYYY-MM-DD'), 12000, NULL, 'Manager');
+
+INSERT INTO Employee (emp_id, dept_id, emp_name, DoJ, salary, commission, job_title) 
+VALUES (2, 102, 'Jane Smith', TO_DATE('2015-03-10', 'YYYY-MM-DD'), 8000, NULL, 'Senior Developer');
+
+INSERT INTO Employee (emp_id, dept_id, emp_name, DoJ, salary, commission, job_title) 
+VALUES (3, 103, 'Alice Brown', TO_DATE('2020-07-25', 'YYYY-MM-DD'), 2500, NULL, 'Junior Developer');
+
+INSERT INTO Employee (emp_id, dept_id, emp_name, DoJ, salary, commission, job_title) 
+VALUES (4, 101, 'Bob Johnson', TO_DATE('2010-10-05', 'YYYY-MM-DD'), 9500, NULL, 'Developer');
+
+Step 2: Stored Procedure to Calculate and Update Commission
+
+-- Create Stored Procedure to calculate and update employee commission
+CREATE OR REPLACE PROCEDURE calculate_commission IS
+    v_experience INT;  -- Variable to store years of experience
+BEGIN
+    FOR emp IN (SELECT emp_id, salary, DoJ FROM Employee) LOOP
+        -- Calculate years of experience
+        v_experience := EXTRACT(YEAR FROM SYSDATE) - EXTRACT(YEAR FROM emp.DoJ);
+
+        -- Update commission based on salary and experience
+        IF emp.salary > 10000 THEN
+            UPDATE Employee
+            SET commission = emp.salary * 0.004
+            WHERE emp_id = emp.emp_id;
+        ELSIF emp.salary < 10000 AND v_experience > 10 THEN
+            UPDATE Employee
+            SET commission = emp.salary * 0.0035
+            WHERE emp_id = emp.emp_id;
+        ELSIF emp.salary < 3000 THEN
+            UPDATE Employee
+            SET commission = emp.salary * 0.0025
+            WHERE emp_id = emp.emp_id;
+        ELSE
+            UPDATE Employee
+            SET commission = emp.salary * 0.0015
+            WHERE emp_id = emp.emp_id;
+        END IF;
+    END LOOP;
+END;
+
+Step 3: PL/SQL Function to Return the Department Manager's Name
+
+-- Create PL/SQL Function to get the manager name for a department
+CREATE OR REPLACE FUNCTION get_department_manager(dept_id_in INT) 
+    RETURN VARCHAR2 IS
+    v_manager_name VARCHAR2(50);
+BEGIN
+    -- Query to find the manager based on department ID
+    SELECT e.emp_name
+    INTO v_manager_name
+    FROM Employee e
+    JOIN Departments d ON e.dept_id = d.dept_id
+    WHERE d.dept_id = dept_id_in AND e.job_title = 'Manager';
+    
+    RETURN v_manager_name;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN 'No manager found for this department';
+    WHEN OTHERS THEN
+        RETURN 'Error occurred';
+END;
+
+Step 4: Test the Procedure and Function
+
+EXEC calculate_commission;
+
+- Test the Function: To get the manager’s name for a department (for example, department 101):
+
+SELECT get_department_manager(101) FROM dual;
