@@ -1,350 +1,134 @@
-Exp 2 : Design and Develop MongoDB Queries using CRUD
-operations. (Use CRUD operations, SAVE method, logical operators)
-
-
-to start mongodb using crud operation
-
-commands to start it
-
-- sudo systemctl enable mongod (after this statement write password which is student)
-
-
-( after password is accepted)
-
-- sudo systemctl start mongod
-- mongosh
-
-( mongodb is started )
-
-
-- show databases
-
-( random data will be displayed )
-
-- use db ( to make a folder )
-
-(after the folder has been made we will start our operation )
-
-- db.createCollection("users")
-
-( any random text with the message ok )
-
-- db.createCollection("posts")
-
-( any random text with the message ok )
-
-- show collections 
-
-( random text will displayed that the things users have putted inside )
-
-- db.users.insertMany([{"Name":"Dhanraj"},{"Name":"Adesh"}])
-
-( random text with the message of acknowledgement true )
-
-- db.users.find()
-
-( random text will tell the users that he found the data ) 
-
-- db.users.update({Name:"Adesh"},{$set:{Name:"Aryan"}}) 
-
-( it will change the name of Adesh to Aryan with the message of acknolwedgement true )
-
-- db.users.find() 
-
-( to check did our data updated or not ) 
-
-- db.users.deleteOne({Name:"Aryan"}) 
-
-( to delete the name Aryan )
-
-
-( TO USE COMPARISION STATEMENT )
-
-
-- db.createCollection("products")
-
-
-
-- db.products.insertMany([
-    { name: 'Laptop', price: 1200, category: 'Electronics' },
-    { name: 'Mouse', price: 25, category: 'Electronics' },
-    { name: 'Keyboard', price: 50, category: 'Electronics' },
-    { name: 'Desk', price: 300, category: 'Furniture' },
-    { name: 'Chair', price: 150, category: 'Furniture' }
-])
-
- ( Using $eq and $ne)
-
-// Products in the Electronics category
-
-- db.products.find({ category: { $eq: 'Electronics' } })
-
-// Products not in the Electronics category
-
-- db.products.find({ category: { $ne: 'Electronics' } })
-
-( Using $gt and $lt )
-
-// Products costing more than $100
-
-- db.products.find({ price: { $gt: 100 } })
-
-// Products costing less than $100
-
-- db.products.find({ price: { $lt: 100 } })
-
-( Using $gte and $lte )
-
-// Products costing $50 or more
-
-- db.products.find({ price: { $gte: 50 } })
-
-// Products costing $150 or less
-
-- db.products.find({ price: { $lte: 150 } })
-
-( Using $in )
-
-// Products in selected categories
-
-- db.products.find({ category: { $in: ['Electronics', 'Furniture'] } })
-
-- db.products.find().pretty()
-
-
-( USING LOGICAL OPERATOR ) 
-
-
-- db.createCollection("product")
-
-- db.product.insertMany([
-    { name: 'Laptop', price: 1200, category: 'Electronics' },
-    { name: 'Mouse', price: 25, category: 'Electronics' },
-    { name: 'Keyboard', price: 50, category: 'Electronics' },
-    { name: 'Desk', price: 300, category: 'Furniture' },
-    { name: 'Chair', price: 150, category: 'Furniture' },
-    { name: 'Monitor', price: 300, category: 'Electronics' },
-    { name: 'Lamp', price: 40, category: 'Furniture' }
-])
-
-
-( Using $and Find products that are in the Electronics category and cost more than $100: )
-
-- db.product.find({
-    $and: [
-        { category: { $eq: 'Electronics' } },
-        { price: { $gt: 100 } }
-    ]
-})
-
-
-( Using $or Find products that are either in Electronics or cost less than $50:)
-
-- db.product.find({
-    $or: [
-        { category: { $eq: 'Electronics' } },
-        { price: { $lt: 50 } }
-    ]
-})
-
-( Using $nor Find products that are neither in the Electronics category nor cost more than $150:)
-
-- db.product.find({
-    $nor: [
-        { category: { $eq: 'Electronics' } },
-        { price: { $gt: 150 } }
-    ]
-})
-
-( Using $not Find products that do not cost more than $150:
-
-- db.product.find({
-    price: { $not: { $gt: 150 } }
-})
-
-
-question 2 : Create Institute Database and Create Student collection
-1. RollNo
-2. Student Name
-3. Age
-4. Branch
-5. Address :{ City, State}
-6. Hobbies (Array)
-
-solution 
-
-step 1 : 
-
-use Institute
-
-step 2 : 
-
-db.Student.insertMany([
-    {
-        "RollNo": 1,
-        "StudentName": "John Doe",
-        "Age": 20,
-        "Branch": "Computer Science",
-        "Address": { 
-            "City": "New York",
-            "State": "NY"
-        },
-        "Hobbies": ["Reading", "Swimming", "Coding"]
-    },
-    {
-        "RollNo": 2,
-        "StudentName": "Alice Smith",
-        "Age": 21,
-        "Branch": "Mechanical Engineering",
-        "Address": { 
-            "City": "Los Angeles",
-            "State": "CA"
-        },
-        "Hobbies": ["Painting", "Cycling"]
-    },
-    {
-        "RollNo": 3,
-        "StudentName": "Bob Johnson",
-        "Age": 22,
-        "Branch": "Electrical Engineering",
-        "Address": { 
-            "City": "Chicago",
-            "State": "IL"
-        },
-        "Hobbies": ["Chess", "Robotics"]
-    },
-    {
-        "RollNo": 4,
-        "StudentName": "Emily Davis",
-        "Age": 19,
-        "Branch": "Civil Engineering",
-        "Address": { 
-            "City": "Houston",
-            "State": "TX"
-        },
-        "Hobbies": ["Photography", "Traveling"]
-    },
-    {
-        "RollNo": 5,
-        "StudentName": "Michael Brown",
-        "Age": 23,
-        "Branch": "Information Technology",
-        "Address": { 
-            "City": "Phoenix",
-            "State": "AZ"
-        },
-        "Hobbies": ["Gaming", "Blogging", "Reading"]
-    }
-])
-
-step 3 : 
-
-db.Student.find().pretty()
-
-question 3 : Perform following operations
-1. Create database Institute.
-2. Create collection Students.
-3. Insert 10 documents with above mentioned structure.
-4. Display all students’ information.
-5. Display Student information whose age is greater than 15.
-6. Display Student information sorted on name field
-7. Update student branch Computer of RollNo 3.
-8. Remove document with RollNo 1
-9. Display Student information whose name starts with A
-10. Display the total numbers of documents available in collection.
-11. Display only first 5 documents.
-12. Display all documents instead of first 3.
-13. Display the name of Students who live in Pune City.
-14. Display the list of different cities from where students are coming.
-15. Display the list of different cities with number of students from belonging to that city.
-16. Display only Name of all students.
-17. Display the hobbies of each student.
-18. Drop Collection
-
+Problem Statement 12 (CRUD Using MongoDB)
+Create a collection Social_Media having fields as User_Id, User_Name, No_of_Posts, No_of_Friends, Friends_List, Interests. (Hint: Friends_List and Interests can be of array type)
+Insert 20 documents in the collection Social_Media. Write queries for following.
+1. List all the users from collection Social_Media in formatted manner.
+2. Find all users having number of posts greater than 100.
+3. List the user names and their respective Friens_List
+4. Display the user ids and Friends list of users who have more than 5 friends.
+5. Display all users with no of posts in descending order.
 
 solution : 
 
-1. Create database Institute
+use socialDB
 
-use Institute
 
-2. Create collection Students
+db.Social_Media.insertMany([
+    { User_Id: 1, User_Name: "JohnDoe", No_of_Posts: 50, No_of_Friends: 5, Friends_List: ["Alice", "Bob", "Charlie", "David", "Eva"], Interests: ["Sports", "Music"] },
+    { User_Id: 2, User_Name: "JaneSmith", No_of_Posts: 120, No_of_Friends: 8, Friends_List: ["Frank", "Grace", "Helen"], Interests: ["Travel", "Books"] },
+    { User_Id: 3, User_Name: "SamAdams", No_of_Posts: 80, No_of_Friends: 10, Friends_List: ["Ivy", "Jack", "Kurt", "Leo"], Interests: ["Movies", "Fitness"] },
+    { User_Id: 4, User_Name: "PaulLee", No_of_Posts: 90, No_of_Friends: 3, Friends_List: ["Mike", "Nancy"], Interests: ["Technology", "Gaming"] },
+    { User_Id: 5, User_Name: "EmmaWilson", No_of_Posts: 200, No_of_Friends: 12, Friends_List: ["Oscar", "Paul", "Quincy"], Interests: ["Art", "Cooking"] },
+    { User_Id: 6, User_Name: "LucyBrown", No_of_Posts: 45, No_of_Friends: 4, Friends_List: ["Rick", "Sophia", "Tom"], Interests: ["Music", "Photography"] },
+    { User_Id: 7, User_Name: "HenryJones", No_of_Posts: 110, No_of_Friends: 6, Friends_List: ["Uma", "Victor", "Wendy"], Interests: ["Fitness", "Gaming"] },
+    { User_Id: 8, User_Name: "OliviaMartin", No_of_Posts: 135, No_of_Friends: 9, Friends_List: ["Xander", "Yara", "Zoe"], Interests: ["Fashion", "Travel"] },
+    { User_Id: 9, User_Name: "MarkLee", No_of_Posts: 65, No_of_Friends: 5, Friends_List: ["Ava", "Brian", "Clara"], Interests: ["Technology", "Books"] },
+    { User_Id: 10, User_Name: "SophiaTaylor", No_of_Posts: 95, No_of_Friends: 7, Friends_List: ["David", "Ethan", "Frank"], Interests: ["Fitness", "Movies"] },
+    { User_Id: 11, User_Name: "AvaGarcia", No_of_Posts: 105, No_of_Friends: 4, Friends_List: ["George", "Helen"], Interests: ["Cooking", "Books"] },
+    { User_Id: 12, User_Name: "EthanMartinez", No_of_Posts: 150, No_of_Friends: 11, Friends_List: ["Isaac", "Jack", "Karen"], Interests: ["Sports", "Photography"] },
+    { User_Id: 13, User_Name: "ChloeRobinson", No_of_Posts: 60, No_of_Friends: 6, Friends_List: ["Liam", "Megan"], Interests: ["Art", "Travel"] },
+    { User_Id: 14, User_Name: "JackWilliams", No_of_Posts: 125, No_of_Friends: 10, Friends_List: ["Nina", "Olivia", "Peter"], Interests: ["Technology", "Movies"] },
+    { User_Id: 15, User_Name: "DavidClark", No_of_Posts: 95, No_of_Friends: 5, Friends_List: ["Quinn", "Rachel"], Interests: ["Fitness", "Music"] },
+    { User_Id: 16, User_Name: "MiaRodriguez", No_of_Posts: 130, No_of_Friends: 9, Friends_List: ["Sam", "Tina", "Ursula"], Interests: ["Fashion", "Art"] },
+    { User_Id: 17, User_Name: "LiamWhite", No_of_Posts: 75, No_of_Friends: 7, Friends_List: ["Victor", "Wendy"], Interests: ["Sports", "Gaming"] },
+    { User_Id: 18, User_Name: "NoahGreen", No_of_Posts: 115, No_of_Friends: 8, Friends_List: ["Xander", "Yara"], Interests: ["Books", "Movies"] },
+    { User_Id: 19, User_Name: "EllaHill", No_of_Posts: 55, No_of_Friends: 6, Friends_List: ["Zoe", "Ava"], Interests: ["Cooking", "Photography"] },
+    { User_Id: 20, User_Name: "LucasScott", No_of_Posts: 145, No_of_Friends: 10, Friends_List: ["Brian", "Charlie"], Interests: ["Gaming", "Technology"] }
+]);
 
-db.createCollection("Students")
 
-3. Insert 10 documents with the specified structure
+1. List all users in a formatted manner:
 
-db.Students.insertMany([
-    { "RollNo": 1, "StudentName": "John Doe", "Age": 20, "Branch": "Computer Science", "Address": { "City": "New York", "State": "NY" }, "Hobbies": ["Reading", "Swimming", "Coding"] },
-    { "RollNo": 2, "StudentName": "Alice Smith", "Age": 21, "Branch": "Mechanical Engineering", "Address": { "City": "Pune", "State": "MH" }, "Hobbies": ["Painting", "Cycling"] },
-    { "RollNo": 3, "StudentName": "Bob Johnson", "Age": 22, "Branch": "Computer Science", "Address": { "City": "Chicago", "State": "IL" }, "Hobbies": ["Chess", "Robotics"] },
-    { "RollNo": 4, "StudentName": "Emily Davis", "Age": 19, "Branch": "Civil Engineering", "Address": { "City": "Houston", "State": "TX" }, "Hobbies": ["Photography", "Traveling"] },
-    { "RollNo": 5, "StudentName": "Michael Brown", "Age": 23, "Branch": "Information Technology", "Address": { "City": "Phoenix", "State": "AZ" }, "Hobbies": ["Gaming", "Blogging", "Reading"] },
-    { "RollNo": 6, "StudentName": "Anna Lee", "Age": 18, "Branch": "Biotechnology", "Address": { "City": "Los Angeles", "State": "CA" }, "Hobbies": ["Gardening", "Singing"] },
-    { "RollNo": 7, "StudentName": "Chris Evans", "Age": 22, "Branch": "Electrical Engineering", "Address": { "City": "Pune", "State": "MH" }, "Hobbies": ["Acting", "Coding"] },
-    { "RollNo": 8, "StudentName": "Amy Turner", "Age": 20, "Branch": "Physics", "Address": { "City": "Dallas", "State": "TX" }, "Hobbies": ["Swimming", "Reading"] },
-    { "RollNo": 9, "StudentName": "Paul Martin", "Age": 21, "Branch": "Mathematics", "Address": { "City": "San Francisco", "State": "CA" }, "Hobbies": ["Cooking", "Traveling"] },
-    { "RollNo": 10, "StudentName": "Alex King", "Age": 19, "Branch": "Chemistry", "Address": { "City": "Pune", "State": "MH" }, "Hobbies": ["Music", "Dancing"] }
-])
+- db.Social_Media.find({}, {User_Id: 1, User_Name: 1, No_of_Posts: 1, No_of_Friends: 1, Friends_List: 1, Interests: 1}).pretty();
 
-4. Display all students' information
+2. Find all users having more than 100 posts:
 
-db.Students.find().pretty()
+- db.Social_Media.find({No_of_Posts: {$gt: 100}});
 
-5. Display student information where age is greater than 15
+3. List the user names and their respective Friends_List:
 
-db.Students.find({ Age: { $gt: 15 } }).pretty()
+- db.Social_Media.find({}, {User_Name: 1, Friends_List: 1});
 
-6. Display student information sorted by the StudentName field
+4. Display user ids and Friends_List of users who have more than 5 friends:
 
-db.Students.find().sort({ StudentName: 1 }).pretty()
+- db.Social_Media.find({No_of_Friends: {$gt: 5}}, {User_Id: 1, Friends_List: 1});
 
-7. Update student branch to Computer for RollNo 3
+5. Display all users ordered by number of posts in descending order:
 
-db.Students.updateOne({ RollNo: 3 }, { $set: { Branch: "Computer" } })
+- db.Social_Media.find().sort({No_of_Posts: -1});
 
-8. Remove document with RollNo 1
+<=========================================================================================================================================================================================================>
 
-db.Students.deleteOne({ RollNo: 1 })
+Problem Statement 21 (CRUD)
+Create collection Student with fields as Roll_No, Name, Class, Marks, Address, Enrolled_Courses. (Hint: One student can enrol in multiple courses. Use Array to store the names of courses enrolled) Insert 10 documents in the collection Student. Write the queries for following.
+1. List the names of students who have enrolled in the course “DBMS”, “TOC”.
+2. List the Roll numbers and class of students who have marks more than 50 or class as TE.
+3. Update the entire record of roll_no A10.
+4. Display the names of students having 3rd and 4th highest marks.
+5. Delete the records of students having marks less than 20.
+6. Delete only first record from the collection.
 
-9. Display student information where StudentName starts with "A"
+solution : 
 
-db.Students.find({ StudentName: { $regex: /^A/ } }).pretty()
+use school;
 
-10. Display the total number of documents available in the collection
+db.Student.insertMany([
+  { Roll_No: "A01", Name: "John", Class: "FE", Marks: 85, Address: "123 Main St", Enrolled_Courses: ["DBMS", "Math"] },
+  { Roll_No: "A02", Name: "Jane", Class: "SE", Marks: 92, Address: "456 Maple St", Enrolled_Courses: ["TOC", "DBMS"] },
+  { Roll_No: "A03", Name: "Tom", Class: "TE", Marks: 47, Address: "789 Oak St", Enrolled_Courses: ["OS", "DBMS"] },
+  { Roll_No: "A04", Name: "Alice", Class: "TE", Marks: 65, Address: "101 Pine St", Enrolled_Courses: ["Math", "TOC"] },
+  { Roll_No: "A05", Name: "Bob", Class: "FE", Marks: 23, Address: "202 Cedar St", Enrolled_Courses: ["DBMS", "Physics"] },
+  { Roll_No: "A06", Name: "Emma", Class: "SE", Marks: 58, Address: "303 Birch St", Enrolled_Courses: ["TOC", "Math"] },
+  { Roll_No: "A07", Name: "Mike", Class: "TE", Marks: 74, Address: "404 Elm St", Enrolled_Courses: ["DBMS", "TOC"] },
+  { Roll_No: "A08", Name: "Sophia", Class: "SE", Marks: 89, Address: "505 Cherry St", Enrolled_Courses: ["Physics", "OS"] },
+  { Roll_No: "A09", Name: "Ethan", Class: "FE", Marks: 34, Address: "606 Walnut St", Enrolled_Courses: ["Math", "DBMS"] },
+  { Roll_No: "A10", Name: "Josh", Class: "TE", Marks: 77, Address: "707 Redwood St", Enrolled_Courses: ["TOC", "OS"] }
+]);
 
-db.Students.countDocuments()
+1. List the names of students who have enrolled in the courses “DBMS”, “TOC”:
 
-11. Display only the first 5 documents
+db.Student.find({
+  Enrolled_Courses: { $all: ["DBMS", "TOC"] }
+}, {
+  Name: 1, _id: 0
+});
 
-db.Students.find().limit(5).pretty()
+2. List the Roll numbers and class of students who have marks more than 50 or class as TE:
 
-12. Display all documents except the first 3
+db.Student.find({
+  $or: [
+    { Marks: { $gt: 50 } },
+    { Class: "TE" }
+  ]
+}, {
+  Roll_No: 1, Class: 1, _id: 0
+});
 
-db.Students.find().skip(3).pretty()
+3. Update the entire record of roll_no A10:
 
-13. Display names of students who live in Pune city
+db.Student.updateOne(
+  { Roll_No: "A10" },
+  {
+    $set: {
+      Name: "Joshua",
+      Class: "BE",
+      Marks: 95,
+      Address: "808 Ash St",
+      Enrolled_Courses: ["AI", "ML"]
+    }
+  }
+);
 
-db.Students.find({ "Address.City": "Pune" }, { StudentName: 1, _id: 0 }).pretty()
+4. Display the names of students having 3rd and 4th highest marks:
 
-14. Display a list of unique cities from where students are coming
+db.Student.find({}, { Name: 1, Marks: 1, _id: 0 })
+  .sort({ Marks: -1 })
+  .skip(2)
+  .limit(2);
 
-db.Students.distinct("Address.City")
+5. Delete the records of students having marks less than 20:
 
-15. Display a list of cities with the number of students from each city
+db.Student.deleteMany({ Marks: { $lt: 20 } });
 
-db.Students.aggregate([
-    { $group: { _id: "$Address.City", count: { $sum: 1 } } }
-])
+6. Delete only the first record from the collection
 
-16. Display only the StudentName of all students
-
-db.Students.find({}, { StudentName: 1, _id: 0 }).pretty()
-
-17. Display the hobbies of each student
-
-db.Students.find({}, { Hobbies: 1, _id: 0 }).pretty()
-
-18. Drop the Students collection
-
-db.Students.drop()
+db.Student.deleteOne({});
