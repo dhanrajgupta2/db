@@ -1,0 +1,203 @@
+Problem Statement 7 (Cursors)
+Consider the following schema for Products table. Products(Product_id, Product_Name, Product_Type, Price)
+1. Write a parameterized cursor to display all products in the given price range of price and type ‘Apparel’. Hint: Take the user input for minimum and maximum price for price range.
+2. Write an explicit cursor to display information of all products with Price greater than 5000.
+3. Write an implicit cursor to display the number of records affected by the update operation incrementing Price of all products by 1000.
+
+solution : 
+
+1. Write a parameterized cursor to display all products in the given price range of price and type ‘Apparel’. Hint: Take the user input for minimum and maximum price for price range.
+
+Step 1: Create the Products Table
+
+-- Create the Products table
+CREATE TABLE Products (
+    Product_id NUMBER PRIMARY KEY,        -- Unique identifier for each product
+    Product_Name VARCHAR2(50),            -- Name of the product
+    Product_Type VARCHAR2(50),            -- Type of the product (e.g., Apparel, Footwear)
+    Price NUMBER                           -- Price of the product
+);
+
+Step 2: Insert Sample Data into the Products Table
+
+-- Inserting sample data into Products table
+INSERT INTO Products (Product_id, Product_Name, Product_Type, Price) VALUES (1, 'T-Shirt', 'Apparel', 25);
+INSERT INTO Products (Product_id, Product_Name, Product_Type, Price) VALUES (2, 'Jeans', 'Apparel', 50);
+INSERT INTO Products (Product_id, Product_Name, Product_Type, Price) VALUES (3, 'Sneakers', 'Footwear', 70);
+INSERT INTO Products (Product_id, Product_Name, Product_Type, Price) VALUES (4, 'Jacket', 'Apparel', 80);
+INSERT INTO Products (Product_id, Product_Name, Product_Type, Price) VALUES (5, 'Hat', 'Apparel', 15);
+
+Step 3: PL/SQL Block to Retrieve Apparel Products within a Price Range
+
+DECLARE
+    -- Variables to hold user input for price range
+    v_min_price NUMBER;  -- Minimum price
+    v_max_price NUMBER;  -- Maximum price
+
+    -- Cursor declaration with parameters for price range
+    CURSOR product_cursor (min_price_param NUMBER, max_price_param NUMBER) IS
+        SELECT Product_id, Product_Name, Price
+        FROM Products
+        WHERE Product_Type = 'Apparel'
+          AND Price BETWEEN min_price_param AND max_price_param;
+
+BEGIN
+    -- Simulating user input; replace with actual user input mechanism as needed
+    v_min_price := 20;  -- For demonstration, setting it directly
+    v_max_price := 60;  -- For demonstration, setting it directly
+
+    -- Open the cursor with the specified price range
+    FOR product_record IN product_cursor(v_min_price, v_max_price) LOOP
+        DBMS_OUTPUT.PUT_LINE('Product ID: ' || product_record.Product_id || 
+                             ' - Name: ' || product_record.Product_Name || 
+                             ' - Price: ' || product_record.Price);
+    END LOOP;
+
+    -- Check if no records were processed and print a message if so
+    IF SQL%ROWCOUNT = 0 THEN
+        DBMS_OUTPUT.PUT_LINE('No products found in the specified price range.');
+    END IF;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('An error occurred: ' || SQLERRM);
+END;
+/
+
+2. Write an explicit cursor to display information of all products with Price greater than 5000.
+
+DECLARE
+    -- Declare an explicit cursor to fetch products with price greater than 5000
+    CURSOR product_cursor IS
+        SELECT Product_id, Product_Name, Product_Type, Price
+        FROM Products
+        WHERE Price > 5000;
+    
+    -- Variable to store each row fetched by the cursor
+    product_record product_cursor%ROWTYPE;
+BEGIN
+    -- Open and loop through the cursor to fetch each product with Price > 5000
+    OPEN product_cursor;
+    LOOP
+        FETCH product_cursor INTO product_record;
+        EXIT WHEN product_cursor%NOTFOUND;  -- Exit loop when no more records are found
+
+        -- Display the details of each product
+        DBMS_OUTPUT.PUT_LINE('Product ID: ' || product_record.Product_id || 
+                             ' - Name: ' || product_record.Product_Name || 
+                             ' - Type: ' || product_record.Product_Type || 
+                             ' - Price: ' || product_record.Price);
+    END LOOP;
+    
+    -- Close the cursor after processing all rows
+    CLOSE product_cursor;
+    
+    -- Check if no records were processed and display a message
+    IF SQL%ROWCOUNT = 0 THEN
+        DBMS_OUTPUT.PUT_LINE('No products found with price greater than 5000.');
+    END IF;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('An error occurred: ' || SQLERRM);  -- Handle exceptions
+END;
+
+3. Write an implicit cursor to display the number of records affected by the update operation incrementing Price of all products by 1000.
+
+DECLARE
+    -- Variable to store the number of rows affected by the update
+    v_rows_updated NUMBER;
+BEGIN
+    -- Update the Price of all products by 1000
+    UPDATE Products
+    SET Price = Price + 1000;
+    
+    -- Implicit cursor to retrieve the number of rows affected by the update
+    v_rows_updated := SQL%ROWCOUNT;  -- SQL%ROWCOUNT stores the number of affected rows
+    
+    -- Display the number of records affected by the update operation
+    DBMS_OUTPUT.PUT_LINE('Number of records updated: ' || v_rows_updated);
+    
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('An error occurred: ' || SQLERRM);  -- Handle exceptions
+END;
+
+<=============================================================================================================================================================================================================================================================================================================>
+Problem Statement 13 (Cursors)
+Consider a table Employee with schema as Employee (Emp_id, Emp_Name,Salary).
+1. Write an explicit cursor to display records of all employees with salary greater than 50,000.
+2. Write a PL/SQL block of code using Implicit Cursor that will display total number of tuples in Employee table.
+3. Write a PL/SQL block of code using Parameterized Cursor that will display salary of employee id entered by the user.
+
+solution : 
+
+-- Create Employee table
+CREATE TABLE Employee (
+    Emp_id INT PRIMARY KEY,
+    Emp_Name VARCHAR2(50),
+    Salary DECIMAL(10, 2)
+);
+
+-- Insert sample data into Employee table
+INSERT INTO Employee (Emp_id, Emp_Name, Salary) VALUES (1, 'John Doe', 55000.00);
+INSERT INTO Employee (Emp_id, Emp_Name, Salary) VALUES (2, 'Jane Smith', 45000.00);
+INSERT INTO Employee (Emp_id, Emp_Name, Salary) VALUES (3, 'Alice Johnson', 65000.00);
+INSERT INTO Employee (Emp_id, Emp_Name, Salary) VALUES (4, 'Bob Brown', 75000.00);
+INSERT INTO Employee (Emp_id, Emp_Name, Salary) VALUES (5, 'Charlie Green', 40000.00);
+
+1. Write an Explicit Cursor to Display Records of Employees with Salary Greater Than 50,000
+
+-- Explicit Cursor to display records of employees with salary > 50,000
+DECLARE
+    CURSOR employee_cursor IS
+        SELECT Emp_id, Emp_Name, Salary
+        FROM Employee
+        WHERE Salary > 50000;
+BEGIN
+    FOR emp IN employee_cursor LOOP
+        DBMS_OUTPUT.PUT_LINE('Employee ID: ' || emp.Emp_id || 
+                             ' - Name: ' || emp.Emp_Name || 
+                             ' - Salary: ' || emp.Salary);
+    END LOOP;
+END;
+
+2. Write a PL/SQL Block Using an Implicit Cursor to Display the Total Number of Tuples in the Employee Table
+
+-- PL/SQL block using implicit cursor to display the total number of tuples in Employee table
+DECLARE
+    v_count INT;
+BEGIN
+    SELECT COUNT(*) INTO v_count FROM Employee;
+    DBMS_OUTPUT.PUT_LINE('Total number of employees: ' || v_count);
+END;
+
+3. Write a PL/SQL Block Using a Parameterized Cursor to Display Salary of Employee Based on User Input
+
+-- PL/SQL block using a parameterized cursor to display the salary of the employee based on user input
+DECLARE
+    -- Variable to hold employee ID entered by the user
+    v_emp_id INT := 3;  -- Replace with actual input, e.g., from an application
+    v_salary DECIMAL(10, 2);
+    
+    -- Parameterized cursor
+    CURSOR emp_cursor (emp_id_param INT) IS
+        SELECT Salary
+        FROM Employee
+        WHERE Emp_id = emp_id_param;
+BEGIN
+    OPEN emp_cursor(v_emp_id);
+    FETCH emp_cursor INTO v_salary;
+    
+    IF emp_cursor%FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('Salary of employee with ID ' || v_emp_id || ' is: ' || v_salary);
+    ELSE
+        DBMS_OUTPUT.PUT_LINE('Employee not found.');
+    END IF;
+    
+    CLOSE emp_cursor;
+END;
+
+( to execute these ) 
+
+SET SERVEROUTPUT ON;
