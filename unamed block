@@ -1,0 +1,96 @@
+Problem Statement 19 (Unnamed Block)
+Employee( emp_id, dept_idemp_name, DoJ, salary, commission,job_title) Salary_Increment(emp_id, new_salary)
+Consider the schema given above. Write a PLSQL Unnamed Block of code to increase the salary of employee 115 based on the following conditions:
+Accept emp_id from user. If experience of employee is more than 10 years, increase salary by 20%. If experience is greater than 5 years, increase salary by 10% Otherwise 5%. (Hint: Find the years of experience from Date of Joining (DoJ)). Store the incremented salary in Salary_Increment table.
+Also handle the exception by named exception handler or user defined exception handler
+
+
+solution : 
+
+step 1 : 
+
+-- Create Employee table
+CREATE TABLE Employee (
+    emp_id INT PRIMARY KEY,
+    dept_id INT,
+    emp_name VARCHAR(50),
+    DoJ DATE,        -- Date of Joining
+    salary DECIMAL(10, 2),
+    commission DECIMAL(10, 2),
+    job_title VARCHAR(50)
+);
+
+-- Create Salary_Increment table
+CREATE TABLE Salary_Increment (
+    emp_id INT PRIMARY KEY,
+    new_salary DECIMAL(10, 2),
+    FOREIGN KEY (emp_id) REFERENCES Employee(emp_id)
+);
+
+-- Insert sample data into Employee table
+INSERT INTO Employee (emp_id, dept_id, emp_name, DoJ, salary, commission, job_title)
+VALUES (115, 1, 'John Doe', TO_DATE('2012-03-15', 'YYYY-MM-DD'), 50000, 2000, 'Manager');
+
+INSERT INTO Employee (emp_id, dept_id, emp_name, DoJ, salary, commission, job_title)
+VALUES (116, 2, 'Jane Smith', TO_DATE('2018-05-20', 'YYYY-MM-DD'), 45000, 1500, 'Developer');
+
+INSERT INTO Employee (emp_id, dept_id, emp_name, DoJ, salary, commission, job_title)
+VALUES (117, 3, 'Alice Johnson', TO_DATE('2020-06-10', 'YYYY-MM-DD'), 35000, 1000, 'Analyst');
+
+step 2 : Write the PL/SQL Anonymous Block
+
+DECLARE
+    v_emp_id Employee.emp_id%TYPE;
+    v_doJ Employee.DoJ%TYPE;
+    v_salary Employee.salary%TYPE;
+    v_experience NUMBER;
+    v_new_salary Employee.salary%TYPE;
+
+    -- Define a user-defined exception
+    e_invalid_emp_id EXCEPTION;
+
+BEGIN
+    -- Accept emp_id from the user
+    v_emp_id := &emp_id;  -- Prompt the user for the emp_id
+    
+    -- Check if the employee exists
+    SELECT DoJ, salary
+    INTO v_doJ, v_salary
+    FROM Employee
+    WHERE emp_id = v_emp_id;
+    
+    -- Calculate years of experience
+    v_experience := FLOOR(MONTHS_BETWEEN(SYSDATE, v_doJ) / 12);
+    
+    -- Increment salary based on experience
+    IF v_experience > 10 THEN
+        v_new_salary := v_salary * 1.20;  -- 20% increment
+    ELSIF v_experience > 5 THEN
+        v_new_salary := v_salary * 1.10;  -- 10% increment
+    ELSE
+        v_new_salary := v_salary * 1.05;  -- 5% increment
+    END IF;
+    
+    -- Insert the new salary into the Salary_Increment table
+    INSERT INTO Salary_Increment (emp_id, new_salary)
+    VALUES (v_emp_id, v_new_salary);
+
+    -- Commit the changes
+    COMMIT;
+
+    DBMS_OUTPUT.PUT_LINE('Salary for Employee ID ' || v_emp_id || ' has been incremented to ' || v_new_salary);
+    
+EXCEPTION
+    -- Exception handling
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('Employee with ID ' || v_emp_id || ' does not exist.');
+    WHEN e_invalid_emp_id THEN
+        DBMS_OUTPUT.PUT_LINE('Invalid Employee ID provided.');
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('An error occurred: ' || SQLERRM);
+END;
+/
+
+(command to see output)
+
+SELECT * FROM Salary_Increment;
