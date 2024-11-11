@@ -753,3 +753,528 @@ public class Ta_Ga {
 }
 
 <=============================================================================================================================================================================================================================================================================================================>
+
+Problem Statement 7 (Cursors)
+Consider the following schema for Products table. Products(Product_id, Product_Name, Product_Type, Price)
+1. Write a parameterized cursor to display all products in the given price range of price and type ‘Apparel’. Hint: Take the user input for minimum and maximum price for price range.
+2. Write an explicit cursor to display information of all products with Price greater than 5000.
+3. Write an implicit cursor to display the number of records affected by the update operation incrementing Price of all products by 1000.
+
+solution : 
+
+1. Write a parameterized cursor to display all products in the given price range of price and type ‘Apparel’. Hint: Take the user input for minimum and maximum price for price range.
+
+Step 1: Create the Products Table
+
+-- Create the Products table
+CREATE TABLE Products (
+    Product_id NUMBER PRIMARY KEY,        -- Unique identifier for each product
+    Product_Name VARCHAR2(50),            -- Name of the product
+    Product_Type VARCHAR2(50),            -- Type of the product (e.g., Apparel, Footwear)
+    Price NUMBER                           -- Price of the product
+);
+
+Step 2: Insert Sample Data into the Products Table
+
+-- Inserting sample data into Products table
+INSERT INTO Products (Product_id, Product_Name, Product_Type, Price) VALUES (1, 'T-Shirt', 'Apparel', 25);
+INSERT INTO Products (Product_id, Product_Name, Product_Type, Price) VALUES (2, 'Jeans', 'Apparel', 50);
+INSERT INTO Products (Product_id, Product_Name, Product_Type, Price) VALUES (3, 'Sneakers', 'Footwear', 70);
+INSERT INTO Products (Product_id, Product_Name, Product_Type, Price) VALUES (4, 'Jacket', 'Apparel', 80);
+INSERT INTO Products (Product_id, Product_Name, Product_Type, Price) VALUES (5, 'Hat', 'Apparel', 15);
+
+Step 3: PL/SQL Block to Retrieve Apparel Products within a Price Range
+
+DECLARE
+    -- Variables to hold user input for price range
+    v_min_price NUMBER;  -- Minimum price
+    v_max_price NUMBER;  -- Maximum price
+
+    -- Cursor declaration with parameters for price range
+    CURSOR product_cursor (min_price_param NUMBER, max_price_param NUMBER) IS
+        SELECT Product_id, Product_Name, Price
+        FROM Products
+        WHERE Product_Type = 'Apparel'
+          AND Price BETWEEN min_price_param AND max_price_param;
+
+BEGIN
+    -- Simulating user input; replace with actual user input mechanism as needed
+    v_min_price := 20;  -- For demonstration, setting it directly
+    v_max_price := 60;  -- For demonstration, setting it directly
+
+    -- Open the cursor with the specified price range
+    FOR product_record IN product_cursor(v_min_price, v_max_price) LOOP
+        DBMS_OUTPUT.PUT_LINE('Product ID: ' || product_record.Product_id || 
+                             ' - Name: ' || product_record.Product_Name || 
+                             ' - Price: ' || product_record.Price);
+    END LOOP;
+
+    -- Check if no records were processed and print a message if so
+    IF SQL%ROWCOUNT = 0 THEN
+        DBMS_OUTPUT.PUT_LINE('No products found in the specified price range.');
+    END IF;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('An error occurred: ' || SQLERRM);
+END;
+/
+
+2. Write an explicit cursor to display information of all products with Price greater than 5000.
+
+DECLARE
+    -- Declare an explicit cursor to fetch products with price greater than 5000
+    CURSOR product_cursor IS
+        SELECT Product_id, Product_Name, Product_Type, Price
+        FROM Products
+        WHERE Price > 5000;
+    
+    -- Variable to store each row fetched by the cursor
+    product_record product_cursor%ROWTYPE;
+BEGIN
+    -- Open and loop through the cursor to fetch each product with Price > 5000
+    OPEN product_cursor;
+    LOOP
+        FETCH product_cursor INTO product_record;
+        EXIT WHEN product_cursor%NOTFOUND;  -- Exit loop when no more records are found
+
+        -- Display the details of each product
+        DBMS_OUTPUT.PUT_LINE('Product ID: ' || product_record.Product_id || 
+                             ' - Name: ' || product_record.Product_Name || 
+                             ' - Type: ' || product_record.Product_Type || 
+                             ' - Price: ' || product_record.Price);
+    END LOOP;
+    
+    -- Close the cursor after processing all rows
+    CLOSE product_cursor;
+    
+    -- Check if no records were processed and display a message
+    IF SQL%ROWCOUNT = 0 THEN
+        DBMS_OUTPUT.PUT_LINE('No products found with price greater than 5000.');
+    END IF;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('An error occurred: ' || SQLERRM);  -- Handle exceptions
+END;
+
+3. Write an implicit cursor to display the number of records affected by the update operation incrementing Price of all products by 1000.
+
+DECLARE
+    -- Variable to store the number of rows affected by the update
+    v_rows_updated NUMBER;
+BEGIN
+    -- Update the Price of all products by 1000
+    UPDATE Products
+    SET Price = Price + 1000;
+    
+    -- Implicit cursor to retrieve the number of rows affected by the update
+    v_rows_updated := SQL%ROWCOUNT;  -- SQL%ROWCOUNT stores the number of affected rows
+    
+    -- Display the number of records affected by the update operation
+    DBMS_OUTPUT.PUT_LINE('Number of records updated: ' || v_rows_updated);
+    
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('An error occurred: ' || SQLERRM);  -- Handle exceptions
+END;
+
+<=============================================================================================================================================================================================================================================================================================================>
+
+Problem Statement 8 (DML USING MYSQL)
+Create following tables using a given schema and insert appropriate data into the same: Customer (CustID, Name, Cust_Address, Phone_no, Email_ID, Age)
+Branch (Branch ID, Branch_Name, Address)
+Account (Account_no, Branch ID, CustID, date_open, Account_type, Balance)
+1. Modify the size of column “Email_Address” to 20 in Customer table.
+2. Change the column “Email_Address” to Not Null in Customer table.
+3. Display the total customers with the balance >50, 000 Rs.
+4. Display average balance for account type=”Saving Account”.
+5. Display the customer details that lives in Pune or name starts with ’A’.
+6. Create a table Saving_Account with (Account_no, Branch ID, CustID, date_open, Balance) using Account Table.
+7. Display the customer details Age wise with balance>=20,000Rs
+
+solution : 
+
+-- Create the Customer table
+CREATE TABLE Customer (
+    CustID INT PRIMARY KEY,          -- Customer ID
+    Name VARCHAR(50),                -- Customer Name
+    Cust_Address VARCHAR(100),       -- Customer Address
+    Phone_no VARCHAR(15),            -- Customer Phone Number
+    Email_ID VARCHAR(50),            -- Customer Email Address
+    Age INT                          -- Customer Age
+);
+
+-- Create the Branch table
+CREATE TABLE Branch (
+    BranchID INT PRIMARY KEY,        -- Branch ID
+    Branch_Name VARCHAR(50),         -- Branch Name
+    Address VARCHAR(100)             -- Branch Address
+);
+
+-- Create the Account table
+CREATE TABLE Account (
+    Account_no INT PRIMARY KEY,      -- Account Number
+    BranchID INT,                    -- Branch ID (Foreign Key)
+    CustID INT,                      -- Customer ID (Foreign Key)
+    date_open DATE,                  -- Account Opening Date
+    Account_type VARCHAR(20),        -- Account Type (e.g., Saving Account)
+    Balance DECIMAL(10, 2),          -- Account Balance
+    FOREIGN KEY (BranchID) REFERENCES Branch(BranchID),
+    FOREIGN KEY (CustID) REFERENCES Customer(CustID)
+);
+
+-- Insert data into Customer table
+INSERT INTO Customer (CustID, Name, Cust_Address, Phone_no, Email_ID, Age) 
+VALUES (1, 'John Doe', '123 Main St, Pune', '9876543210', 'john@example.com', 30),
+       (2, 'Alice Smith', '456 Park Ave, Mumbai', '9988776655', 'alice@example.com', 25),
+       (3, 'Bob Johnson', '789 Elm St, Pune', '9556677889', 'bob@example.com', 45),
+       (4, 'Anna Taylor', '101 Oak St, Pune', '9776655443', 'anna@example.com', 35);
+
+-- Insert data into Branch table
+INSERT INTO Branch (BranchID, Branch_Name, Address) 
+VALUES (1, 'Pune Main Branch', '456 Pune Road, Pune'),
+       (2, 'Mumbai Branch', '789 Mumbai Street, Mumbai');
+
+-- Insert data into Account table
+INSERT INTO Account (Account_no, BranchID, CustID, date_open, Account_type, Balance) 
+VALUES (101, 1, 1, '2023-01-01', 'Saving Account', 55000),
+       (102, 1, 2, '2022-05-15', 'Current Account', 10000),
+       (103, 2, 3, '2021-10-10', 'Saving Account', 30000),
+       (104, 2, 4, '2020-03-05', 'Saving Account', 70000);
+
+Task 1: Modify the size of the column Email_ID in the Customer table:
+
+ALTER TABLE Customer MODIFY Email_ID VARCHAR(20);
+
+Task 2: Change the column Email_ID to NOT NULL in the Customer table:
+
+ALTER TABLE Customer MODIFY Email_ID VARCHAR(20) NOT NULL;
+
+Task 3: Display the total customers with the balance > 50,000 Rs:
+
+SELECT COUNT(DISTINCT c.CustID) AS Total_Customers
+FROM Customer c
+JOIN Account a ON c.CustID = a.CustID
+WHERE a.Balance > 50000;
+
+Task 4: Display the average balance for Saving Account:
+
+SELECT AVG(Balance) AS Average_Balance
+FROM Account
+WHERE Account_type = 'Saving Account';
+
+Task 5: Display the customer details that live in Pune or whose name starts with 'A':
+
+SELECT * 
+FROM Customer
+WHERE Cust_Address LIKE '%Pune%' OR Name LIKE 'A%';
+
+Task 6: Create a Saving_Account table using the Account table:
+
+CREATE TABLE Saving_Account AS
+SELECT Account_no, BranchID, CustID, date_open, Balance
+FROM Account
+WHERE Account_type = 'Saving Account';
+
+Task 7: Display the customer details age-wise with balance >= 20,000 Rs:
+
+SELECT c.Name, c.Age, a.Balance
+FROM Customer c
+JOIN Account a ON c.CustID = a.CustID
+WHERE a.Balance >= 20000
+ORDER BY c.Age;
+
+<=============================================================================================================================================================================================================================================================================================================>
+
+Problem Statement 9 (Map Reduce)
+Create collection for Student{roll_no, name, class, dept, aggregate_marks}. Write Map Reduce Functions for following requirements.
+1. Finding the total marks of students of “TE” class department-wise.
+2. Finding the highest marks of students of “SE” class department-wise.
+3. Find Average marks of students of “BE” class department-wise
+
+solution : 
+
+use school;
+
+db.Student.insertMany([
+  { roll_no: 1, name: "John", class: "TE", dept: "Computer Science", aggregate_marks: 85 },
+  { roll_no: 2, name: "Alice", class: "TE", dept: "Mechanical", aggregate_marks: 75 },
+  { roll_no: 3, name: "Bob", class: "SE", dept: "Computer Science", aggregate_marks: 95 },
+  { roll_no: 4, name: "Charlie", class: "SE", dept: "Electrical", aggregate_marks: 90 },
+  { roll_no: 5, name: "Dave", class: "BE", dept: "Civil", aggregate_marks: 80 },
+  { roll_no: 6, name: "Eve", class: "BE", dept: "Computer Science", aggregate_marks: 88 },
+  { roll_no: 7, name: "Grace", class: "TE", dept: "Electrical", aggregate_marks: 72 }
+]);
+
+1. Finding the Total Marks of Students of "TE" Class Department-wise
+
+var map1 = function() {
+  if (this.class == "TE") {
+    emit(this.dept, this.aggregate_marks);  // Emit department as key and aggregate_marks as value
+  }
+};
+
+var reduce1 = function(key, values) {
+  return Array.sum(values);  // Sum up all marks for each department
+};
+
+db.Student.mapReduce(map1, reduce1, { out: "total_marks_TE" });
+
+2. Finding the Highest Marks of Students of "SE" Class Department-wise
+
+var map2 = function() {
+  if (this.class == "SE") {
+    emit(this.dept, this.aggregate_marks);  // Emit department as key and aggregate_marks as value
+  }
+};
+
+var reduce2 = function(key, values) {
+  return Math.max.apply(null, values);  // Find the maximum value (marks) for each department
+};
+
+db.Student.mapReduce(map2, reduce2, { out: "highest_marks_SE" });
+
+3. Finding the Average Marks of Students of "BE" Class Department-wise
+
+var map3 = function() {
+  if (this.class == "BE") {
+    emit(this.dept, { total_marks: this.aggregate_marks, count: 1 });  // Emit department as key and an object containing total_marks and count
+  }
+};
+
+var reduce3 = function(key, values) {
+  var result = { total_marks: 0, count: 0 };
+  
+  values.forEach(function(value) {
+    result.total_marks += value.total_marks;  // Sum the marks
+    result.count += value.count;              // Count the number of students
+  });
+  
+  return result;
+};
+
+var finalize3 = function(key, reducedValue) {
+  reducedValue.average_marks = reducedValue.total_marks / reducedValue.count;  // Calculate average
+  return reducedValue;
+};
+
+db.Student.mapReduce(map3, reduce3, { out: "average_marks_BE", finalize: finalize3 });
+
+( commands to view output )
+
+db.total_marks_TE.find();
+db.highest_marks_SE.find();
+db.average_marks_BE.find();
+
+( commands to drop table ) 
+
+db.total_marks_TE.drop();
+db.highest_marks_SE.drop();
+db.average_marks_BE.drop();
+
+<=============================================================================================================================================================================================================================================================================================================>
+
+Problem Statement 10 (Triggers)
+Employee( emp_id, dept_idemp_name, DoJ, salary, commission,job_title) Consider the schema given above for Write a PLSQL Program to
+1. Create a Trigger to ensure the salary of the employee is not decreased.
+2. Whenever the job title is changed for an employee write the following details into job_history table. Employee ID, old job title, old department ID, DoJ for start date, system date for end date.
+
+solution :
+
+-- Create the Employee table
+CREATE TABLE Employee (
+    emp_id INT PRIMARY KEY,
+    dept_id INT,
+    emp_name VARCHAR2(50),
+    DoJ DATE,
+    salary NUMBER(10, 2),
+    commission NUMBER(10, 2),
+    job_title VARCHAR2(50)
+);
+
+-- Create the job_history table
+CREATE TABLE job_history (
+    emp_id INT,
+    old_job_title VARCHAR2(50),
+    old_dept_id INT,
+    start_date DATE,
+    end_date DATE,
+    FOREIGN KEY (emp_id) REFERENCES Employee(emp_id)
+);
+
+-- Insert sample data into the Employee table
+INSERT INTO Employee (emp_id, dept_id, emp_name, DoJ, salary, commission, job_title)
+VALUES (101, 1, 'John Doe', TO_DATE('2022-01-15', 'YYYY-MM-DD'), 50000, 5000, 'Developer');
+
+INSERT INTO Employee (emp_id, dept_id, emp_name, DoJ, salary, commission, job_title)
+VALUES (102, 2, 'Alice Smith', TO_DATE('2021-05-10', 'YYYY-MM-DD'), 55000, 5500, 'Manager');
+
+INSERT INTO Employee (emp_id, dept_id, emp_name, DoJ, salary, commission, job_title)
+VALUES (103, 1, 'Bob Brown', TO_DATE('2020-03-22', 'YYYY-MM-DD'), 45000, 4000, 'Tester');
+
+Trigger 1: Ensure Employee Salary is Not Decreased
+
+-- Create the trigger to ensure salary is not decreased
+CREATE OR REPLACE TRIGGER prevent_salary_decrease
+BEFORE UPDATE ON Employee
+FOR EACH ROW
+BEGIN
+    IF :NEW.salary < :OLD.salary THEN
+        RAISE_APPLICATION_ERROR(-20001, 'Salary cannot be decreased!');
+    END IF;
+END;
+/
+
+Trigger 2: Log Job Title Changes in job_history Table
+
+-- Create the trigger to log job title changes in job_history table
+CREATE OR REPLACE TRIGGER log_job_title_change
+BEFORE UPDATE OF job_title ON Employee
+FOR EACH ROW
+BEGIN
+    INSERT INTO job_history (emp_id, old_job_title, old_dept_id, start_date, end_date)
+    VALUES (:OLD.emp_id, :OLD.job_title, :OLD.dept_id, :OLD.DoJ, SYSDATE);
+END;
+/
+
+( TESTING TRIGGERS ) 
+
+Test Trigger 1 (Salary Decrease Prevention)
+
+UPDATE Employee
+SET salary = 40000
+WHERE emp_id = 101;
+
+
+Test Trigger 2 (Job Title Change Logging)
+
+UPDATE Employee
+SET job_title = 'Senior Developer'
+WHERE emp_id = 101;
+
+( to see output )
+
+SELECT * FROM job_history;
+
+<=============================================================================================================================================================================================================================================================================================================>
+
+Problem Statement 11 (DDL USING MYSQL)
+Create following tables using a given schema and insert appropriate data into the same: Customer (CustID, Name, Cust_Address, Phone_no, Email_ID, Age)
+Branch (Branch ID, Branch_Name, Address)
+Account (Account_no, Branch ID, CustID, date_open, Account_type, Balance)
+1. Create the tables with referential integrity.
+2. Draw the ER diagram for the same.
+3. Create an Index on primary key column of table Account
+4. Create the view as Customer_Info displaying the customer details for age less than 45.
+5. Update the View with open date as 16/4/2017
+6. Create a sequence on Branch able.
+7. Create synonym ‘Branch_info’ for branch table.
+
+solution : 
+
+Step 1: Create Tables with Referential Integrity
+
+-- Create the Customer table
+CREATE TABLE Customer (
+    CustID INT PRIMARY KEY,
+    Name VARCHAR(50),
+    Cust_Address VARCHAR(100),
+    Phone_no VARCHAR(15),
+    Email_ID VARCHAR(50),
+    Age INT
+);
+
+-- Create the Branch table
+CREATE TABLE Branch (
+    Branch_ID INT PRIMARY KEY,
+    Branch_Name VARCHAR(50),
+    Address VARCHAR(100)
+);
+
+-- Create the Account table with foreign keys referencing Customer and Branch
+CREATE TABLE Account (
+    Account_no INT PRIMARY KEY,
+    Branch_ID INT,
+    CustID INT,
+    date_open DATE,
+    Account_type VARCHAR(20),
+    Balance DECIMAL(10, 2),
+    FOREIGN KEY (Branch_ID) REFERENCES Branch(Branch_ID),
+    FOREIGN KEY (CustID) REFERENCES Customer(CustID)
+);
+
+-- Insert data into Customer table
+INSERT INTO Customer (CustID, Name, Cust_Address, Phone_no, Email_ID, Age)
+VALUES
+(1, 'John Doe', '123 Main St, Pune', '9876543210', 'john.doe@example.com', 30),
+(2, 'Jane Smith', '456 Oak Rd, Mumbai', '9876543220', 'jane.smith@example.com', 40),
+(3, 'Alice Johnson', '789 Pine Ave, Delhi', '9876543230', 'alice.johnson@example.com', 25),
+(4, 'Bob Brown', '101 Maple Dr, Bangalore', '9876543240', 'bob.brown@example.com', 35);
+
+-- Insert data into Branch table
+INSERT INTO Branch (Branch_ID, Branch_Name, Address)
+VALUES
+(1, 'Pune Branch', '12 IT Park, Pune'),
+(2, 'Mumbai Branch', '45 Business Center, Mumbai'),
+(3, 'Delhi Branch', '78 Corporate Building, Delhi'),
+(4, 'Bangalore Branch', '90 Tech Lane, Bangalore');
+
+-- Insert data into Account table
+INSERT INTO Account (Account_no, Branch_ID, CustID, date_open, Account_type, Balance)
+VALUES
+(101, 1, 1, '2020-01-01', 'Saving', 10000.00),
+(102, 2, 2, '2019-05-15', 'Current', 25000.00),
+(103, 3, 3, '2021-07-20', 'Saving', 15000.00),
+(104, 4, 4, '2018-11-10', 'Current', 5000.00),
+(105, 1, 2, '2022-02-25', 'Saving', 12000.00),
+(106, 2, 3, '2020-06-30', 'Saving', 8000.00);
+
+Step 2: Draw the ER Diagram
+
+The ER Diagram (Entity Relationship Diagram) for the schema will consist of the following entities:
+
+Customer: CustID, Name, Cust_Address, Phone_no, Email_ID, Age.
+Branch: Branch_ID, Branch_Name, Address.
+Account: Account_no, Branch_ID, CustID, date_open, Account_type, Balance.
+The relationships are as follows:
+
+Customer is related to Account via CustID.
+Branch is related to Account via Branch_ID.
+In an ER diagram:
+
+Customer has a one-to-many relationship with Account (one customer can have many accounts).
+Branch has a one-to-many relationship with Account (one branch can have many accounts).
+
+Step 3: Create an Index on the Primary Key Column of the Account Table
+
+-- Create an index on the Account_no column (which is also a primary key)
+CREATE INDEX idx_account_no ON Account(Account_no);
+
+Step 4: Create a View Customer_Info Displaying Customer Details for Age Less Than 45
+
+-- Create the view Customer_Info to display customer details for age less than 45
+CREATE VIEW Customer_Info AS
+SELECT CustID, Name, Cust_Address, Phone_no, Email_ID, Age
+FROM Customer
+WHERE Age < 45;
+
+Step 5: Update the View with Open Date as 16/4/2017
+
+-- Update the open date for accounts linked with customers from the view
+UPDATE Account
+SET date_open = '2017-04-16'
+WHERE CustID IN (SELECT CustID FROM Customer_Info);
+
+Step 6: Create a Sequence on the Branch Table
+
+-- Alter the Branch table to make Branch_ID auto-increment (creating a sequence-like behavior)
+ALTER TABLE Branch
+MODIFY COLUMN Branch_ID INT AUTO_INCREMENT;
+
+Step 7: Create a Synonym for the Branch Table
+
+-- Create a synonym for the Branch table (Oracle only)
+CREATE SYNONYM Branch_info FOR Branch;
+
+<=============================================================================================================================================================================================================================================================================================================>
