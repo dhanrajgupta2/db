@@ -1,459 +1,12 @@
-Exp 5 : Implement aggregation and indexing with suitable example
-using MongoDB.
-
-
-
-use ecommerce; // Switch to the 'ecommerce' database
-
-db.sales.drop(); // Drop the collection if it exists
-
-db.sales.insertMany([
-    { item: "apple", quantity: 10, price: 1.00, date: ISODate("2023-10-01") },
-    { item: "banana", quantity: 5, price: 0.50, date: ISODate("2023-10-02") },
-    { item: "orange", quantity: 15, price: 0.80, date: ISODate("2023-10-03") },
-    { item: "apple", quantity: 20, price: 1.00, date: ISODate("2023-10-04") },
-    { item: "banana", quantity: 10, price: 0.50, date: ISODate("2023-10-05") }
-]);
-
-Example 1: Using $sum, $avg, $min, $max
-
-db.sales.aggregate([
-    {
-        $group: {
-            _id: null,
-            totalQuantity: { $sum: "$quantity" },
-            averagePrice: { $avg: "$price" },
-            minPrice: { $min: "$price" },
-            maxPrice: { $max: "$price" }
-        }
-    }
-]);
-
-Example 2: Using $push and $addToSet
-
-db.sales.aggregate([
-    {
-        $group: {
-            _id: null,
-            allItems: { $push: "$item" },
-            uniqueItems: { $addToSet: "$item" }
-        }
-    }
-]);
-
-Example 3: Using $first and $last
-
-db.sales.aggregate([
-    {
-        $sort: { date: 1 }
-    },
-    {
-        $group: {
-            _id: null,
-            firstItem: { $first: "$item" },
-            lastItem: { $last: "$item" }
-        }
-    }
-]);
-
-( Indexing Examples )
-
-Example 1: Create an Index on a Single Field
-
-db.sales.createIndex({ item: 1 });
-
-Example 2: Create a Unique Index
-
-db.sales.createIndex({ item: 1 }, { unique: true });
-
-Example 3: Sparse Indexes
-
-db.sales.createIndex({ quantity: 1 }, { sparse: true });
-
-Example 4: Create a Hashed Index
-
-db.sales.createIndex({ item: "hashed" });
-
-Example 5: Drop the Index
-
-db.sales.getIndexes();
-
-question 1 : Create a collection Social_Media having fields as User_Id, User_Name,
-No_of_Posts, No_of_Friends, Friends_List, Interests. (Hint: Friends_List
-and Interests can be of array type)
-Insert 20 documents in the collection Social_Media. Write queries for
-following.
-1. List all the users from collection Social_Media in formatted manner.
-2. Find all users having number of posts greater than 100.
-3. List the user names and their respetive Friens_List
-4. Display the user ids and Friends list of users who have more than 5
-friends.
-5. Display all users with no of posts in descending order.
-
-solution : 
-
-use socialDB
-
-
-db.Social_Media.insertMany([
-    { User_Id: 1, User_Name: "JohnDoe", No_of_Posts: 50, No_of_Friends: 5, Friends_List: ["Alice", "Bob", "Charlie", "David", "Eva"], Interests: ["Sports", "Music"] },
-    { User_Id: 2, User_Name: "JaneSmith", No_of_Posts: 120, No_of_Friends: 8, Friends_List: ["Frank", "Grace", "Helen"], Interests: ["Travel", "Books"] },
-    { User_Id: 3, User_Name: "SamAdams", No_of_Posts: 80, No_of_Friends: 10, Friends_List: ["Ivy", "Jack", "Kurt", "Leo"], Interests: ["Movies", "Fitness"] },
-    { User_Id: 4, User_Name: "PaulLee", No_of_Posts: 90, No_of_Friends: 3, Friends_List: ["Mike", "Nancy"], Interests: ["Technology", "Gaming"] },
-    { User_Id: 5, User_Name: "EmmaWilson", No_of_Posts: 200, No_of_Friends: 12, Friends_List: ["Oscar", "Paul", "Quincy"], Interests: ["Art", "Cooking"] },
-    { User_Id: 6, User_Name: "LucyBrown", No_of_Posts: 45, No_of_Friends: 4, Friends_List: ["Rick", "Sophia", "Tom"], Interests: ["Music", "Photography"] },
-    { User_Id: 7, User_Name: "HenryJones", No_of_Posts: 110, No_of_Friends: 6, Friends_List: ["Uma", "Victor", "Wendy"], Interests: ["Fitness", "Gaming"] },
-    { User_Id: 8, User_Name: "OliviaMartin", No_of_Posts: 135, No_of_Friends: 9, Friends_List: ["Xander", "Yara", "Zoe"], Interests: ["Fashion", "Travel"] },
-    { User_Id: 9, User_Name: "MarkLee", No_of_Posts: 65, No_of_Friends: 5, Friends_List: ["Ava", "Brian", "Clara"], Interests: ["Technology", "Books"] },
-    { User_Id: 10, User_Name: "SophiaTaylor", No_of_Posts: 95, No_of_Friends: 7, Friends_List: ["David", "Ethan", "Frank"], Interests: ["Fitness", "Movies"] },
-    { User_Id: 11, User_Name: "AvaGarcia", No_of_Posts: 105, No_of_Friends: 4, Friends_List: ["George", "Helen"], Interests: ["Cooking", "Books"] },
-    { User_Id: 12, User_Name: "EthanMartinez", No_of_Posts: 150, No_of_Friends: 11, Friends_List: ["Isaac", "Jack", "Karen"], Interests: ["Sports", "Photography"] },
-    { User_Id: 13, User_Name: "ChloeRobinson", No_of_Posts: 60, No_of_Friends: 6, Friends_List: ["Liam", "Megan"], Interests: ["Art", "Travel"] },
-    { User_Id: 14, User_Name: "JackWilliams", No_of_Posts: 125, No_of_Friends: 10, Friends_List: ["Nina", "Olivia", "Peter"], Interests: ["Technology", "Movies"] },
-    { User_Id: 15, User_Name: "DavidClark", No_of_Posts: 95, No_of_Friends: 5, Friends_List: ["Quinn", "Rachel"], Interests: ["Fitness", "Music"] },
-    { User_Id: 16, User_Name: "MiaRodriguez", No_of_Posts: 130, No_of_Friends: 9, Friends_List: ["Sam", "Tina", "Ursula"], Interests: ["Fashion", "Art"] },
-    { User_Id: 17, User_Name: "LiamWhite", No_of_Posts: 75, No_of_Friends: 7, Friends_List: ["Victor", "Wendy"], Interests: ["Sports", "Gaming"] },
-    { User_Id: 18, User_Name: "NoahGreen", No_of_Posts: 115, No_of_Friends: 8, Friends_List: ["Xander", "Yara"], Interests: ["Books", "Movies"] },
-    { User_Id: 19, User_Name: "EllaHill", No_of_Posts: 55, No_of_Friends: 6, Friends_List: ["Zoe", "Ava"], Interests: ["Cooking", "Photography"] },
-    { User_Id: 20, User_Name: "LucasScott", No_of_Posts: 145, No_of_Friends: 10, Friends_List: ["Brian", "Charlie"], Interests: ["Gaming", "Technology"] }
-]);
-
-
-1. List all users in a formatted manner:
-
-- db.Social_Media.find({}, {User_Id: 1, User_Name: 1, No_of_Posts: 1, No_of_Friends: 1, Friends_List: 1, Interests: 1}).pretty();
-
-2. Find all users having more than 100 posts:
-
-- db.Social_Media.find({No_of_Posts: {$gt: 100}});
-
-3. List the user names and their respective Friends_List:
-
-- db.Social_Media.find({}, {User_Name: 1, Friends_List: 1});
-
-4. Display user ids and Friends_List of users who have more than 5 friends:
-
-- db.Social_Media.find({No_of_Friends: {$gt: 5}}, {User_Id: 1, Friends_List: 1});
-
-5. Display all users ordered by number of posts in descending order:
-
-- db.Social_Media.find().sort({No_of_Posts: -1});
-
-question 2 : Create a collection Employee with fields as Emp_id, Emp_Name,
-Department, Salary, Manager.
-Insert 20 documents in the collection Employee. Write the queries for
-following.
-1. Find the names of Employees having top 5 highest salaries.
-2. List the records of employees having Department as “R&D” or Manager
-as “Smith”.
-3. Update the salary of Emp_id 100 as 200000.
-4. Delete the record of employee having name as “Josh”
-5. List the Department of employees having salary less than 50000.
-
-solution : 
-
-db.Employee.insertMany([
-  { Emp_id: 101, Emp_Name: "Alice", Department: "R&D", Salary: 95000, Manager: "Smith" },
-  { Emp_id: 102, Emp_Name: "Bob", Department: "HR", Salary: 75000, Manager: "Jones" },
-  { Emp_id: 103, Emp_Name: "Carol", Department: "Marketing", Salary: 65000, Manager: "Smith" },
-  { Emp_id: 104, Emp_Name: "David", Department: "Sales", Salary: 105000, Manager: "Brown" },
-  { Emp_id: 105, Emp_Name: "Eve", Department: "R&D", Salary: 85000, Manager: "Smith" },
-  { Emp_id: 106, Emp_Name: "Frank", Department: "IT", Salary: 55000, Manager: "Miller" },
-  { Emp_id: 107, Emp_Name: "Grace", Department: "Finance", Salary: 95000, Manager: "Clark" },
-  { Emp_id: 108, Emp_Name: "Hank", Department: "HR", Salary: 72000, Manager: "Jones" },
-  { Emp_id: 109, Emp_Name: "Ivy", Department: "Sales", Salary: 50000, Manager: "Brown" },
-  { Emp_id: 110, Emp_Name: "Jack", Department: "Marketing", Salary: 60000, Manager: "Smith" },
-  { Emp_id: 111, Emp_Name: "Kim", Department: "Finance", Salary: 70000, Manager: "Clark" },
-  { Emp_id: 112, Emp_Name: "Liam", Department: "IT", Salary: 90000, Manager: "Miller" },
-  { Emp_id: 113, Emp_Name: "Mia", Department: "HR", Salary: 85000, Manager: "Jones" },
-  { Emp_id: 114, Emp_Name: "Nina", Department: "R&D", Salary: 110000, Manager: "Smith" },
-  { Emp_id: 115, Emp_Name: "Oliver", Department: "Sales", Salary: 80000, Manager: "Brown" },
-  { Emp_id: 116, Emp_Name: "Pete", Department: "Finance", Salary: 78000, Manager: "Clark" },
-  { Emp_id: 117, Emp_Name: "Quinn", Department: "IT", Salary: 58000, Manager: "Miller" },
-  { Emp_id: 118, Emp_Name: "Rita", Department: "Marketing", Salary: 62000, Manager: "Smith" },
-  { Emp_id: 119, Emp_Name: "Steve", Department: "R&D", Salary: 98000, Manager: "Smith" },
-  { Emp_id: 120, Emp_Name: "Josh", Department: "IT", Salary: 49000, Manager: "Miller" }
-]);
-
-1. Find the names of employees having the top 5 highest salaries.
-
-db.Employee.find({}, { Emp_Name: 1, Salary: 1, _id: 0 })
-    .sort({ Salary: -1 })
-    .limit(5);
-
-2. List the records of employees having Department as “R&D” or Manager as “Smith”.
-
-db.Employee.find({
-    $or: [
-        { Department: "R&D" },
-        { Manager: "Smith" }
-    ]
-});
-
-3. Update the salary of Emp_id 100 as 200000.
-
-db.Employee.updateOne(
-    { Emp_id: 100 },
-    { $set: { Salary: 200000 } }
-);
-
-4. Delete the record of the employee having name as “Josh”.
-
-db.Employee.deleteOne({ Emp_Name: "Josh" });
-
-5. List the department of employees having salary less than 50000.
-
-db.Employee.find(
-    { Salary: { $lt: 50000 } },
-    { Department: 1, _id: 0 }
-);
-
-question 3 : Create collection Student with fields as Roll_No, Name, Class, Marks,
-Address, Enrolled_Courses.
-(Hint: One student can enroll in multiple courses. Use Array to store the
-names of courses enrolled)
-Insert 10 documents in the collection Student. Write the queries for
-following.
-1. List the names of students who have enrolled in the course “DBMS”,
-“TOC”.
-2. List the Roll numbers and class of students who have marks more than
-50 or class as TE.
-3. Update the entire record of roll_no A10.
-4. Display the names of students having 3rd and 4th highest marks.
-5. Delete the records of students having marks less than 20.
-6. Delete only first record from the collection.
-
-
-solution : 
-
-db.Student.insertMany([
-  { Roll_No: "A01", Name: "John", Class: "FE", Marks: 85, Address: "123 Main St", Enrolled_Courses: ["DBMS", "Math"] },
-  { Roll_No: "A02", Name: "Jane", Class: "SE", Marks: 92, Address: "456 Maple St", Enrolled_Courses: ["TOC", "DBMS"] },
-  { Roll_No: "A03", Name: "Tom", Class: "TE", Marks: 47, Address: "789 Oak St", Enrolled_Courses: ["OS", "DBMS"] },
-  { Roll_No: "A04", Name: "Alice", Class: "TE", Marks: 65, Address: "101 Pine St", Enrolled_Courses: ["Math", "TOC"] },
-  { Roll_No: "A05", Name: "Bob", Class: "FE", Marks: 23, Address: "202 Cedar St", Enrolled_Courses: ["DBMS", "Physics"] },
-  { Roll_No: "A06", Name: "Emma", Class: "SE", Marks: 58, Address: "303 Birch St", Enrolled_Courses: ["TOC", "Math"] },
-  { Roll_No: "A07", Name: "Mike", Class: "TE", Marks: 74, Address: "404 Elm St", Enrolled_Courses: ["DBMS", "TOC"] },
-  { Roll_No: "A08", Name: "Sophia", Class: "SE", Marks: 89, Address: "505 Cherry St", Enrolled_Courses: ["Physics", "OS"] },
-  { Roll_No: "A09", Name: "Ethan", Class: "FE", Marks: 34, Address: "606 Walnut St", Enrolled_Courses: ["Math", "DBMS"] },
-  { Roll_No: "A10", Name: "Josh", Class: "TE", Marks: 77, Address: "707 Redwood St", Enrolled_Courses: ["TOC", "OS"] }
-]);
-
-1. List the names of students who have enrolled in the courses “DBMS”, “TOC”:
-
-db.Student.find({
-  Enrolled_Courses: { $all: ["DBMS", "TOC"] }
-}, {
-  Name: 1, _id: 0
-});
-
-2. List the Roll numbers and class of students who have marks more than 50 or class as TE:
-
-db.Student.find({
-  $or: [
-    { Marks: { $gt: 50 } },
-    { Class: "TE" }
-  ]
-}, {
-  Roll_No: 1, Class: 1, _id: 0
-});
-
-3. Update the entire record of roll_no A10:
-
-db.Student.updateOne(
-  { Roll_No: "A10" },
-  {
-    $set: {
-      Name: "Joshua",
-      Class: "BE",
-      Marks: 95,
-      Address: "808 Ash St",
-      Enrolled_Courses: ["AI", "ML"]
-    }
-  }
-);
-
-4. Display the names of students having 3rd and 4th highest marks:
-
-db.Student.find({}, { Name: 1, Marks: 1, _id: 0 })
-  .sort({ Marks: -1 })
-  .skip(2)
-  .limit(2);
-
-5. Delete the records of students having marks less than 20:
-
-db.Student.deleteMany({ Marks: { $lt: 20 } });
-
-6. Delete only the first record from the collection
-
-db.Student.deleteOne({});
-
-question 4 : Create a collection Products with fields as item_id, item_Name, Price,
-Tags, Status, Quantity.
-Insert 10 documents in the collection Products. Write the queries for
-following.
-1. List all the products with quantity equal to 50.
-2. Find all the procucts having tags as "apparel" or "clothing".
-3. Update the record of Item_id 100 with quanity as 100 and tags as tags: [
-"coats", "outerwear", "clothing" ]
-4. Delete only first record from the collection.
-5. Delete all records from collection with Status as “Pending”.
-
-solution :
-
-
-db.Products.insertMany([
-    { item_id: 100, item_Name: "T-Shirt", Price: 20, Tags: ["apparel", "clothing"], Status: "Available", Quantity: 50 },
-    { item_id: 101, item_Name: "Jeans", Price: 40, Tags: ["apparel", "clothing"], Status: "Available", Quantity: 30 },
-    { item_id: 102, item_Name: "Jacket", Price: 60, Tags: ["outerwear", "clothing"], Status: "Pending", Quantity: 50 },
-    { item_id: 103, item_Name: "Sneakers", Price: 80, Tags: ["footwear"], Status: "Available", Quantity: 10 },
-    { item_id: 104, item_Name: "Hat", Price: 15, Tags: ["accessories"], Status: "Available", Quantity: 5 },
-    { item_id: 105, item_Name: "Socks", Price: 5, Tags: ["footwear", "clothing"], Status: "Pending", Quantity: 50 },
-    { item_id: 106, item_Name: "Scarf", Price: 12, Tags: ["accessories", "apparel"], Status: "Available", Quantity: 20 },
-    { item_id: 107, item_Name: "Gloves", Price: 18, Tags: ["accessories"], Status: "Available", Quantity: 40 },
-    { item_id: 108, item_Name: "Boots", Price: 70, Tags: ["footwear", "clothing"], Status: "Pending", Quantity: 25 },
-    { item_id: 109, item_Name: "Belt", Price: 10, Tags: ["accessories", "clothing"], Status: "Available", Quantity: 15 }
-]);
-
-1. List all the products with quantity equal to 50
-
-db.Products.find({ Quantity: 50 });
-
-2. Find all the products having tags as "apparel" or "clothing"
-
-db.Products.find({ Tags: { $in: ["apparel", "clothing"] } });
-
-3. Update the record of Item_id 100 with quantity as 100 and tags: ["coats", "outerwear", "clothing"]
-
-db.Products.updateOne(
-    { item_id: 100 },
-    { $set: { Quantity: 100, Tags: ["coats", "outerwear", "clothing"] } }
-);
-
-4. Delete only the first record from the collection
-
-db.Products.deleteOne({});
-
-5. Delete all records from the collection with Status as “Pending”
-
-db.Products.deleteMany({ Status: "Pending" });
-
-question 5 : Create the Collection
-Employee_Data ( Employee_ID, Employee_Name, Department,
-Salary) and solve the following:
-1. Display all employees based on their departments along with an
-average salary of a particular department.
-2. Displays the number of employees associated with a particular
-department.
-3. Create an index on field Employee ID.
-4. Create an index on fields “Employee Name‘ and “Department”.
-5. Drop an index on field Employee ID.
-
-solution : 
-
-db.Employee_Data.insertMany([
-  { Employee_ID: 1, Employee_Name: "John", Department: "HR", Salary: 60000 },
-  { Employee_ID: 2, Employee_Name: "Emma", Department: "Finance", Salary: 75000 },
-  { Employee_ID: 3, Employee_Name: "Michael", Department: "HR", Salary: 65000 },
-  { Employee_ID: 4, Employee_Name: "Sophia", Department: "Finance", Salary: 80000 },
-  { Employee_ID: 5, Employee_Name: "David", Department: "IT", Salary: 90000 },
-  { Employee_ID: 6, Employee_Name: "Olivia", Department: "IT", Salary: 85000 },
-  { Employee_ID: 7, Employee_Name: "Liam", Department: "Marketing", Salary: 70000 },
-  { Employee_ID: 8, Employee_Name: "Noah", Department: "Marketing", Salary: 72000 },
-  { Employee_ID: 9, Employee_Name: "Ava", Department: "IT", Salary: 93000 },
-  { Employee_ID: 10, Employee_Name: "Mason", Department: "HR", Salary: 64000 }
-]);
-
-1.  Display all employees based on their departments along with the average salary of each department.
-
-db.Employee_Data.aggregate([
-  { $group: { _id: "$Department", averageSalary: { $avg: "$Salary" }, employees: { $push: "$$ROOT" } } }
-])
-
-2. Display the number of employees associated with each department.
-
-db.Employee_Data.aggregate([
-  { $group: { _id: "$Department", numberOfEmployees: { $sum: 1 } } }
-])
-
-3. Create an index on the field Employee_ID.
-
-db.Employee_Data.createIndex({ Employee_ID: 1 })
-
-4. Create an index on the fields Employee_Name and Department.
-
-db.Employee_Data.createIndex({ Employee_Name: 1, Department: 1 })
-
-5. Drop the index on the field Employee_ID.
-
-db.Employee_Data.dropIndex("Employee_ID_1")
-
-question 6 : Create the Collection Library_Data( Book_ID, Book_Name, Author,
-Genre, Publication) and solve the following:
-1. Display a list stating how many books are written by each “Author”.
-2. Display list books with the highest price in each Genre.
-3. Display list books with the highest price in each Genre in ascending order
-of price.
-4. Create an index on field Book_ID.
-5. Create an index on fields ”Book_Name” and ”Author”.
-6. Drop an index on field Book_ID.
-
-solution :
-
-- db.createCollection("Library_Data")
-
-- db.Library_Data.insertMany([
-  { Book_ID: 1, Book_Name: "Book A", Author: "Author 1", Genre: "Fiction", Publication: "Pub 1", Price: 200 },
-  { Book_ID: 2, Book_Name: "Book B", Author: "Author 2", Genre: "Non-Fiction", Publication: "Pub 2", Price: 300 },
-  { Book_ID: 3, Book_Name: "Book C", Author: "Author 1", Genre: "Fiction", Publication: "Pub 3", Price: 250 },
-  { Book_ID: 4, Book_Name: "Book D", Author: "Author 3", Genre: "Biography", Publication: "Pub 4", Price: 150 },
-  { Book_ID: 5, Book_Name: "Book E", Author: "Author 2", Genre: "Non-Fiction", Publication: "Pub 5", Price: 400 },
-  // Add more documents as needed
-])
-
-1. Display how many books are written by each “Author”:
-
-db.Library_Data.aggregate([
-  { $group: { _id: "$Author", books_written: { $sum: 1 } } }
-])
-
-2. List books with the highest price in each Genre:
-
-db.Library_Data.aggregate([
-  { $sort: { Genre: 1, Price: -1 } },
-  { $group: { _id: "$Genre", highest_priced_book: { $first: "$$ROOT" } } }
-])
-
-3. List books with the highest price in each Genre, sorted by price (ascending):
-
-db.Library_Data.aggregate([
-  { $sort: { Genre: 1, Price: -1 } },
-  { $group: { _id: "$Genre", highest_priced_book: { $first: "$$ROOT" } } },
-  { $sort: { "highest_priced_book.Price": 1 } }
-])
-
-4. Create an index on Book_ID:
-
-db.Library_Data.createIndex({ Book_ID: 1 })
-
-5. Create an index on Book_Name and Author:
-
-db.Library_Data.createIndex({ Book_Name: 1, Author: 1 })
-
-6. Drop an index on Book_ID:
-
-db.Library_Data.dropIndex({ Book_ID: 1 })
-
-question 7 : Create the Collection Movies_Data( Movie_ID, Movie_Name, Director,
-Genre, BoxOfficeCollection) and solve the following:
+Problem Statement 3 (Aggregation & Indexing)
+Create the Collection Movies_Data( Movie_ID, Movie_Name, Director, Genre, BoxOfficeCollection) and solve the following:
 1. Display a list stating how many Movies are directed by each “Director”.
-2. Display list of Movies with the highest BoxOfficeCollection in each
-Genre.
-3. Display list of Movies with the highest BoxOfficeCollection in each
-Genre in ascending order of BoxOfficeCollection.
+2. Display list of Movies with the highest BoxOfficeCollection in each Genre.
+3. Display list of Movies with the highest BoxOfficeCollection in each Genre in ascending order of BoxOfficeCollection.
 4. Create an index on field Movie_ID.
 5. Create an index on fields ” Movie_Name” and ” Director”.
-6. Drop an index on fields ” Movie_Name” and ” Director”.
+6. Drop an index on field Movie_ID.
+
 
 solution : 
 
@@ -506,151 +59,104 @@ db.Movies_Data.createIndex({ Movie_Name: 1, Director: 1 })
 
 db.Movies_Data.dropIndex({ Movie_Name: 1, Director: 1 })
 
-question 8 : Create the Collection Student_Data( Student _ID, Student _Name,
-Department, Marks )and solve the following:
-1. Display all Students based on their departments along with an average
-Marks of a particular department.
-2. Displays the number of Students associated along with a particular
-department.
-3. Display list of Students with the highest Marks in each Department in
-descending order of Marks.
+<==========================================================================================================================================================================================================================================================>
+
+Problem Statement 18 (AGGREGATION & INDEXING USING MONGODB)
+Create the Collection Student_Data( Student _ID, Student _Name, Department, Marks )and solve the following:
+1. Display all Students based on their departments along with an average Marks of a particular department.
+2. Displays the number of Students associated along with a particular department.
+3. Display list of Students with the highest Marks in each Department in descending order of Marks.
 4. Create an index on field Student_ID.
 5. Create an index on fields “Student_Name‘ and “Department”.
-6. Drop an index on fields “Student_Name‘ and “Department”.
+6. Drop an index on field Student_ID.
+7. Drop an index on fields “Student_Name‘ and “Department”.
 
 solution : 
 
+// Use the database 'school' (create it if it doesn't exist)
+use school;
+
+// Create the Student_Data collection and insert some documents
 db.Student_Data.insertMany([
-    { Student_ID: 1, Student_Name: "Alice", Department: "CSE", Marks: 85 },
-    { Student_ID: 2, Student_Name: "Bob", Department: "CSE", Marks: 78 },
-    { Student_ID: 3, Student_Name: "Charlie", Department: "ECE", Marks: 92 },
-    { Student_ID: 4, Student_Name: "David", Department: "ECE", Marks: 88 },
-    { Student_ID: 5, Student_Name: "Eve", Department: "EEE", Marks: 74 },
-    { Student_ID: 6, Student_Name: "Frank", Department: "EEE", Marks: 67 },
-    { Student_ID: 7, Student_Name: "Grace", Department: "CSE", Marks: 95 },
-    { Student_ID: 8, Student_Name: "Heidi", Department: "ECE", Marks: 90 },
-    { Student_ID: 9, Student_Name: "Ivan", Department: "EEE", Marks: 83 },
-    { Student_ID: 10, Student_Name: "Judy", Department: "CSE", Marks: 87 }
+    { Student_ID: 1, Student_Name: "John Doe", Department: "Computer Science", Marks: 85 },
+    { Student_ID: 2, Student_Name: "Jane Smith", Department: "Mathematics", Marks: 90 },
+    { Student_ID: 3, Student_Name: "Alice Johnson", Department: "Computer Science", Marks: 95 },
+    { Student_ID: 4, Student_Name: "Bob Brown", Department: "Physics", Marks: 75 },
+    { Student_ID: 5, Student_Name: "Charlie White", Department: "Mathematics", Marks: 80 },
+    { Student_ID: 6, Student_Name: "David Black", Department: "Physics", Marks: 85 },
+    { Student_ID: 7, Student_Name: "Emily Green", Department: "Computer Science", Marks: 92 }
 ]);
 
-1. Display all Students based on their departments along with an average Marks of a particular department:
+1. Display all Students based on their departments along with the average marks of a particular department
 
 db.Student_Data.aggregate([
     {
         $group: {
-            _id: "$Department",
-            Avg_Marks: { $avg: "$Marks" },
-            Students: { $push: { Student_Name: "$Student_Name", Marks: "$Marks" } }
-        }
-    }
-]);
-
-2. Displays the number of Students associated along with a particular department:
-
-db.Student_Data.aggregate([
-    {
-        $group: {
-            _id: "$Department",
-            Number_of_Students: { $sum: 1 }
-        }
-    }
-]);
-
-3. Display a list of Students with the highest Marks in each Department in descending order of Marks:
-
-db.Student_Data.aggregate([
-    {
-        $sort: { Marks: -1 }
-    },
-    {
-        $group: {
-            _id: "$Department",
-            Top_Student: { $first: "$Student_Name" },
-            Highest_Marks: { $first: "$Marks" }
+            _id: "$Department",         // Group by department
+            avgMarks: { $avg: "$Marks" } // Calculate the average marks
         }
     },
     {
-        $sort: { Highest_Marks: -1 }
+        $lookup: {
+            from: "Student_Data",       // Join with the same collection
+            localField: "_id",           // Department from this collection
+            foreignField: "Department",  // Department from the other collection
+            as: "students_in_dept"      // Output field containing students
+        }
+    },
+    {
+        $project: {
+            Department: "$_id",         // Display department
+            avgMarks: 1,                // Display average marks
+            students_in_dept: 1         // Display students in the department
+        }
     }
 ]);
 
-4. Create an index on field Student_ID:
+2. Display the number of students associated with each department
+
+db.Student_Data.aggregate([
+    {
+        $group: {
+            _id: "$Department",        // Group by department
+            studentCount: { $sum: 1 }  // Count the number of students
+        }
+    }
+]);
+
+3. Display a list of students with the highest marks in each department in descending order of marks
+
+db.Student_Data.aggregate([
+    {
+        $sort: { Marks: -1 }   // Sort by Marks in descending order
+    },
+    {
+        $group: {
+            _id: "$Department",  // Group by department
+            topStudent: { $first: "$$ROOT" }  // Get the top student in each department
+        }
+    },
+    {
+        $project: {
+            Department: "$_id",
+            Student_Name: "$topStudent.Student_Name",
+            Marks: "$topStudent.Marks"
+        }
+    }
+]);
+
+4. Create an index on the field Student_ID
 
 db.Student_Data.createIndex({ Student_ID: 1 });
 
-5. Create an index on fields “Student_Name” and “Department”:
+5. Create an index on the fields Student_Name and Department
 
 db.Student_Data.createIndex({ Student_Name: 1, Department: 1 });
 
-6. Drop an index on fields “Student_Name” and “Department”:
+6. Drop the index on the field Student_ID
+
+db.Student_Data.dropIndex({ Student_ID: 1 });
+
+7. Drop the index on the fields Student_Name and Department
 
 db.Student_Data.dropIndex({ Student_Name: 1, Department: 1 });
-
-
-form aggregation and Indexing using mongodb on below database
-1. Create a database department
-2. Create a collection as teacher with fields as name , department ,experience and salary
-3. Display the department wise average salary.
-4. Display the no. Of employees working in each department.
-5. Display the department wise minimum salary.
-6. Apply index and drop index
-
-solution 
-
-1. Create a database department
-
-use department
-
-2. Create a collection as teacher with fields as name , department ,experience and salary
-
-db.teacher.insertMany([
-    { name: "Alice", department: "Math", experience: 5, salary: 50000 },
-    { name: "Bob", department: "Science", experience: 7, salary: 60000 },
-    { name: "Charlie", department: "Math", experience: 3, salary: 55000 },
-    { name: "David", department: "History", experience: 10, salary: 70000 },
-    { name: "Eve", department: "Science", experience: 4, salary: 52000 },
-    { name: "Frank", department: "History", experience: 2, salary: 48000 }
-]);
-
-3. Display the department wise average salary.
-
-db.teacher.aggregate([
-   {
-       $group: {
-           _id: "$department",
-           averageSalary: { $avg: "$salary" }
-       }
-   }
-]);
-
-4. Display the no. Of employees working in each department.
-
-db.teacher.aggregate([
-   {
-       $group: {
-           _id: "$department",
-           employeeCount: { $sum: 1 }
-       }
-   }
-]);
-
-5. Display the department wise minimum salary.
-
-db.teacher.aggregate([
-   {
-       $group: {
-           _id: "$department",
-           minimumSalary: { $min: "$salary" }
-       }
-   }
-]);
-
-6. Apply index and drop index
-
-db.teacher.createIndex({ department: 1 });
-
-db.teacher.dropIndex({ department: 1 });
-
-
-
-
