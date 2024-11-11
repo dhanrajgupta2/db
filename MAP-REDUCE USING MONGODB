@@ -1,351 +1,193 @@
-exp 6 : Implement Map reduce operations with suitable example using
-MongoDB
+Problem Statement 9 (Map Reduce)
+Create collection for Student{roll_no, name, class, dept, aggregate_marks}. Write Map Reduce Functions for following requirements.
+1. Finding the total marks of students of “TE” class department-wise.
+2. Finding the highest marks of students of “SE” class department-wise.
+3. Find Average marks of students of “BE” class department-wise.
 
+solution : 
 
-# Create a database and collection
-use salesDB
+use school;
 
-# Insert sample data
-db.sales.insertMany([
-    { item: "apple", quantity: 10, price: 1.5 },
-    { item: "banana", quantity: 20, price: 0.5 },
-    { item: "orange", quantity: 15, price: 0.8 },
-    { item: "apple", quantity: 5, price: 1.5 },
-    { item: "banana", quantity: 25, price: 0.5 }
+db.Student.insertMany([
+  { roll_no: 1, name: "John", class: "TE", dept: "Computer Science", aggregate_marks: 85 },
+  { roll_no: 2, name: "Alice", class: "TE", dept: "Mechanical", aggregate_marks: 75 },
+  { roll_no: 3, name: "Bob", class: "SE", dept: "Computer Science", aggregate_marks: 95 },
+  { roll_no: 4, name: "Charlie", class: "SE", dept: "Electrical", aggregate_marks: 90 },
+  { roll_no: 5, name: "Dave", class: "BE", dept: "Civil", aggregate_marks: 80 },
+  { roll_no: 6, name: "Eve", class: "BE", dept: "Computer Science", aggregate_marks: 88 },
+  { roll_no: 7, name: "Grace", class: "TE", dept: "Electrical", aggregate_marks: 72 }
+]);
+
+1. Finding the Total Marks of Students of "TE" Class Department-wise
+
+var map1 = function() {
+  if (this.class == "TE") {
+    emit(this.dept, this.aggregate_marks);  // Emit department as key and aggregate_marks as value
+  }
+};
+
+var reduce1 = function(key, values) {
+  return Array.sum(values);  // Sum up all marks for each department
+};
+
+db.Student.mapReduce(map1, reduce1, { out: "total_marks_TE" });
+
+2. Finding the Highest Marks of Students of "SE" Class Department-wise
+
+var map2 = function() {
+  if (this.class == "SE") {
+    emit(this.dept, this.aggregate_marks);  // Emit department as key and aggregate_marks as value
+  }
+};
+
+var reduce2 = function(key, values) {
+  return Math.max.apply(null, values);  // Find the maximum value (marks) for each department
+};
+
+db.Student.mapReduce(map2, reduce2, { out: "highest_marks_SE" });
+
+3. Finding the Average Marks of Students of "BE" Class Department-wise
+
+var map3 = function() {
+  if (this.class == "BE") {
+    emit(this.dept, { total_marks: this.aggregate_marks, count: 1 });  // Emit department as key and an object containing total_marks and count
+  }
+};
+
+var reduce3 = function(key, values) {
+  var result = { total_marks: 0, count: 0 };
+  
+  values.forEach(function(value) {
+    result.total_marks += value.total_marks;  // Sum the marks
+    result.count += value.count;              // Count the number of students
+  });
+  
+  return result;
+};
+
+var finalize3 = function(key, reducedValue) {
+  reducedValue.average_marks = reducedValue.total_marks / reducedValue.count;  // Calculate average
+  return reducedValue;
+};
+
+db.Student.mapReduce(map3, reduce3, { out: "average_marks_BE", finalize: finalize3 });
+
+( commands to view output )
+
+db.total_marks_TE.find();
+db.highest_marks_SE.find();
+db.average_marks_BE.find();
+
+( commands to drop table ) 
+
+db.total_marks_TE.drop();
+db.highest_marks_SE.drop();
+db.average_marks_BE.drop();
+
+<=============================================================================================================================================================================================================================================================================================================>
+
+Problem Statement 15 (Map Reduce using MongoDB)
+Create Book Collection with (Title, Author_name, Borrowed_status) as fields. Write Map Reduce Functions for following requirements.
+1. Display Author wise list of books.
+2. Display Author wise list of books having Borrowed status as “True”.
+3. Display Author wise list of books having price greater than 300.
+
+solution : 
+
+use libraryDB
+
+db.createCollection("Book")
+
+// Insert some sample data
+db.Book.insertMany([
+    { Title: "The Catcher in the Rye", Author_name: "J.D. Salinger", Borrowed_status: true, Price: 250 },
+    { Title: "To Kill a Mockingbird", Author_name: "Harper Lee", Borrowed_status: false, Price: 500 },
+    { Title: "1984", Author_name: "George Orwell", Borrowed_status: true, Price: 350 },
+    { Title: "The Great Gatsby", Author_name: "F. Scott Fitzgerald", Borrowed_status: true, Price: 450 },
+    { Title: "Moby Dick", Author_name: "Herman Melville", Borrowed_status: false, Price: 150 },
+    { Title: "Pride and Prejudice", Author_name: "Jane Austen", Borrowed_status: true, Price: 700 }
 ])
 
-# Define Map function
+1. Display Author-wise list of books
+
+// Map function to group books by Author_name
 var mapFunction = function() {
-    emit(this.item, this.quantity);
+    emit(this.Author_name, { books: [this.Title] });
 };
 
-# Define Reduce function
+// Reduce function to accumulate books for each author
 var reduceFunction = function(key, values) {
-    return Array.sum(values);
-};
-
-# Execute MapReduce
-db.sales.mapReduce(
-    mapFunction,
-    reduceFunction,
-    { out: "sales_summary" }
-)
-
-# View results
-db.sales_summary.find().pretty()
-
-
-Map reduce questions 
-
-1. Consider the following document structure that stores book details
-author wise. The document stores author_name of the book author and
-the status of book.
-
-Now, use the mapReduce function
-• To select all the active books,
-• Group them together on the basis of author_name and
-• Then count the number of books by each author by using the
-following code in MongoDB.
-
-
-solution : 
-
-use booksDB
-
-db.books.insertMany([
-    { author_name: "Author A", status: "active" },
-    { author_name: "Author A", status: "inactive" },
-    { author_name: "Author B", status: "active" },
-    { author_name: "Author B", status: "active" },
-    { author_name: "Author C", status: "inactive" },
-    { author_name: "Author D", status: "active" }
-]);
-
-• To select all the active books,
-• Group them together on the basis of author_name and
-• Then count the number of books by each author
-
-Step 1: Define the Map and Reduce Functions
-
-var mapFunction = function() {
-    if (this.status === "active") {
-        emit(this.author_name, 1);
-    }
-};
-
-var reduceFunction = function(key, values) {
-    return Array.sum(values);
-};
-
-Step 2: Run the MapReduce Operation
-
-db.books.mapReduce(
-    mapFunction,
-    reduceFunction,
-    { out: "activeBooksCount" }
-);
-
-Step 3: view result
-
-db.activeBooksCount.find().pretty();
-
-
-2. Apply the MapReduce operation to find the total salary of each department,avg,highest,lowest
-
-solution : 
-
-use department
-
-
-db.teacher.insertMany([
-    { name: "Alice", department: "Math", salary: 50000 },
-    { name: "Bob", department: "Science", salary: 60000 },
-    { name: "Charlie", department: "Math", salary: 55000 },
-    { name: "David", department: "History", salary: 70000 },
-    { name: "Eve", department: "Science", salary: 52000 },
-    { name: "Frank", department: "History", salary: 48000 }
-]);
-
-Step 1: Define the Map and Reduce Functions
-
-var mapFunction = function() {
-    emit(this.department, this.salary);
-};
-
-var reduceFunction = function(key, values) {
-    return Array.sum(values);
-};
-
-Step 2: Run the MapReduce Operation
-
-db.teacher.mapReduce(
-    mapFunction,
-    reduceFunction,
-    { out: "totalSalaryByDepartment" }
-);
-
-Step 3: View the Results
-
-db.totalSalaryByDepartment.find().pretty();
-
-step 4 : average,highest,lowest
-
-db.teacher.aggregate([
-    {
-        $group: {
-            _id: "$department",
-            averageSalary: { $avg: "$salary" },
-            highestSalary: { $max: "$salary" },
-            lowestSalary: { $min: "$salary" }
-        }
-    }
-]);
-
-3. three divisions TE,SE,BE in a college give me there marks and departments name with highest,lowest and avg marks
-
-solution: 
-
-use college
-
-db.students.insertMany([
-    { division: "TE", marks: 85 },
-    { division: "TE", marks: 78 },
-    { division: "TE", marks: 92 },
-    { division: "SE", marks: 67 },
-    { division: "SE", marks: 73 },
-    { division: "SE", marks: 88 },
-    { division: "BE", marks: 90 },
-    { division: "BE", marks: 75 },
-    { division: "BE", marks: 80 }
-]);
-
-step 1 : define map reduce
-
-var mapFunction = function() {
-    emit(this.division, { totalMarks: this.marks, count: 1, highest: this.marks, lowest: this.marks });
-};
-
-var reduceFunction = function(key, values) {
-    var reducedValue = { totalMarks: 0, count: 0, highest: -Infinity, lowest: Infinity };
-
+    var result = { books: [] };
     values.forEach(function(value) {
-        reducedValue.totalMarks += value.totalMarks;
-        reducedValue.count += value.count;
-        reducedValue.highest = Math.max(reducedValue.highest, value.highest);
-        reducedValue.lowest = Math.min(reducedValue.lowest, value.lowest);
+        result.books = result.books.concat(value.books);
     });
-
-    return reducedValue;
+    return result;
 };
 
-step 2 : run map reduce 
-
-db.students.mapReduce(
+// Run the MapReduce operation
+db.Book.mapReduce(
     mapFunction,
     reduceFunction,
-    { out: "divisionMarks" }
+    { out: "author_books" }
 );
 
-step 3 : calculate avg,highest,lowest marks 
+// To view the result
+db.author_books.find()
 
-db.divisionMarks.find().forEach(function(doc) {
-    doc.averageMarks = doc.value.totalMarks / doc.value.count;
-    print("Division: " + doc._id + ", Total Marks: " + doc.value.totalMarks + 
-          ", Average Marks: " + doc.averageMarks + 
-          ", Highest Marks: " + doc.value.highest + 
-          ", Lowest Marks: " + doc.value.lowest);
-});
+2. Display Author-wise list of books having Borrowed status as “True”
 
-step 4 : total marks of TE
-
-step 4 (a) : Define the Map and Reduce Functions
-
-var mapFunction = function() {
-    if (this.division === "TE") {
-        emit("TE", this.marks);
+// Map function to group books by Author_name and filter Borrowed_status
+var mapFunctionBorrowed = function() {
+    if (this.Borrowed_status === true) {
+        emit(this.Author_name, { books: [this.Title] });
     }
 };
 
-var reduceFunction = function(key, values) {
-    return Array.sum(values);
+// Reduce function to accumulate books for each author
+var reduceFunctionBorrowed = function(key, values) {
+    var result = { books: [] };
+    values.forEach(function(value) {
+        result.books = result.books.concat(value.books);
+    });
+    return result;
 };
 
-step 4 (b) : Run the MapReduce Operation
-
-db.students.mapReduce(
-    mapFunction,
-    reduceFunction,
-    { out: "totalMarksTE" }
+// Run the MapReduce operation
+db.Book.mapReduce(
+    mapFunctionBorrowed,
+    reduceFunctionBorrowed,
+    { out: "author_borrowed_books" }
 );
 
-step 4 (c) : view the result
+// To view the result
+db.author_borrowed_books.find()
 
-db.totalMarksTE.find().pretty();
+3.  Display Author-wise list of books having Price greater than 300
 
-4. Main Task: Use MongoDB’s MapReduce function on a stud1 collection to perform various aggregations and filtering based on student names and marks.
+// Map function to group books by Author_name and filter Price > 300
+var mapFunctionPrice = function() {
+    if (this.Price > 300) {
+        emit(this.Author_name, { books: [this.Title] });
+    }
+};
 
-Sub-Questions:
-"How many times does each student's name appear in the stud1 collection?"
+// Reduce function to accumulate books for each author
+var reduceFunctionPrice = function(key, values) {
+    var result = { books: [] };
+    values.forEach(function(value) {
+        result.books = result.books.concat(value.books);
+    });
+    return result;
+};
 
-Example 1: Counts occurrences of each name.
-"Count occurrences of each student's name, and then sort the result by count in ascending order."
+// Run the MapReduce operation
+db.Book.mapReduce(
+    mapFunctionPrice,
+    reduceFunctionPrice,
+    { out: "author_expensive_books" }
+);
 
-Example 2: Counts and sorts by the count of each name.
-"Count occurrences of each student's name and sort by the name in alphabetical order."
+// To view the result
+db.author_expensive_books.find()
 
-Example 3: Counts occurrences of each name, sorted by name.
-"Retrieve only the first document in the result showing the count of occurrences for each student's name."
-
-Example 4: Limits the output to the first result.
-"What is the total sum of marks for each student?"
-
-Example 5: Sums marks for each student.
-"What is the average mark for each student?"
-
-Example 6: Calculates the average marks for each student.
-"What is the average mark for students who scored exactly 80?"
-
-Example 7: Calculates the average marks, filtered to include only students who scored 80.
-"What is the sum of marks for the student named 'Amit'?"
-
-Example 8: Sums marks for the student with the name "Amit".
-"What is the sum of marks for all students who scored exactly 80?"
-
-Example 9: Sums marks for students who scored exactly 80.
-"What is the sum of marks for all students who scored above 80?"
-
-Example 10: Sums marks for students who scored more than 80.
-
-
-solution : 
-
-Step 1: Create stud1 Collection and Insert Documents
-
-db.stud1.insert([
-    {Name: "Amit", Marks: 80},
-    {Name: "Amit", Marks: 90},
-    {Name: "Shreya", Marks: 40},
-    {Name: "Neha", Marks: 80},
-    {Name: "Neha", Marks: 35}
-])
-
-Example 1: Count Occurrences of Each Name
-
-db.stud1.mapReduce(
-    function() { emit(this.Name, 1); },
-    function(key, value) { return Array.sum(value); },
-    { out: "Name_Total" }
-).find()
-
-Example 2: Count Occurrences of Each Name and Sort by Count
-
-db.stud1.mapReduce(
-    function() { emit(this.Name, 1); },
-    function(key, value) { return Array.sum(value); },
-    { out: "Name_Total" }
-).find().sort({ value: 1 })
-
-Example 3: Count Occurrences of Each Name and Sort by Name
-
-db.stud1.mapReduce(
-    function() { emit(this.Name, 1); },
-    function(key, value) { return Array.sum(value); },
-    { out: "Name_Total" }
-).find().sort({ key: 1 })
-
-Example 4: Limit Output to One Document
-
-db.stud1.mapReduce(
-    function() { emit(this.Name, 1); },
-    function(key, value) { return Array.sum(value); },
-    { out: "Name_Total" }
-).find().limit(1)
-
-Example 5: Sum Marks for Each Name
-
-db.stud1.mapReduce(
-    function() { emit(this.Name, this.Marks); },
-    function(key, value) { return Array.sum(value); },
-    { out: "Name_Total" }
-).find()
-
-Example 6: Calculate Average Marks for Each Name
-
-db.stud1.mapReduce(
-    function() { emit(this.Name, this.Marks); },
-    function(key, value) { return Array.avg(value); },
-    { out: "Name_Total" }
-).find()
-
-Example 7: Calculate Average Marks for Students with Marks = 80
-
-db.stud1.mapReduce(
-    function() { emit(this.Name, this.Marks); },
-    function(key, value) { return Array.avg(value); },
-    { query: { Marks: 80 }, out: "Name_Total" }
-).find()
-
-Example 8: Sum Marks for Students Named "Amit"
-
-db.stud1.mapReduce(
-    function() { emit(this.Name, this.Marks); },
-    function(key, value) { return Array.sum(value); },
-    { query: { Name: "Amit" }, out: "a" }
-).find()
-
-Example 9: Sum Marks for Students with Marks = 80
-
-db.stud1.mapReduce(
-    function() { emit(this.Name, this.Marks); },
-    function(key, value) { return Array.sum(value); },
-    { query: { Marks: 80 }, out: "a" }
-).find()
-
-Example 10: Sum Marks for Students with Marks Greater Than 80
-
-db.stud1.mapReduce(
-    function() { emit(this.Name, this.Marks); },
-    function(key, value) { return Array.sum(value); },
-    { query: { Marks: { $gt: 80 } }, out: "a" }
-).find()
-
+<=============================================================================================================================================================================================================================================================================================================>
