@@ -1278,3 +1278,967 @@ Step 7: Create a Synonym for the Branch Table
 CREATE SYNONYM Branch_info FOR Branch;
 
 <=============================================================================================================================================================================================================================================================================================================>
+
+Problem Statement 12 (CRUD Using MongoDB)
+Create a collection Social_Media having fields as User_Id, User_Name, No_of_Posts, No_of_Friends, Friends_List, Interests. (Hint: Friends_List and Interests can be of array type)
+Insert 20 documents in the collection Social_Media. Write queries for following.
+1. List all the users from collection Social_Media in formatted manner.
+2. Find all users having number of posts greater than 100.
+3. List the user names and their respective Friens_List
+4. Display the user ids and Friends list of users who have more than 5 friends.
+5. Display all users with no of posts in descending order.
+
+solution : 
+
+use socialDB
+
+
+db.Social_Media.insertMany([
+    { User_Id: 1, User_Name: "JohnDoe", No_of_Posts: 50, No_of_Friends: 5, Friends_List: ["Alice", "Bob", "Charlie", "David", "Eva"], Interests: ["Sports", "Music"] },
+    { User_Id: 2, User_Name: "JaneSmith", No_of_Posts: 120, No_of_Friends: 8, Friends_List: ["Frank", "Grace", "Helen"], Interests: ["Travel", "Books"] },
+    { User_Id: 3, User_Name: "SamAdams", No_of_Posts: 80, No_of_Friends: 10, Friends_List: ["Ivy", "Jack", "Kurt", "Leo"], Interests: ["Movies", "Fitness"] },
+    { User_Id: 4, User_Name: "PaulLee", No_of_Posts: 90, No_of_Friends: 3, Friends_List: ["Mike", "Nancy"], Interests: ["Technology", "Gaming"] },
+    { User_Id: 5, User_Name: "EmmaWilson", No_of_Posts: 200, No_of_Friends: 12, Friends_List: ["Oscar", "Paul", "Quincy"], Interests: ["Art", "Cooking"] },
+    { User_Id: 6, User_Name: "LucyBrown", No_of_Posts: 45, No_of_Friends: 4, Friends_List: ["Rick", "Sophia", "Tom"], Interests: ["Music", "Photography"] },
+    { User_Id: 7, User_Name: "HenryJones", No_of_Posts: 110, No_of_Friends: 6, Friends_List: ["Uma", "Victor", "Wendy"], Interests: ["Fitness", "Gaming"] },
+    { User_Id: 8, User_Name: "OliviaMartin", No_of_Posts: 135, No_of_Friends: 9, Friends_List: ["Xander", "Yara", "Zoe"], Interests: ["Fashion", "Travel"] },
+    { User_Id: 9, User_Name: "MarkLee", No_of_Posts: 65, No_of_Friends: 5, Friends_List: ["Ava", "Brian", "Clara"], Interests: ["Technology", "Books"] },
+    { User_Id: 10, User_Name: "SophiaTaylor", No_of_Posts: 95, No_of_Friends: 7, Friends_List: ["David", "Ethan", "Frank"], Interests: ["Fitness", "Movies"] },
+    { User_Id: 11, User_Name: "AvaGarcia", No_of_Posts: 105, No_of_Friends: 4, Friends_List: ["George", "Helen"], Interests: ["Cooking", "Books"] },
+    { User_Id: 12, User_Name: "EthanMartinez", No_of_Posts: 150, No_of_Friends: 11, Friends_List: ["Isaac", "Jack", "Karen"], Interests: ["Sports", "Photography"] },
+    { User_Id: 13, User_Name: "ChloeRobinson", No_of_Posts: 60, No_of_Friends: 6, Friends_List: ["Liam", "Megan"], Interests: ["Art", "Travel"] },
+    { User_Id: 14, User_Name: "JackWilliams", No_of_Posts: 125, No_of_Friends: 10, Friends_List: ["Nina", "Olivia", "Peter"], Interests: ["Technology", "Movies"] },
+    { User_Id: 15, User_Name: "DavidClark", No_of_Posts: 95, No_of_Friends: 5, Friends_List: ["Quinn", "Rachel"], Interests: ["Fitness", "Music"] },
+    { User_Id: 16, User_Name: "MiaRodriguez", No_of_Posts: 130, No_of_Friends: 9, Friends_List: ["Sam", "Tina", "Ursula"], Interests: ["Fashion", "Art"] },
+    { User_Id: 17, User_Name: "LiamWhite", No_of_Posts: 75, No_of_Friends: 7, Friends_List: ["Victor", "Wendy"], Interests: ["Sports", "Gaming"] },
+    { User_Id: 18, User_Name: "NoahGreen", No_of_Posts: 115, No_of_Friends: 8, Friends_List: ["Xander", "Yara"], Interests: ["Books", "Movies"] },
+    { User_Id: 19, User_Name: "EllaHill", No_of_Posts: 55, No_of_Friends: 6, Friends_List: ["Zoe", "Ava"], Interests: ["Cooking", "Photography"] },
+    { User_Id: 20, User_Name: "LucasScott", No_of_Posts: 145, No_of_Friends: 10, Friends_List: ["Brian", "Charlie"], Interests: ["Gaming", "Technology"] }
+]);
+
+
+1. List all users in a formatted manner:
+
+- db.Social_Media.find({}, {User_Id: 1, User_Name: 1, No_of_Posts: 1, No_of_Friends: 1, Friends_List: 1, Interests: 1}).pretty();
+
+2. Find all users having more than 100 posts:
+
+- db.Social_Media.find({No_of_Posts: {$gt: 100}});
+
+3. List the user names and their respective Friends_List:
+
+- db.Social_Media.find({}, {User_Name: 1, Friends_List: 1});
+
+4. Display user ids and Friends_List of users who have more than 5 friends:
+
+- db.Social_Media.find({No_of_Friends: {$gt: 5}}, {User_Id: 1, Friends_List: 1});
+
+5. Display all users ordered by number of posts in descending order:
+
+- db.Social_Media.find().sort({No_of_Posts: -1});
+
+<=============================================================================================================================================================================================================================================================================================================>
+
+Problem Statement 13 (Cursors)
+Consider a table Employee with schema as Employee (Emp_id, Emp_Name,Salary).
+1. Write an explicit cursor to display records of all employees with salary greater than 50,000.
+2. Write a PL/SQL block of code using Implicit Cursor that will display total number of tuples in Employee table.
+3. Write a PL/SQL block of code using Parameterized Cursor that will display salary of employee id entered by the user.
+
+solution : 
+
+-- Create Employee table
+CREATE TABLE Employee (
+    Emp_id INT PRIMARY KEY,
+    Emp_Name VARCHAR2(50),
+    Salary DECIMAL(10, 2)
+);
+
+-- Insert sample data into Employee table
+INSERT INTO Employee (Emp_id, Emp_Name, Salary) VALUES (1, 'John Doe', 55000.00);
+INSERT INTO Employee (Emp_id, Emp_Name, Salary) VALUES (2, 'Jane Smith', 45000.00);
+INSERT INTO Employee (Emp_id, Emp_Name, Salary) VALUES (3, 'Alice Johnson', 65000.00);
+INSERT INTO Employee (Emp_id, Emp_Name, Salary) VALUES (4, 'Bob Brown', 75000.00);
+INSERT INTO Employee (Emp_id, Emp_Name, Salary) VALUES (5, 'Charlie Green', 40000.00);
+
+1. Write an Explicit Cursor to Display Records of Employees with Salary Greater Than 50,000
+
+-- Explicit Cursor to display records of employees with salary > 50,000
+DECLARE
+    CURSOR employee_cursor IS
+        SELECT Emp_id, Emp_Name, Salary
+        FROM Employee
+        WHERE Salary > 50000;
+BEGIN
+    FOR emp IN employee_cursor LOOP
+        DBMS_OUTPUT.PUT_LINE('Employee ID: ' || emp.Emp_id || 
+                             ' - Name: ' || emp.Emp_Name || 
+                             ' - Salary: ' || emp.Salary);
+    END LOOP;
+END;
+
+2. Write a PL/SQL Block Using an Implicit Cursor to Display the Total Number of Tuples in the Employee Table
+
+-- PL/SQL block using implicit cursor to display the total number of tuples in Employee table
+DECLARE
+    v_count INT;
+BEGIN
+    SELECT COUNT(*) INTO v_count FROM Employee;
+    DBMS_OUTPUT.PUT_LINE('Total number of employees: ' || v_count);
+END;
+
+3. Write a PL/SQL Block Using a Parameterized Cursor to Display Salary of Employee Based on User Input
+
+-- PL/SQL block using a parameterized cursor to display the salary of the employee based on user input
+DECLARE
+    -- Variable to hold employee ID entered by the user
+    v_emp_id INT := 3;  -- Replace with actual input, e.g., from an application
+    v_salary DECIMAL(10, 2);
+    
+    -- Parameterized cursor
+    CURSOR emp_cursor (emp_id_param INT) IS
+        SELECT Salary
+        FROM Employee
+        WHERE Emp_id = emp_id_param;
+BEGIN
+    OPEN emp_cursor(v_emp_id);
+    FETCH emp_cursor INTO v_salary;
+    
+    IF emp_cursor%FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('Salary of employee with ID ' || v_emp_id || ' is: ' || v_salary);
+    ELSE
+        DBMS_OUTPUT.PUT_LINE('Employee not found.');
+    END IF;
+    
+    CLOSE emp_cursor;
+END;
+
+( to execute these ) 
+
+SET SERVEROUTPUT ON;
+
+<=============================================================================================================================================================================================================================================================================================================>
+
+Problem Statement 14 (JOINS & SUBQUERIES USING MYSQL)
+Consider Following Schema
+Employee (Employee_id, First_name, last_name , hire_date, salary, Job_title, manager_id, department_id) Departments(Department_id, Department_name, Manager_id, Location_id)
+Locations(location_id ,street_address ,postal_code, city, state, country_id) Manager(Manager_id, Manager_name)
+Create the tables with referential integrity. Solve following queries using joins and subqueries.
+1. Write a query to find the names (first_name, last_name) and the salaries of the employees who have a higher salary than the employee whose last_name=''Singh”.
+2. Write a query to find the names (first_name, last_name) of the employees who have a manager and work for a department based in the United States.
+3. Write a query to find the names (first_name, last_name), the salary of the employees whose salary is greater than the average salary.
+4. Write a query to find the employee id, name (last_name) along with their manager_id, manager name (last_name).
+5. Find the names and hire date of the employees who were hired after 'Jones'.
+
+solution : 
+
+-- Create Manager table
+CREATE TABLE Manager (
+    Manager_id INT PRIMARY KEY,
+    Manager_name VARCHAR(50)
+);
+
+-- Create Locations table
+CREATE TABLE Locations (
+    Location_id INT PRIMARY KEY,
+    Street_address VARCHAR(100),
+    Postal_code VARCHAR(10),
+    City VARCHAR(50),
+    State VARCHAR(50),
+    Country_id INT
+);
+
+-- Create Departments table with foreign key references to Manager and Locations
+CREATE TABLE Departments (
+    Department_id INT PRIMARY KEY,
+    Department_name VARCHAR(50),
+    Manager_id INT,
+    Location_id INT,
+    FOREIGN KEY (Manager_id) REFERENCES Manager(Manager_id),
+    FOREIGN KEY (Location_id) REFERENCES Locations(Location_id)
+);
+
+-- Create Employee table with foreign key references to Departments and Manager
+CREATE TABLE Employee (
+    Employee_id INT PRIMARY KEY,
+    First_name VARCHAR(50),
+    Last_name VARCHAR(50),
+    Hire_date DATE,
+    Salary DECIMAL(10, 2),
+    Job_title VARCHAR(50),
+    Manager_id INT,
+    Department_id INT,
+    FOREIGN KEY (Manager_id) REFERENCES Manager(Manager_id),
+    FOREIGN KEY (Department_id) REFERENCES Departments(Department_id)
+);
+
+-- Insert data into Manager table
+INSERT INTO Manager (Manager_id, Manager_name) VALUES (1, 'John Doe');
+INSERT INTO Manager (Manager_id, Manager_name) VALUES (2, 'Jane Smith');
+
+-- Insert data into Locations table
+INSERT INTO Locations (Location_id, Street_address, Postal_code, City, State, Country_id) 
+VALUES (1, '123 Main St', '12345', 'New York', 'NY', 1);
+INSERT INTO Locations (Location_id, Street_address, Postal_code, City, State, Country_id) 
+VALUES (2, '456 Oak Rd', '67890', 'Los Angeles', 'CA', 1);
+
+-- Insert data into Departments table
+INSERT INTO Departments (Department_id, Department_name, Manager_id, Location_id) 
+VALUES (1, 'HR', 1, 1);
+INSERT INTO Departments (Department_id, Department_name, Manager_id, Location_id) 
+VALUES (2, 'Engineering', 2, 2);
+
+-- Insert data into Employee table
+INSERT INTO Employee (Employee_id, First_name, Last_name, Hire_date, Salary, Job_title, Manager_id, Department_id) 
+VALUES (1, 'Alice', 'Singh', '2020-03-15', 60000, 'HR Manager', 1, 1);
+INSERT INTO Employee (Employee_id, First_name, Last_name, Hire_date, Salary, Job_title, Manager_id, Department_id) 
+VALUES (2, 'Bob', 'Johnson', '2019-08-23', 75000, 'Software Engineer', 2, 2);
+INSERT INTO Employee (Employee_id, First_name, Last_name, Hire_date, Salary, Job_title, Manager_id, Department_id) 
+VALUES (3, 'Charlie', 'Brown', '2021-01-12', 80000, 'Software Engineer', 2, 2);
+INSERT INTO Employee (Employee_id, First_name, Last_name, Hire_date, Salary, Job_title, Manager_id, Department_id) 
+VALUES (4, 'David', 'Lee', '2021-05-10', 55000, 'HR Associate', 1, 1);
+INSERT INTO Employee (Employee_id, First_name, Last_name, Hire_date, Salary, Job_title, Manager_id, Department_id) 
+VALUES (5, 'Eva', 'White', '2022-07-22', 62000, 'HR Specialist', 1, 1);
+
+1. Find the names (first_name, last_name) and the salaries of the employees who have a higher salary than the employee whose last_name = 'Singh'.
+
+SELECT e.First_name, e.Last_name, e.Salary
+FROM Employee e
+WHERE e.Salary > (SELECT Salary FROM Employee WHERE Last_name = 'Singh');
+
+2. Find the names (first_name, last_name) of the employees who have a manager and work for a department based in the United States.
+
+SELECT e.First_name, e.Last_name
+FROM Employee e
+JOIN Departments d ON e.Department_id = d.Department_id
+JOIN Locations l ON d.Location_id = l.Location_id
+WHERE e.Manager_id IS NOT NULL
+AND l.Country_id = 1;  -- Assuming '1' represents the United States
+
+3. Find the names (first_name, last_name), and the salary of the employees whose salary is greater than the average salary.
+
+SELECT e.First_name, e.Last_name, e.Salary
+FROM Employee e
+WHERE e.Salary > (SELECT AVG(Salary) FROM Employee);
+
+4. Find the employee ID, name (last_name) along with their manager_id and manager name (last_name).
+
+SELECT e.Employee_id, e.Last_name, e.Manager_id, m.Manager_name
+FROM Employee e
+JOIN Manager m ON e.Manager_id = m.Manager_id;
+
+5. Find the names and hire date of the employees who were hired after 'Jones'.
+
+SELECT e.First_name, e.Last_name, e.Hire_date
+FROM Employee e
+WHERE e.Hire_date > (SELECT Hire_date FROM Employee WHERE Last_name = 'Jones');
+
+<=============================================================================================================================================================================================================================================================================================================>
+
+Problem Statement 15 (Map Reduce using MongoDB)
+Create Book Collection with (Title, Author_name, Borrowed_status) as fields. Write Map Reduce Functions for following requirements.
+1. Display Author wise list of books.
+2. Display Author wise list of books having Borrowed status as “True”.
+3. Display Author wise list of books having price greater than 300.
+
+solution : 
+
+use libraryDB
+
+db.createCollection("Book")
+
+// Insert some sample data
+db.Book.insertMany([
+    { Title: "The Catcher in the Rye", Author_name: "J.D. Salinger", Borrowed_status: true, Price: 250 },
+    { Title: "To Kill a Mockingbird", Author_name: "Harper Lee", Borrowed_status: false, Price: 500 },
+    { Title: "1984", Author_name: "George Orwell", Borrowed_status: true, Price: 350 },
+    { Title: "The Great Gatsby", Author_name: "F. Scott Fitzgerald", Borrowed_status: true, Price: 450 },
+    { Title: "Moby Dick", Author_name: "Herman Melville", Borrowed_status: false, Price: 150 },
+    { Title: "Pride and Prejudice", Author_name: "Jane Austen", Borrowed_status: true, Price: 700 }
+])
+
+1. Display Author-wise list of books
+
+// Map function to group books by Author_name
+var mapFunction = function() {
+    emit(this.Author_name, { books: [this.Title] });
+};
+
+// Reduce function to accumulate books for each author
+var reduceFunction = function(key, values) {
+    var result = { books: [] };
+    values.forEach(function(value) {
+        result.books = result.books.concat(value.books);
+    });
+    return result;
+};
+
+// Run the MapReduce operation
+db.Book.mapReduce(
+    mapFunction,
+    reduceFunction,
+    { out: "author_books" }
+);
+
+// To view the result
+db.author_books.find()
+
+2. Display Author-wise list of books having Borrowed status as “True”
+
+// Map function to group books by Author_name and filter Borrowed_status
+var mapFunctionBorrowed = function() {
+    if (this.Borrowed_status === true) {
+        emit(this.Author_name, { books: [this.Title] });
+    }
+};
+
+// Reduce function to accumulate books for each author
+var reduceFunctionBorrowed = function(key, values) {
+    var result = { books: [] };
+    values.forEach(function(value) {
+        result.books = result.books.concat(value.books);
+    });
+    return result;
+};
+
+// Run the MapReduce operation
+db.Book.mapReduce(
+    mapFunctionBorrowed,
+    reduceFunctionBorrowed,
+    { out: "author_borrowed_books" }
+);
+
+// To view the result
+db.author_borrowed_books.find()
+
+3.  Display Author-wise list of books having Price greater than 300
+
+// Map function to group books by Author_name and filter Price > 300
+var mapFunctionPrice = function() {
+    if (this.Price > 300) {
+        emit(this.Author_name, { books: [this.Title] });
+    }
+};
+
+// Reduce function to accumulate books for each author
+var reduceFunctionPrice = function(key, values) {
+    var result = { books: [] };
+    values.forEach(function(value) {
+        result.books = result.books.concat(value.books);
+    });
+    return result;
+};
+
+// Run the MapReduce operation
+db.Book.mapReduce(
+    mapFunctionPrice,
+    reduceFunctionPrice,
+    { out: "author_expensive_books" }
+);
+
+// To view the result
+db.author_expensive_books.find()
+
+<=============================================================================================================================================================================================================================================================================================================>
+
+Problem Statement 16 (Procedures / Functions)
+Employee( emp_id, dept_idemp_name, DoJ, salary, commission,job_title)
+1. Consider the schema given above. Keep the commission column empty initially. Write a Stored Procedure to record the employee commission based on following conditions. If salary is more than 10000 then commission is 0.4%, if Salary is less than 10000 but experience is more than 10 years then 0.35%, if salary is less than 3000 then commission is 0.25%. In the remaining cases commission is 0.15%.
+2. Write a PLSQL Function that takes department ID and returns the name of the manager of the department
+
+solution :
+
+Step 1: Create the Employee Table
+
+-- Create Employee table
+CREATE TABLE Employee (
+    emp_id INT PRIMARY KEY,
+    dept_id INT,
+    emp_name VARCHAR2(50),
+    DoJ DATE,
+    salary DECIMAL(10, 2),
+    commission DECIMAL(10, 2),
+    job_title VARCHAR2(50)
+);
+
+-- Insert sample data into Employee table
+INSERT INTO Employee (emp_id, dept_id, emp_name, DoJ, salary, commission, job_title) 
+VALUES (1, 101, 'John Doe', TO_DATE('2010-01-01', 'YYYY-MM-DD'), 12000, NULL, 'Manager');
+
+INSERT INTO Employee (emp_id, dept_id, emp_name, DoJ, salary, commission, job_title) 
+VALUES (2, 102, 'Jane Smith', TO_DATE('2015-03-10', 'YYYY-MM-DD'), 8000, NULL, 'Senior Developer');
+
+INSERT INTO Employee (emp_id, dept_id, emp_name, DoJ, salary, commission, job_title) 
+VALUES (3, 103, 'Alice Brown', TO_DATE('2020-07-25', 'YYYY-MM-DD'), 2500, NULL, 'Junior Developer');
+
+INSERT INTO Employee (emp_id, dept_id, emp_name, DoJ, salary, commission, job_title) 
+VALUES (4, 101, 'Bob Johnson', TO_DATE('2010-10-05', 'YYYY-MM-DD'), 9500, NULL, 'Developer');
+
+Step 2: Stored Procedure to Calculate and Update Commission
+
+-- Create Stored Procedure to calculate and update employee commission
+CREATE OR REPLACE PROCEDURE calculate_commission IS
+    v_experience INT;  -- Variable to store years of experience
+BEGIN
+    FOR emp IN (SELECT emp_id, salary, DoJ FROM Employee) LOOP
+        -- Calculate years of experience
+        v_experience := EXTRACT(YEAR FROM SYSDATE) - EXTRACT(YEAR FROM emp.DoJ);
+
+        -- Update commission based on salary and experience
+        IF emp.salary > 10000 THEN
+            UPDATE Employee
+            SET commission = emp.salary * 0.004
+            WHERE emp_id = emp.emp_id;
+        ELSIF emp.salary < 10000 AND v_experience > 10 THEN
+            UPDATE Employee
+            SET commission = emp.salary * 0.0035
+            WHERE emp_id = emp.emp_id;
+        ELSIF emp.salary < 3000 THEN
+            UPDATE Employee
+            SET commission = emp.salary * 0.0025
+            WHERE emp_id = emp.emp_id;
+        ELSE
+            UPDATE Employee
+            SET commission = emp.salary * 0.0015
+            WHERE emp_id = emp.emp_id;
+        END IF;
+    END LOOP;
+END;
+
+Step 3: PL/SQL Function to Return the Department Manager's Name
+
+-- Create PL/SQL Function to get the manager name for a department
+CREATE OR REPLACE FUNCTION get_department_manager(dept_id_in INT) 
+    RETURN VARCHAR2 IS
+    v_manager_name VARCHAR2(50);
+BEGIN
+    -- Query to find the manager based on department ID
+    SELECT e.emp_name
+    INTO v_manager_name
+    FROM Employee e
+    JOIN Departments d ON e.dept_id = d.dept_id
+    WHERE d.dept_id = dept_id_in AND e.job_title = 'Manager';
+    
+    RETURN v_manager_name;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN 'No manager found for this department';
+    WHEN OTHERS THEN
+        RETURN 'Error occurred';
+END;
+
+Step 4: Test the Procedure and Function
+
+EXEC calculate_commission;
+
+- Test the Function: To get the manager’s name for a department (for example, department 101):
+
+SELECT get_department_manager(101) FROM dual;
+
+<=============================================================================================================================================================================================================================================================================================================>
+
+Problem Statement 17 (DML USING MYSQL)
+Create following tables using a given schema and insert appropriate data into the same: Customer (CustID, Name, Cust_Address, Phone_no, Age)
+Branch (Branch ID, Branch_Name, Address)
+Account (Account_no, Branch ID, CustID, date_open, Account_type, Balance)
+1. Add the column “Email_Address” in Customer table.
+2. Change the name of column “Email_Address” to “Email_ID” in Customer table.
+3. Display the customer details with highest balance in the account.
+4. Display the customer details with lowest balance for account type= “Saving Account”.
+5. Display the customer details that live in Pune and have age greater than 35.
+6. Display the Cust_ID, Name and Age of the customer in ascending order of their age.
+7. Display the Name and Branch ID of the customer group by the Account_type
+
+solution : 
+
+Step 1: Create Tables and Insert Data
+
+-- Create Customer table
+CREATE TABLE Customer (
+    CustID INT PRIMARY KEY,
+    Name VARCHAR(50),
+    Cust_Address VARCHAR(100),
+    Phone_no VARCHAR(15),
+    Age INT
+);
+
+-- Create Branch table
+CREATE TABLE Branch (
+    Branch_ID INT PRIMARY KEY,
+    Branch_Name VARCHAR(50),
+    Address VARCHAR(100)
+);
+
+-- Create Account table
+CREATE TABLE Account (
+    Account_no INT PRIMARY KEY,
+    Branch_ID INT,
+    CustID INT,
+    date_open DATE,
+    Account_type VARCHAR(20),
+    Balance DECIMAL(10, 2),
+    FOREIGN KEY (Branch_ID) REFERENCES Branch(Branch_ID),
+    FOREIGN KEY (CustID) REFERENCES Customer(CustID)
+);
+
+-- Insert sample data into Customer table
+INSERT INTO Customer (CustID, Name, Cust_Address, Phone_no, Age) 
+VALUES (1, 'John Doe', 'Pune, Maharashtra', '9876543210', 40);
+
+INSERT INTO Customer (CustID, Name, Cust_Address, Phone_no, Age) 
+VALUES (2, 'Jane Smith', 'Mumbai, Maharashtra', '8765432109', 30);
+
+INSERT INTO Customer (CustID, Name, Cust_Address, Phone_no, Age) 
+VALUES (3, 'Alice Brown', 'Pune, Maharashtra', '7654321098', 45);
+
+-- Insert sample data into Branch table
+INSERT INTO Branch (Branch_ID, Branch_Name, Address) 
+VALUES (101, 'Main Branch', 'Pune, Maharashtra');
+
+INSERT INTO Branch (Branch_ID, Branch_Name, Address) 
+VALUES (102, 'Secondary Branch', 'Mumbai, Maharashtra');
+
+-- Insert sample data into Account table
+INSERT INTO Account (Account_no, Branch_ID, CustID, date_open, Account_type, Balance) 
+VALUES (1001, 101, 1, '2022-01-01', 'Saving Account', 10000.00);
+
+INSERT INTO Account (Account_no, Branch_ID, CustID, date_open, Account_type, Balance) 
+VALUES (1002, 102, 2, '2021-05-10', 'Current Account', 5000.00);
+
+INSERT INTO Account (Account_no, Branch_ID, CustID, date_open, Account_type, Balance) 
+VALUES (1003, 101, 3, '2020-03-15', 'Saving Account', 20000.00);
+
+Step 2: Perform the Required Operations
+
+1. Add the column "Email_Address" in the Customer table:
+
+ALTER TABLE Customer ADD COLUMN Email_Address VARCHAR(100);
+
+2. Change the name of column "Email_Address" to "Email_ID" in the Customer table:
+
+ALTER TABLE Customer CHANGE COLUMN Email_Address Email_ID VARCHAR(100);
+
+3. Display the customer details with the highest balance in the account:
+
+SELECT c.CustID, c.Name, c.Cust_Address, c.Phone_no, c.Age, a.Account_no, a.Balance
+FROM Customer c
+JOIN Account a ON c.CustID = a.CustID
+WHERE a.Balance = (SELECT MAX(Balance) FROM Account);
+
+4. Display the customer details with the lowest balance for account type = "Saving Account":
+
+SELECT c.CustID, c.Name, c.Cust_Address, c.Phone_no, c.Age, a.Account_no, a.Balance
+FROM Customer c
+JOIN Account a ON c.CustID = a.CustID
+WHERE a.Account_type = 'Saving Account'
+AND a.Balance = (SELECT MIN(Balance) FROM Account WHERE Account_type = 'Saving Account');
+
+5. Display the customer details that live in Pune and have age greater than 35:
+
+SELECT CustID, Name, Cust_Address, Phone_no, Age
+FROM Customer
+WHERE Cust_Address LIKE '%Pune%' AND Age > 35;
+
+6. Display the Cust_ID, Name, and Age of the customer in ascending order of their age:
+
+SELECT CustID, Name, Age
+FROM Customer
+ORDER BY Age ASC;
+
+7. Display the Name and Branch ID of the customer grouped by the Account_type:
+
+SELECT c.Name, a.Branch_ID, a.Account_type
+FROM Customer c
+JOIN Account a ON c.CustID = a.CustID
+GROUP BY a.Account_type, c.Name, a.Branch_ID;
+
+<=============================================================================================================================================================================================================================================================================================================>
+
+Problem Statement 18 (AGGREGATION & INDEXING USING MONGODB)
+Create the Collection Student_Data( Student _ID, Student _Name, Department, Marks )and solve the following:
+1. Display all Students based on their departments along with an average Marks of a particular department.
+2. Displays the number of Students associated along with a particular department.
+3. Display list of Students with the highest Marks in each Department in descending order of Marks.
+4. Create an index on field Student_ID.
+5. Create an index on fields “Student_Name‘ and “Department”.
+6. Drop an index on field Student_ID.
+7. Drop an index on fields “Student_Name‘ and “Department”.
+
+solution : 
+
+// Use the database 'school' (create it if it doesn't exist)
+use school;
+
+// Create the Student_Data collection and insert some documents
+db.Student_Data.insertMany([
+    { Student_ID: 1, Student_Name: "John Doe", Department: "Computer Science", Marks: 85 },
+    { Student_ID: 2, Student_Name: "Jane Smith", Department: "Mathematics", Marks: 90 },
+    { Student_ID: 3, Student_Name: "Alice Johnson", Department: "Computer Science", Marks: 95 },
+    { Student_ID: 4, Student_Name: "Bob Brown", Department: "Physics", Marks: 75 },
+    { Student_ID: 5, Student_Name: "Charlie White", Department: "Mathematics", Marks: 80 },
+    { Student_ID: 6, Student_Name: "David Black", Department: "Physics", Marks: 85 },
+    { Student_ID: 7, Student_Name: "Emily Green", Department: "Computer Science", Marks: 92 }
+]);
+
+1. Display all Students based on their departments along with the average marks of a particular department
+
+db.Student_Data.aggregate([
+    {
+        $group: {
+            _id: "$Department",         // Group by department
+            avgMarks: { $avg: "$Marks" } // Calculate the average marks
+        }
+    },
+    {
+        $lookup: {
+            from: "Student_Data",       // Join with the same collection
+            localField: "_id",           // Department from this collection
+            foreignField: "Department",  // Department from the other collection
+            as: "students_in_dept"      // Output field containing students
+        }
+    },
+    {
+        $project: {
+            Department: "$_id",         // Display department
+            avgMarks: 1,                // Display average marks
+            students_in_dept: 1         // Display students in the department
+        }
+    }
+]);
+
+2. Display the number of students associated with each department
+
+db.Student_Data.aggregate([
+    {
+        $group: {
+            _id: "$Department",        // Group by department
+            studentCount: { $sum: 1 }  // Count the number of students
+        }
+    }
+]);
+
+3. Display a list of students with the highest marks in each department in descending order of marks
+
+db.Student_Data.aggregate([
+    {
+        $sort: { Marks: -1 }   // Sort by Marks in descending order
+    },
+    {
+        $group: {
+            _id: "$Department",  // Group by department
+            topStudent: { $first: "$$ROOT" }  // Get the top student in each department
+        }
+    },
+    {
+        $project: {
+            Department: "$_id",
+            Student_Name: "$topStudent.Student_Name",
+            Marks: "$topStudent.Marks"
+        }
+    }
+]);
+
+4. Create an index on the field Student_ID
+
+db.Student_Data.createIndex({ Student_ID: 1 });
+
+5. Create an index on the fields Student_Name and Department
+
+db.Student_Data.createIndex({ Student_Name: 1, Department: 1 });
+
+6. Drop the index on the field Student_ID
+
+db.Student_Data.dropIndex({ Student_ID: 1 });
+
+7. Drop the index on the fields Student_Name and Department
+
+db.Student_Data.dropIndex({ Student_Name: 1, Department: 1 });
+
+<=============================================================================================================================================================================================================================================================================================================>
+
+Problem Statement 19 (Unnamed Block)
+Employee( emp_id, dept_idemp_name, DoJ, salary, commission,job_title) Salary_Increment(emp_id, new_salary)
+Consider the schema given above. Write a PLSQL Unnamed Block of code to increase the salary of employee 115 based on the following conditions:
+Accept emp_id from user. If experience of employee is more than 10 years, increase salary by 20%. If experience is greater than 5 years, increase salary by 10% Otherwise 5%. (Hint: Find the years of experience from Date of Joining (DoJ)). Store the incremented salary in Salary_Increment table.
+Also handle the exception by named exception handler or user defined exception handler
+
+solution : 
+
+step 1 : 
+
+-- Create Employee table
+CREATE TABLE Employee (
+    emp_id INT PRIMARY KEY,
+    dept_id INT,
+    emp_name VARCHAR(50),
+    DoJ DATE,        -- Date of Joining
+    salary DECIMAL(10, 2),
+    commission DECIMAL(10, 2),
+    job_title VARCHAR(50)
+);
+
+-- Create Salary_Increment table
+CREATE TABLE Salary_Increment (
+    emp_id INT PRIMARY KEY,
+    new_salary DECIMAL(10, 2),
+    FOREIGN KEY (emp_id) REFERENCES Employee(emp_id)
+);
+
+-- Insert sample data into Employee table
+INSERT INTO Employee (emp_id, dept_id, emp_name, DoJ, salary, commission, job_title)
+VALUES (115, 1, 'John Doe', TO_DATE('2012-03-15', 'YYYY-MM-DD'), 50000, 2000, 'Manager');
+
+INSERT INTO Employee (emp_id, dept_id, emp_name, DoJ, salary, commission, job_title)
+VALUES (116, 2, 'Jane Smith', TO_DATE('2018-05-20', 'YYYY-MM-DD'), 45000, 1500, 'Developer');
+
+INSERT INTO Employee (emp_id, dept_id, emp_name, DoJ, salary, commission, job_title)
+VALUES (117, 3, 'Alice Johnson', TO_DATE('2020-06-10', 'YYYY-MM-DD'), 35000, 1000, 'Analyst');
+
+step 2 : Write the PL/SQL Anonymous Block
+
+DECLARE
+    v_emp_id Employee.emp_id%TYPE;
+    v_doJ Employee.DoJ%TYPE;
+    v_salary Employee.salary%TYPE;
+    v_experience NUMBER;
+    v_new_salary Employee.salary%TYPE;
+
+    -- Define a user-defined exception
+    e_invalid_emp_id EXCEPTION;
+
+BEGIN
+    -- Accept emp_id from the user
+    v_emp_id := &emp_id;  -- Prompt the user for the emp_id
+    
+    -- Check if the employee exists
+    SELECT DoJ, salary
+    INTO v_doJ, v_salary
+    FROM Employee
+    WHERE emp_id = v_emp_id;
+    
+    -- Calculate years of experience
+    v_experience := FLOOR(MONTHS_BETWEEN(SYSDATE, v_doJ) / 12);
+    
+    -- Increment salary based on experience
+    IF v_experience > 10 THEN
+        v_new_salary := v_salary * 1.20;  -- 20% increment
+    ELSIF v_experience > 5 THEN
+        v_new_salary := v_salary * 1.10;  -- 10% increment
+    ELSE
+        v_new_salary := v_salary * 1.05;  -- 5% increment
+    END IF;
+    
+    -- Insert the new salary into the Salary_Increment table
+    INSERT INTO Salary_Increment (emp_id, new_salary)
+    VALUES (v_emp_id, v_new_salary);
+
+    -- Commit the changes
+    COMMIT;
+
+    DBMS_OUTPUT.PUT_LINE('Salary for Employee ID ' || v_emp_id || ' has been incremented to ' || v_new_salary);
+    
+EXCEPTION
+    -- Exception handling
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('Employee with ID ' || v_emp_id || ' does not exist.');
+    WHEN e_invalid_emp_id THEN
+        DBMS_OUTPUT.PUT_LINE('Invalid Employee ID provided.');
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('An error occurred: ' || SQLERRM);
+END;
+/
+
+(command to see output)
+
+SELECT * FROM Salary_Increment;
+
+<=============================================================================================================================================================================================================================================================================================================>
+
+Problem Statement 20 (DDL USING MYSQL)
+Create following tables using a given schema and insert appropriate data into the same: Customer (CustID, Name, Cust_Address, Phone_no, Email_ID, Age)
+Branch (Branch ID, Branch_Name, Address)
+Account (Account_no, Branch ID, CustID, open_date, Account_type, Balance)
+1. Create the tables with referential integrity.
+2. Draw the ER diagram for the same.
+3. Create a View as Saving account displaying the customer details with the open date as 16/8/2018.
+4. Update the View with Cust_Address as Pune for CustID =103.
+5. Create a View as Loan account displaying the customer details with the open date as 16/2/2018.
+6. Create an Index on primary key column of table Customer.
+7. Create an Index on primary key column of table Branch.
+8. Create a sequence on Customer Table.
+9. Create synonym ‘Cust_info’ for branch table.
+
+solution : 
+
+-- Create the Customer table
+CREATE TABLE Customer (
+    CustID INT PRIMARY KEY,
+    Name VARCHAR(50),
+    Cust_Address VARCHAR(100),
+    Phone_no VARCHAR(15),
+    Email_ID VARCHAR(50),
+    Age INT
+);
+
+-- Create the Branch table
+CREATE TABLE Branch (
+    Branch_ID INT PRIMARY KEY,
+    Branch_Name VARCHAR(50),
+    Address VARCHAR(100)
+);
+
+-- Create the Account table with foreign keys referencing Customer and Branch
+CREATE TABLE Account (
+    Account_no INT PRIMARY KEY,
+    Branch_ID INT,
+    CustID INT,
+    open_date DATE,
+    Account_type VARCHAR(20),
+    Balance DECIMAL(10, 2),
+    FOREIGN KEY (Branch_ID) REFERENCES Branch(Branch_ID),
+    FOREIGN KEY (CustID) REFERENCES Customer(CustID)
+);
+
+-- Insert sample data into Customer table
+INSERT INTO Customer (CustID, Name, Cust_Address, Phone_no, Email_ID, Age) 
+VALUES
+(101, 'John Doe', '123 Elm St, New York', '1234567890', 'john.doe@example.com', 30),
+(102, 'Jane Smith', '456 Oak St, California', '9876543210', 'jane.smith@example.com', 28),
+(103, 'Alice Johnson', '789 Pine St, Pune', '1122334455', 'alice.johnson@example.com', 35);
+
+-- Insert sample data into Branch table
+INSERT INTO Branch (Branch_ID, Branch_Name, Address) 
+VALUES
+(1, 'New York Branch', '123 New York Blvd, New York'),
+(2, 'California Branch', '456 California Ave, California'),
+(3, 'Pune Branch', '789 Pune Rd, Pune');
+
+-- Insert sample data into Account table
+INSERT INTO Account (Account_no, Branch_ID, CustID, open_date, Account_type, Balance)
+VALUES
+(1, 1, 101, '2017-06-01', 'Saving', 10000),
+(2, 2, 102, '2018-03-12', 'Loan', 5000),
+(3, 3, 103, '2018-08-16', 'Saving', 15000);
+
+step 2 : Create View: Saving Account
+
+CREATE VIEW Saving_account AS
+SELECT * 
+FROM Customer c
+JOIN Account a ON c.CustID = a.CustID
+WHERE a.open_date = '2018-08-16' AND a.Account_type = 'Saving';
+
+step 3 : Update the View
+
+UPDATE Customer
+SET Cust_Address = 'Pune'
+WHERE CustID = 103;
+
+step 4 : Create View: Loan Account
+
+CREATE VIEW Loan_account AS
+SELECT * 
+FROM Customer c
+JOIN Account a ON c.CustID = a.CustID
+WHERE a.open_date = '2018-02-16' AND a.Account_type = 'Loan';
+
+step 5 : Create Index on Primary Key Column of Customer Table
+
+CREATE INDEX idx_customer_id ON Customer (CustID);
+
+step 6 : Create Index on Primary Key Column of Branch Table
+
+CREATE INDEX idx_branch_id ON Branch (Branch_ID);
+
+step 7 : Create a Sequence on the Customer Table
+
+CREATE TABLE Customer (
+    CustID INT AUTO_INCREMENT PRIMARY KEY,
+    Name VARCHAR(50),
+    Cust_Address VARCHAR(100),
+    Phone_no VARCHAR(15),
+    Email_ID VARCHAR(50),
+    Age INT
+);
+
+step 8 : Create Synonym for Branch Table
+
+-- This alias acts as a synonym for the Branch table
+SELECT * FROM Branch AS Cust_info;
+
+<=============================================================================================================================================================================================================================================================================================================>
+
+Problem Statement 21 (CRUD)
+Create collection Student with fields as Roll_No, Name, Class, Marks, Address, Enrolled_Courses. (Hint: One student can enrol in multiple courses. Use Array to store the names of courses enrolled) Insert 10 documents in the collection Student. Write the queries for following.
+1. List the names of students who have enrolled in the course “DBMS”, “TOC”.
+2. List the Roll numbers and class of students who have marks more than 50 or class as TE.
+3. Update the entire record of roll_no A10.
+4. Display the names of students having 3rd and 4th highest marks.
+5. Delete the records of students having marks less than 20.
+6. Delete only first record from the collection.
+
+solution : 
+
+use school;
+
+db.Student.insertMany([
+  { Roll_No: "A01", Name: "John", Class: "FE", Marks: 85, Address: "123 Main St", Enrolled_Courses: ["DBMS", "Math"] },
+  { Roll_No: "A02", Name: "Jane", Class: "SE", Marks: 92, Address: "456 Maple St", Enrolled_Courses: ["TOC", "DBMS"] },
+  { Roll_No: "A03", Name: "Tom", Class: "TE", Marks: 47, Address: "789 Oak St", Enrolled_Courses: ["OS", "DBMS"] },
+  { Roll_No: "A04", Name: "Alice", Class: "TE", Marks: 65, Address: "101 Pine St", Enrolled_Courses: ["Math", "TOC"] },
+  { Roll_No: "A05", Name: "Bob", Class: "FE", Marks: 23, Address: "202 Cedar St", Enrolled_Courses: ["DBMS", "Physics"] },
+  { Roll_No: "A06", Name: "Emma", Class: "SE", Marks: 58, Address: "303 Birch St", Enrolled_Courses: ["TOC", "Math"] },
+  { Roll_No: "A07", Name: "Mike", Class: "TE", Marks: 74, Address: "404 Elm St", Enrolled_Courses: ["DBMS", "TOC"] },
+  { Roll_No: "A08", Name: "Sophia", Class: "SE", Marks: 89, Address: "505 Cherry St", Enrolled_Courses: ["Physics", "OS"] },
+  { Roll_No: "A09", Name: "Ethan", Class: "FE", Marks: 34, Address: "606 Walnut St", Enrolled_Courses: ["Math", "DBMS"] },
+  { Roll_No: "A10", Name: "Josh", Class: "TE", Marks: 77, Address: "707 Redwood St", Enrolled_Courses: ["TOC", "OS"] }
+]);
+
+1. List the names of students who have enrolled in the courses “DBMS”, “TOC”:
+
+db.Student.find({
+  Enrolled_Courses: { $all: ["DBMS", "TOC"] }
+}, {
+  Name: 1, _id: 0
+});
+
+2. List the Roll numbers and class of students who have marks more than 50 or class as TE:
+
+db.Student.find({
+  $or: [
+    { Marks: { $gt: 50 } },
+    { Class: "TE" }
+  ]
+}, {
+  Roll_No: 1, Class: 1, _id: 0
+});
+
+3. Update the entire record of roll_no A10:
+
+db.Student.updateOne(
+  { Roll_No: "A10" },
+  {
+    $set: {
+      Name: "Joshua",
+      Class: "BE",
+      Marks: 95,
+      Address: "808 Ash St",
+      Enrolled_Courses: ["AI", "ML"]
+    }
+  }
+);
+
+4. Display the names of students having 3rd and 4th highest marks:
+
+db.Student.find({}, { Name: 1, Marks: 1, _id: 0 })
+  .sort({ Marks: -1 })
+  .skip(2)
+  .limit(2);
+
+5. Delete the records of students having marks less than 20:
+
+db.Student.deleteMany({ Marks: { $lt: 20 } });
+
+6. Delete only the first record from the collection
+
+db.Student.deleteOne({});
