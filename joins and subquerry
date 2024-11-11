@@ -1,0 +1,231 @@
+Problem Statement 5 (JOINS & SUBQUERIES USING MYSQL)
+Consider Following Schema
+Employee (Employee_id, First_name, Last_name , Hire_date, Salary, Job_title, Manager_id, department_id) Departments(Department_id, Department_name, Manager_id, Location_id)
+Locations(Location_id , Street_address , Postal_code, city, state, Country_id) Manager(Manager_id, Manager_name)
+Create the tables with referential integrity.Solve following queries using joins and subqueries.
+1. Write a query to find the names (first_name, last_name), the salary of the employees who earn more than the average salary and who works in any of the IT departments.
+2. Write a query to find the names (first_name, last_name), the salary of the employees who earn the same salary as the minimum salary for all departments.
+3. Write a query to display the employee ID, first name, last names, salary of all employees whose salary is above average for their departments.
+4. Write a query to display the department name, manager name, and city.
+5. Write a query to display the name (first_name, last_name), hire date, salary of all managers whose experience is more than 15 years.
+
+solution : 
+
+step 1 :
+
+-- Create Employee Table
+CREATE TABLE Employee (
+    Employee_id INT PRIMARY KEY,
+    First_name VARCHAR(50),
+    Last_name VARCHAR(50),
+    Hire_date DATE,
+    Salary DECIMAL(10, 2),
+    Job_title VARCHAR(50),
+    Manager_id INT,
+    Department_id INT,
+    FOREIGN KEY (Manager_id) REFERENCES Manager(Manager_id),
+    FOREIGN KEY (Department_id) REFERENCES Departments(Department_id)
+);
+
+-- Create Departments Table
+CREATE TABLE Departments (
+    Department_id INT PRIMARY KEY,
+    Department_name VARCHAR(50),
+    Manager_id INT,
+    Location_id INT,
+    FOREIGN KEY (Manager_id) REFERENCES Manager(Manager_id),
+    FOREIGN KEY (Location_id) REFERENCES Locations(Location_id)
+);
+
+-- Create Locations Table
+CREATE TABLE Locations (
+    Location_id INT PRIMARY KEY,
+    Street_address VARCHAR(100),
+    Postal_code VARCHAR(10),
+    City VARCHAR(50),
+    State VARCHAR(50),
+    Country_id INT
+);
+
+-- Create Manager Table
+CREATE TABLE Manager (
+    Manager_id INT PRIMARY KEY,
+    Manager_name VARCHAR(100)
+);
+
+-- Insert data into Manager table
+INSERT INTO Manager (Manager_id, Manager_name)
+VALUES (1, 'John Doe'),
+       (2, 'Jane Smith');
+
+-- Insert data into Locations table
+INSERT INTO Locations (Location_id, Street_address, Postal_code, City, State, Country_id)
+VALUES (1, '1234 Elm St', '12345', 'San Francisco', 'CA', 101),
+       (2, '5678 Oak St', '67890', 'Los Angeles', 'CA', 101);
+
+-- Insert data into Departments table
+INSERT INTO Departments (Department_id, Department_name, Manager_id, Location_id)
+VALUES (1, 'IT', 1, 1),
+       (2, 'HR', 2, 2);
+
+-- Insert data into Employee table
+INSERT INTO Employee (Employee_id, First_name, Last_name, Hire_date, Salary, Job_title, Manager_id, Department_id)
+VALUES (1, 'Alice', 'Johnson', '2015-06-01', 90000, 'Software Engineer', 1, 1),
+       (2, 'Bob', 'Smith', '2018-08-01', 120000, 'HR Specialist', 2, 2),
+       (3, 'Charlie', 'Brown', '2010-01-01', 150000, 'Senior Developer', 1, 1),
+       (4, 'David', 'Wilson', '2016-03-15', 95000, 'Software Engineer', 1, 1),
+       (5, 'Eve', 'Davis', '2019-07-20', 130000, 'HR Manager', 2, 2);
+
+step 3 : SQL Queries
+
+Query 1: Find the names (first_name, last_name), the salary of the employees who earn more than the average salary and work in any of the IT departments.
+
+SELECT e.First_name, e.Last_name, e.Salary
+FROM Employee e
+JOIN Departments d ON e.Department_id = d.Department_id
+WHERE e.Salary > (SELECT AVG(Salary) FROM Employee) 
+  AND d.Department_name = 'IT';
+
+Query 2: Find the names (first_name, last_name), the salary of the employees who earn the same salary as the minimum salary for all departments.
+
+SELECT e.First_name, e.Last_name, e.Salary
+FROM Employee e
+JOIN Departments d ON e.Department_id = d.Department_id
+WHERE e.Salary = (SELECT MIN(Salary) FROM Employee WHERE Department_id = d.Department_id);
+
+Query 3: Display the employee ID, first name, last names, salary of all employees whose salary is above average for their departments.
+
+SELECT e.Employee_id, e.First_name, e.Last_name, e.Salary
+FROM Employee e
+JOIN Departments d ON e.Department_id = d.Department_id
+WHERE e.Salary > (SELECT AVG(Salary) FROM Employee WHERE Department_id = e.Department_id);
+
+Query 4: Display the department name, manager name, and city.
+
+SELECT d.Department_name, m.Manager_name, l.City
+FROM Departments d
+JOIN Manager m ON d.Manager_id = m.Manager_id
+JOIN Locations l ON d.Location_id = l.Location_id;
+
+Query 5: Display the name (first_name, last_name), hire date, salary of all managers whose experience is more than 15 years.
+
+SELECT e.First_name, e.Last_name, e.Hire_date, e.Salary
+FROM Employee e
+WHERE e.Manager_id IS NOT NULL
+  AND e.Hire_date < CURDATE() - INTERVAL 15 YEAR;
+
+<======================================================================================================================================================================================================================================================>
+
+Problem Statement 14 (JOINS & SUBQUERIES USING MYSQL)
+Consider Following Schema
+Employee (Employee_id, First_name, last_name , hire_date, salary, Job_title, manager_id, department_id) Departments(Department_id, Department_name, Manager_id, Location_id)
+Locations(location_id ,street_address ,postal_code, city, state, country_id) Manager(Manager_id, Manager_name)
+Create the tables with referential integrity. Solve following queries using joins and subqueries.
+1. Write a query to find the names (first_name, last_name) and the salaries of the employees who have a higher salary than the employee whose last_name=''Singh”.
+2. Write a query to find the names (first_name, last_name) of the employees who have a manager and work for a department based in the United States.
+3. Write a query to find the names (first_name, last_name), the salary of the employees whose salary is greater than the average salary.
+4. Write a query to find the employee id, name (last_name) along with their manager_id, manager name (last_name).
+5. Find the names and hire date of the employees who were hired after 'Jones'.
+
+solution : 
+
+-- Create Manager table
+CREATE TABLE Manager (
+    Manager_id INT PRIMARY KEY,
+    Manager_name VARCHAR(50)
+);
+
+-- Create Locations table
+CREATE TABLE Locations (
+    Location_id INT PRIMARY KEY,
+    Street_address VARCHAR(100),
+    Postal_code VARCHAR(10),
+    City VARCHAR(50),
+    State VARCHAR(50),
+    Country_id INT
+);
+
+-- Create Departments table with foreign key references to Manager and Locations
+CREATE TABLE Departments (
+    Department_id INT PRIMARY KEY,
+    Department_name VARCHAR(50),
+    Manager_id INT,
+    Location_id INT,
+    FOREIGN KEY (Manager_id) REFERENCES Manager(Manager_id),
+    FOREIGN KEY (Location_id) REFERENCES Locations(Location_id)
+);
+
+-- Create Employee table with foreign key references to Departments and Manager
+CREATE TABLE Employee (
+    Employee_id INT PRIMARY KEY,
+    First_name VARCHAR(50),
+    Last_name VARCHAR(50),
+    Hire_date DATE,
+    Salary DECIMAL(10, 2),
+    Job_title VARCHAR(50),
+    Manager_id INT,
+    Department_id INT,
+    FOREIGN KEY (Manager_id) REFERENCES Manager(Manager_id),
+    FOREIGN KEY (Department_id) REFERENCES Departments(Department_id)
+);
+
+-- Insert data into Manager table
+INSERT INTO Manager (Manager_id, Manager_name) VALUES (1, 'John Doe');
+INSERT INTO Manager (Manager_id, Manager_name) VALUES (2, 'Jane Smith');
+
+-- Insert data into Locations table
+INSERT INTO Locations (Location_id, Street_address, Postal_code, City, State, Country_id) 
+VALUES (1, '123 Main St', '12345', 'New York', 'NY', 1);
+INSERT INTO Locations (Location_id, Street_address, Postal_code, City, State, Country_id) 
+VALUES (2, '456 Oak Rd', '67890', 'Los Angeles', 'CA', 1);
+
+-- Insert data into Departments table
+INSERT INTO Departments (Department_id, Department_name, Manager_id, Location_id) 
+VALUES (1, 'HR', 1, 1);
+INSERT INTO Departments (Department_id, Department_name, Manager_id, Location_id) 
+VALUES (2, 'Engineering', 2, 2);
+
+-- Insert data into Employee table
+INSERT INTO Employee (Employee_id, First_name, Last_name, Hire_date, Salary, Job_title, Manager_id, Department_id) 
+VALUES (1, 'Alice', 'Singh', '2020-03-15', 60000, 'HR Manager', 1, 1);
+INSERT INTO Employee (Employee_id, First_name, Last_name, Hire_date, Salary, Job_title, Manager_id, Department_id) 
+VALUES (2, 'Bob', 'Johnson', '2019-08-23', 75000, 'Software Engineer', 2, 2);
+INSERT INTO Employee (Employee_id, First_name, Last_name, Hire_date, Salary, Job_title, Manager_id, Department_id) 
+VALUES (3, 'Charlie', 'Brown', '2021-01-12', 80000, 'Software Engineer', 2, 2);
+INSERT INTO Employee (Employee_id, First_name, Last_name, Hire_date, Salary, Job_title, Manager_id, Department_id) 
+VALUES (4, 'David', 'Lee', '2021-05-10', 55000, 'HR Associate', 1, 1);
+INSERT INTO Employee (Employee_id, First_name, Last_name, Hire_date, Salary, Job_title, Manager_id, Department_id) 
+VALUES (5, 'Eva', 'White', '2022-07-22', 62000, 'HR Specialist', 1, 1);
+
+1. Find the names (first_name, last_name) and the salaries of the employees who have a higher salary than the employee whose last_name = 'Singh'.
+
+SELECT e.First_name, e.Last_name, e.Salary
+FROM Employee e
+WHERE e.Salary > (SELECT Salary FROM Employee WHERE Last_name = 'Singh');
+
+2. Find the names (first_name, last_name) of the employees who have a manager and work for a department based in the United States.
+
+SELECT e.First_name, e.Last_name
+FROM Employee e
+JOIN Departments d ON e.Department_id = d.Department_id
+JOIN Locations l ON d.Location_id = l.Location_id
+WHERE e.Manager_id IS NOT NULL
+AND l.Country_id = 1;  -- Assuming '1' represents the United States
+
+3. Find the names (first_name, last_name), and the salary of the employees whose salary is greater than the average salary.
+
+SELECT e.First_name, e.Last_name, e.Salary
+FROM Employee e
+WHERE e.Salary > (SELECT AVG(Salary) FROM Employee);
+
+4. Find the employee ID, name (last_name) along with their manager_id and manager name (last_name).
+
+SELECT e.Employee_id, e.Last_name, e.Manager_id, m.Manager_name
+FROM Employee e
+JOIN Manager m ON e.Manager_id = m.Manager_id;
+
+5. Find the names and hire date of the employees who were hired after 'Jones'.
+
+SELECT e.First_name, e.Last_name, e.Hire_date
+FROM Employee e
+WHERE e.Hire_date > (SELECT Hire_date FROM Employee WHERE Last_name = 'Jones');
